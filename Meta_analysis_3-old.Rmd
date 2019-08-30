@@ -1,0 +1,200 @@
+---
+title: "Meta-analysis course Day 1: part 3"
+author: "Thomas Pollet (@tvpollet), Northumbria University"
+date: "`r format(Sys.Date())` | [disclaimer](http://tvpollet.github.io/disclaimer)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+  csl: evolution-and-human-behavior.csl
+  bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+```{r, load_refs, echo=FALSE, cache=FALSE, warning=F, results='hide', message=F}
+library(RefManageR)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           cite.style = 'alphabetic',
+           hyperlink = FALSE,
+           dashed = FALSE,
+           style = "html")
+myBib <- ReadBib("./myBib.bib", check = FALSE)
+```
+
+---
+## Outline Course.
+
+* Summarizing effect size distributions.
+
+---
+## Structure
+
+* Problem: how to combine studies
+* Models of summarizing effect-size distributions
+* Random-effects model
+* Fixed-effect model
+* Distinction between fixed- and random-effects
+* Deciding between fixed vs. random effect models
+
+---
+## Modeling study outcomes I
+
+* In this section we discuss how to summarize (combine) effect sizes computed for each study.
+* The mean effect size is computed by applying a weighting scheme.
+* The majority of such analyses are weighted least squares (WLS); in a univariate meta-analysis we simply calculate a weighted arithmetic mean.
+* Weighting schemes will vary depending on the specific  model that we adopt (and "our assumptions"  of the world).
+
+---
+## Modeling study outcomes II
+
+- 2 main reasons to use weights in meta-analysis:
+  * Assumption of equal variances typically violated (i.e., heteroscedasticity)
+  * Larger studies (i.e., those with larger sample sizes) should receive more importance than small studies.
+
+- Criterions for choosing a particular weighting scheme:
+  * Statistical test(s).
+  * Conceptual/theoretical reasoning.
+  * Generalization.
+
+---
+## Modeling study outcomes III
+
+* Let $T_1...T_k$ be estimates of effect sizes (e.g, _d_, or Pearson _r_) from _k_ independent studies, where each $T_i$ is an estimate of the 'true' effect size ( $\theta_i$).
+* Thus, we will have one effect size (Ti ) for each study and these effect sizes are considered to be statistically independent (!).
+* Our goal is to model the study outcome across those studies (estimate the means of $\theta_i$ ).
+
+---
+## Modeling study outcomes IV (Weiss & Daikeler,2017:191).
+
+```{r, out.width = "600px", echo=FALSE, fig.align='center'}
+knitr::include_graphics("Weiss.png") # Weiss & Daikeler 2017
+```
+
+---
+## Notation
+
+FINISH
+
+- $\theta_i$ is the population parameter for study _i_ (and $T_i is its estimate)
+- $\theta$ is the single population parameter ($\theta_1 = \theta_2 = ... = \theta$)
+- $\mu$ is the mean of the effect-size distribution (the mean population effect size) for all $\theta_i$.
+- $e_i$ or $\epsilon_i$ is within-study error variation.
+- ${\sigma_i^2}$ is the sample variance for effect size _i_
+- $u_i$ is the between-studies error
+- $\tau^2$ is the variance of the effect size distribution
+
+---
+## Random effects model
+
+FINISH - continue slide 194.
+
+The random-effects model acknowledges two sources of
+variation:
+1. within-study sampling error (2 i ) and
+2. between-studies variability ( 2) (e.g., due to varying study
+characteristics).
+The random-effects model can be represented as
+
+---
+## Fixed effects model
+
+---
+## Technical issues
+
+- Extreme N studies
+- Negative residual variance
+- Effect size independence
+
+
+
+
+---
+## Any Questions?
+
+[http://tvpollet.github.io](http://tvpollet.github.io)
+
+Twitter: @tvpollet
+
+```{r, out.width = "600px", echo=FALSE, fig.align='center'}
+knitr::include_graphics("https://media.giphy.com/media/3ohzdRoOp1FUYbtGDu/giphy.gif")
+```
+
+---
+## Acknowledgments
+
+* Numerous students and colleagues. Any mistakes are my own.
+
+* My colleagues who helped me with regards to meta-analysis Nexhmedin Morina, Stijn Peperkoorn, Gert Stulp, Mirre Simons, Johannes Honekopp.
+
+* HBES for funding this Those who have funded me (not these studies per se): [NWO](www.nwo.nl), [Templeton](www.templeton.org), [NIAS](http://nias.knaw.nl).
+
+* You for listening!
+
+```{r, out.width = "300px", echo=FALSE, fig.align='center'}
+knitr::include_graphics("https://media.giphy.com/media/10avZ0rqdGFyfu/giphy.gif")
+```
+
+```{r, echo=F, warning=F,results='hide'}
+Citet(myBib, "Aloe2013")
+Citet(myBib, "Barendregt2013")
+Citet(myBib, "Becker2007")
+Citet(myBib, "Borenstein2009")
+Citet(myBib, "Chen2013a")
+Citet(myBib, "Cooper2009")
+Citet(myBib, "Cooper2009b")
+Citet(myBib, "Cooper2010")
+Citet(myBib, "Crawley2013")
+Citet(myBib, "Cumming2014")
+Citet(myBib, "Fisher1946")
+Citet(myBib, "Flore2015")
+Citet(myBib, "Goh2016")
+Citet(myBib, "Glass1976")
+Citet(myBib, "Harrer2019")
+Citet(myBib, "Hayes2007")
+Citet(myBib, "Hedges1980")
+Citet(myBib, "Hedges1981")
+Citet(myBib, "Hirschenhauser2006")
+Citet(myBib, "Jacobs2016")
+Citet(myBib, "Koricheva2013")
+Citet(myBib, "Kovalchik2013")
+Citet(myBib, "Lipsey2001")
+Citet(myBib, "Littell2008")
+Citet(myBib, "Methley2014")
+Citet(myBib, "Morina2018")
+Citet(myBib, "Nakagawa2017")
+Citet(myBib, "Popper1959")
+Citet(myBib, "Roberts2006")
+Citet(myBib, "Rosenberg2013")
+Citet(myBib, "Schwarzer2015")
+Citet(myBib, "Schwarzer2019")
+Citet(myBib, "Yeaton1993")
+Citet(myBib, "Viechtbauer2015")
+Citet(myBib, "Weiss2017")
+Citet(myBib, "Wickham2016")
+Citet(myBib, "Wiernik2015")
+Citet(myBib, "Wingfield1990")
+```
+
+---
+## References and further reading
+
+```{r, 'refs', results='asis', echo=FALSE, warning=F}
+PrintBibliography(myBib, start=1, end=5)
+```
+---
+## More refs.
+
+```{r, 'more refs', results='asis', echo=FALSE, warning=F}
+PrintBibliography(myBib, start=6, end=10)
+```

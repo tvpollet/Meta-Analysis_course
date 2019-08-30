@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Meta-analysis course Day 1: part 1</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Thomas Pollet (@tvpollet), Northumbria University" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets/htmlwidgets.js"></script>
+    <script src="libs/viz/viz.js"></script>
+    <link href="libs/DiagrammeR-styles/styles.css" rel="stylesheet" />
+    <script src="libs/grViz-binding/grViz.js"></script>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Meta-analysis course Day 1: part 1
+### Thomas Pollet (<span class="citation">@tvpollet</span>), Northumbria University
+### 2019-05-31 | <a href="http://tvpollet.github.io/disclaimer">disclaimer</a>
+
+---
+
+
+
+
+
+
+---
+## Outline for today.
+
+* What is a systematic review / meta-analysis?
+
+* Baby steps in RStudio / R.
+
+---
+## Sources used.
+
+Can be found at end of slides.
+
+&lt;img src="Koricheva.jpg" width="300px" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+## Need for synthesis.
+
+* Textbook examples. Problematic.
+
+--&gt; Synthesis.
+
+Types of synthesis:
+
+* Narrative review.
+* Vote counting.
+* Combining probabilities.
+* Systematic reviews: Qualitative and Quantitative (contains a Meta-analysis)
+
+---
+## Narrative reviews.
+
+Generally invited contributions by experts (e.g., _TREE, Phil. Trans. B., Annual Review of X_)
+
+Some quite narrow in scope, some quite comprehensive and large.
+
+Covered papers could range from dozens to hundreds.
+
+Useful for perspectives, historical development refining concepts. But by no means complete ('systematic').
+
+---
+## Drawbacks of narrative reviews.
+
+Traditional narrative reviews are biased:
+
+  - Convenience sample
+  - Inefficient handling of large and complex information (variation in outcome measure). At best a large table.
+  - Hard to reconstruct. Roberts et al. (2006) analysed 73 reviews in the area of conservation management, only 30% reported which sources were consulted for the review (N=73). Thus, likely reflects reviewer bias,... .
+  - Typical focus on dichotomous statistical significance testing (blinded by _p_ values). Effect found or not. (Publication bias)
+
+---
+## Vote counting.
+
+In its simplest form, 3 categories : Significant + / Non-significant / Significant - . Alternative forms: linear + , linear -, curvilinear (different shapes possible), ... , no effect.
+
+Advantage: simple/broadly applicable.
+
+Disadvantages:
+
+- How to handle variability in outcomes?
+- one vote counts the same for N=10 vs. N=1000
+- no information on magnitude of effect
+- low power for small effect
+- statistical power decreases as more studies are added (?!, Hedges &amp; Olkin (1980))
+
+--&gt; Formal systematic reviews and meta-analysis are better.
+
+---
+## Combining probabilities.
+
+Exists since Fisher (1946). Quite popular in social sciences.
+
+Basically tallying _p_ values. Most common is summing across a normal distribution
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="Youngronaldfisher2.jpg" alt="Ronald Fisher (1913)" width="600px" /&gt;
+&lt;p class="caption"&gt;Ronald Fisher (1913)&lt;/p&gt;
+&lt;/div&gt;
+---
+## Combining probabilities: Strengths and weaknesses
+
+A plus is that it is broadly applicable (widespread use of _p_ values).
+
+Solves some of the issues with vote counting: _p_ = .04 and _p_ = .06 . However, as with vote counting not very informative.
+
+Small _p_ value large effect (but uncertain?) or large sample size (with small effect size)
+
+Too liberal, if many tests and one low _p_ nearly always significant (Cooper, 2010:160)
+
+---
+## Systematic review
+
+[Cochrane](https://consumers.cochrane.org/what-systematic-review): _A systematic review summarises the results of available carefully designed healthcare studies (controlled trials) and provides a high level of evidence on the effectiveness of healthcare interventions. Judgments may be made about the evidence and inform recommendations for healthcare_
+
+Systematic, structured and objective.
+
+Documentation of all research steps (literature retrieval, data entry, coding, etc.) and relevant decisions
+
+---
+## Comparison of methods
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="Table1.1_Koricheva.png" alt="Comparison of methods by Koricheva et al. 2013" width="600px" /&gt;
+&lt;p class="caption"&gt;Comparison of methods by Koricheva et al. 2013&lt;/p&gt;
+&lt;/div&gt;
+
+---
+## Systematic reviews.
+
+Most useful when:
+
+* there is a substantive research question.
+
+* several empirical studies have been published. (Sometimes a mini-)
+
+* there is uncertainty about the results.
+
+Does not always contain a meta-analysis.
+
+---
+## Definitions (from Petticrew &amp; Roberts)
+
+**Systematic (literature) review**
+
+"A review that strives to comprehensively identify, appraise, and synthesize all the relevant studies on a given topic. Systematic
+reviews are often used to test just a single hypothesis, or a series of related hypothesis."
+
+**Meta-analysis**
+
+"A review that uses a specific statistical technique for synthesizing the results of several studies into a single
+quantitative estimate (i.e. a summary effect size)" ([Petticrew &amp; Roberts, 2006](https://books.google.co.uk/books?id=ZwZ1_xU3E80C&amp;lpg=PR5&amp;ots=wYT6sNGQMu&amp;dq=petticrew%20roberts&amp;lr&amp;pg=PR5#v=onepage&amp;q=petticrew%20roberts&amp;f=false).
+
+---
+## What is the relationship between a systematic review and meta-analysis
+
+* Remember qualitative systematic reviews also exist.
+
+* The term (quantitative) research synthesis or (quantitative) systematic review denotes the entire research process, which has qualitative as well as quantitative elements.
+
+*  The quantitative part of a (quantitative) systematic review is called a meta-analysis.
+
+* You don't need a systematic review in order to have a meta-analysis (but recommended) --&gt; example mini-meta-analysis within a paper (Cumming et al., 2014; [Goh et al. 2016](https://www.northeastern.edu/socialinteractionlab/wp-content/uploads/2016/10/goh.etal_.2016.SPPC_.pdf))
+
+&lt;img src="https://media.giphy.com/media/l4FGw4d101Sa0pGTe/giphy.gif" width="250px" style="display: block; margin: auto;" /&gt;
+
+---
+## Purpose... .
+
+What is a systematic review (/meta-analysis) for?
+
+* Describe the existence (or prevalence) of phenomenon (e.g., [prevalence of PTSD](https://tvpollet.github.io/pdfs/Morina_et_al_2018.pdf), Morina et al. (2018))
+
+* Exploration: explore a research (e.g., compile a list of risks for job loss)
+
+* Formally evaluate hypotheses (e.g., "the challenge hypothesis" ([Wingfield et al., 1990](https://www.reed.edu/biology/professors/srenn/pages/teaching/2008_syllabus/2008_readings/9_wingfield_etal_1990.pdf)) - [Varying androgen responses to mating, breeding or territorial behaviour in avian males?](https://www.sciencedirect.com/science/article/pii/S0003347205003623)
+
+* to formally evaluate (medical, social, educational) interventions. For example, [stereotype threat and performance in girls](https://daneshyari.com/article/preview/363552.pdf)
+
+---
+## What is a meta-analysis?
+
+Karl Popper (1959): _"Non-reproducible single occurrences are of no significance to science."_
+
+Gene Glass (1976, p.3): _"An analysis of analyses, I use it to refer to the statistical analysis of a large collection on analysis results from individual studies for the purpose of integrating the findings"_
+
+--
+
+Studies addressing a common research question are 'synthesized'.
+
+Synthesizing:
+
+* describing the quality of the sample (e.g., in terms of selection bias).
+
+* calculating an overall outcome statistic (e.g, Pearson _r_, odds ratio)
+
+* determining and describing the amount of heterogeneity in the outcome statistics.
+
+* trying to explain the above heterogeneity by means of, for example, meta-regression.
+
+--
+
+In sum: Meta-analysis --&gt; A class of statistical techniques.
+
+---
+## Superiority of meta-analysis.
+
+Research synthesis is superior for summarising results:
+
+* Outcomes of many studies are reduced to few numbers;
+* but still accounting for potential heterogeneity of the studies.
+
+Dealing with heterogeneous study findings:
+
+* Describe amount of heterogeneity.
+
+* Study characteristics can be potential predictors to explain heterogeneity among study results (e.g., research design, sample characteristics).
+
+---
+## Evidence based movement
+
+&lt;img src="EBMupdated.jpg" width="600px" style="display: block; margin: auto;" /&gt;
+
+---
+## Types of meta-analysis.
+
+We can categorise based on:
+
+* Study design: experimental, quasi-experimental, observational
+
+* Individual patient data (IPD, raw data available) vs. aggregated patient data (APD, based on publications)
+
+--&gt; IPD is preferred (e.g., able to directly assess data quality, [Cooper &amp; Patall, 2009](https://www.ncbi.nlm.nih.gov/pubmed/19485627))
+
+---
+## Common Criticisms.
+
+* Apples and oranges: Interest lays in 'fruit salad' / Heterogeneity
+
+* _Garbage in / Garbage out_ : Meta-analysis is nothing more than waste management? Solution: Systematically examine the quality of studies (coding) and examine differences in outcomes.
+
+* Missing data / publication bias: Affects _any_ kind of research. Meta-analysis allows for methods addressing these problems.
+
+---
+## Common Myths about meta-analysis (Littell et al. 2001)
+
+* Meta-analyses require a medical perspective and require experimental data on treatments (RCT) --&gt; False. (e.g., meta-analysis on observed correlations, prevalence, etc.)
+
+* Meta-analyses require large number of studies and/or large sample sizes --&gt; False. Sometimes just 2(!)
+
+---
+## Golden standards in systematic reviews / meta-analyis.
+
+Not many do so in (Evolutionary) Psychology and related fields.
+
+* [Cochrane collaboration](https://www.cochrane.org/) in medicine.
+* [Campbell collaboration](https://campbellcollaboration.org/) covers policy (social sciences). Publishes Campbell Systematic Reviews (expected to be updated min. every 3 years).
+* [PROSPERO](https://www.crd.york.ac.uk/prospero/) register for prospective reviews relating to health ([Booth et al., 2011](https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(10)60903-8/fulltext)). Example [here](https://www.crd.york.ac.uk/prospero/display_record.php?RecordID=32695)
+* [PRISMA guidelines](http://prisma-statement.org/). Detailed [checklist](http://prisma-statement.org/documents/PRISMA%202009%20checklist.pdf)
+
+
+&lt;img src="https://media.giphy.com/media/l0HlKB7bThU9CzTqM/giphy.gif" width="600px" style="display: block; margin: auto;" /&gt;
+
+
+---
+## Steps in a meta-analyis.
+
+Overview and then we'll zoom in on some steps,... .
+
+7 steps according to Cooper (2010:12-ff):
+
+* Formulating the problem
+* Searching the literature
+* Gathering information from studies
+* Evaluating the quality of studies
+* Analyzing and integrating the outcomes of studies
+* Interpreting the evidence
+* Presenting the results
+
+---
+## Formulating the problem.
+
+**Q**: What evidence will be relevant to the key hypothesis in the meta-analysis?
+
+--
+
+**A** Define:
+
+- Variables of interest.
+- research designs
+- historical (everything or since X), geographical, theoretical context.
+
+--&gt; discriminate relevant from irrelevant.
+
+--
+
+Procedural variations can lead to relevant/irrelevant or included but tested for moderating influence.
+
+--&gt; Example: *[Red and attractiveness](https://journals.sagepub.com/doi/full/10.1177/1474704916673841)*.
+
+---
+## PICOS
+
+**P**opulation **I**ntervention **C**omparison **O**utcome **S**tudy Type
+
+**S**ample **P**henomon of **I**nterest **D**esign **E** **R**esearch type ([Methley et al. 2014](https://bmchealthservres.biomedcentral.com/articles/10.1186/s12913-014-0579-0))
+
+---
+## Searching the literature
+
+**Q**: What procedures do we use to find the relevant literature?
+
+**A** Identify: (a) Sources (journals/databases) (b) Search terms.
+
+Again procedural variations can lead to differences between researchers.
+
+
+---
+## Gather information from studies
+
+**Q**: Which information from each study is relevant to the research question of interest?
+
+**A**: Collect relevant information reliably
+
+Recurring theme: Procedural variations might lead to differing conclusions between researchers due to (a) what information is gathered (b) difference in coding (especially when multiple coders) (c) deciding on independence of studies (d) specificity of data needed.
+
+---
+## Gathering information from papers.
+
+* Typically takes 9 to 24 months time to do a systematic review (estimate from [Centre for Reviews and Dissemination at York](https://www.york.ac.uk/crd/)).
+
+* Guidelines [PRISMA](http://www.equator-network.org/reporting-guidelines/prisma/) (from the EQUATOR network).
+
+* Best practice: [PRISMA checklist](http://prisma-statement.org/documents/PRISMA%202009%20checklist.pdf)
+
+---
+## Evaluating research results.
+
+**Q**: What research should be included based on the suitability of research methods used and any issues (e.g., DV not measured accurately)
+
+**A**: Identify and apply criteria on which studies should be included or not. (e.g., include only studies on conscious evaluation and not on priming)
+
+Again, procedural variations might influence which studies remain included and which are not.
+
+---
+## Analyzing and integrating the outcomes of studies.
+
+**Q**: How should we combine and summarise the research results?
+
+**A** Decide on how to combine results across studies and how to test for substantial differences between studies.
+
+Surprise: There could be variations... (i.e., choice of effect size measure)
+
+---
+## Interpreting the evidence.
+
+**Q**: What conclusions can be drawn based on the compiled research evidence?
+
+**A**: Summarize the cumulative research evidence in temrs of strength, generality, and limitations.
+
+Variation between researchers in labelling results as important and attention to variation between studies in attention to detail.
+
+---
+## Presenting the results
+
+**Q**: What information needs to be included in the write-up of the report.
+
+**A**: Follow journal guidelines and determine what methods / results readers of the paper will have to know. ([OSF](http://osf.io) for everything.)
+
+Variation in reporting exists and could have consequences on how much other researchers trust your report and the degree to which they can reconstruct your findings.
+
+---
+## Steps in a meta-analyis.
+
+Overview and then we'll zoom in on some steps,... .
+
+7 steps according to Cooper (2010:12-ff):
+
+* Formulating the problem
+* Searching the literature
+* **Gathering information from studies**
+* Evaluating the quality of studies
+* Analyzing and integrating the outcomes of studies
+* Interpreting the evidence
+* Presenting the results
+
+---
+## Coding.
+
+Coding scheme.
+
+Purpose:
+* Express study results in a standardized form
+* Find predictors which could explain variation in study outcomes
+* Anticipate "reviewer 2" and code what you need to address possible criticisms of your review.
+
+&lt;img src="Reviewer2.jpg" width="300px" style="display: block; margin: auto;" /&gt;
+
+---
+## What can be coded?
+
+Information on:
+
+* Outcome measures (e.g., effect size)
+* Characteristics of study design / sample (e.g., Number of women, year of publication, ... ).
+* Coding process itself.
+
+&lt;img src="https://media.giphy.com/media/3oKIPnAiaMCws8nOsE/giphy.gif" width="300px" style="display: block; margin: auto;" /&gt;
+---
+## Coding outcomes.
+
+Note some redundant:
+
+* Effect size(s)
+* Variable(s)/construct(s) represented in the effect size
+* Subsample information, if relevant (e.g., scores split out by men/women)
+* Sample size(s) (effect size specific)
+* Means or proportions
+* Standard deviations or variances
+* Calculation procedure (effect size specific) (how estimated? transformed?)
+
+---
+## Study descriptors.
+
+Theoretical variables:
+* For example on economic games.
+
+Methods and procedures:
+
+* Sampling procedure
+* Design (e.g., Sexy red effect: manipulation of clothes vs. background)
+* Attrition / Drop out
+
+Descriptors of paper:
+* Publication form (published/unpublished)
+* Publication year
+* Country of publication (WEIRD or not)
+* Study sponsorship
+* ...
+
+---
+## Flow Chart.
+
+Use [this](http://prisma.thetacollaborative.ca/) to do so online.
+
+&lt;img src="PRISMA_2009_flow_diagram.png" width="300px" style="display: block; margin: auto;" /&gt;
+
+---
+## BLABLA
+
+---
+## Software packages.
+
+* [Revman](https://community.cochrane.org/help/tools-and-software/revman-web) software for lit. reviews.
+
+* [CMA](https://www.meta-analysis.com/) --&gt; extensive and good support but "pay to play". Other packages also exist.
+
+* [R](https://cran.r-project.org/) --&gt; Free, reproducible, modifiable for your purposes. [JASP](https://jasp-stats.org) relies on R and can do many of the things I'll cover... .
+
+---
+## I already know R...
+
+If you already know about R and RStudio. Need internet connection for quick install.
+
+
+```r
+install.packages("Rcade")
+library("Rcade")
+games$Pacman
+games$CathTheEgg
+games$`2048`
+games$SpiderSolitaire
+games$Core
+games$CustomTetris
+games$GreenMahjong
+games$Pond
+games$Mariohtml5 # Doesn't work?
+games$BoulderDash # Doesn't work?
+```
+
+---
+## The R environment.
+
+Install [R Studio](https://www.rstudio.com/products/rstudio/download/) and [R](https://cran.r-project.org/). Runs on Windows / Linux / OSX.
+
+
+```r
+install.packages("tidyverse")
+install.packages("meta")
+install.packages("metafor")
+install.packages("RISmed")
+```
+
+Thomas opens RStudio and hopes for the best!
+
+---
+## Support.
+
+* Google is your friend, ... .
+
+* [Stackoverflow](www.stackoverflow.com).
+
+* [Crawley (2013)](ftp://ftp.tuebingen.mpg.de/pub/kyb/bresciani/Crawley%20-%20The%20R%20Book.pdf) / [Wickham &amp; Grolemund (2016)](https://r4ds.had.co.nz/)
+
+&lt;img src="https://media.giphy.com/media/QVxeI5qhmlXAkqaAro/giphy.gif" width="300px" style="display: block; margin: auto;" /&gt;
+---
+## Extremely minimal introduction in R and RMarkdown.
+
+RStudio - New file.
+
+ Click File New --&gt; R markdown.  --&gt; Document---&gt; Html. (Many other options incl. presentations)
+
+ This will be the core in which you will complete your analyses.
+
+ RMarkdown can be rendered in .html / .word / .pdf
+
+---
+## RMarkdown
+
+Press the knit button!
+&lt;img src="samplermarkdown.png" width="700px" /&gt;
+
+---
+## HTML
+
+ Congrats. You generated a webpage!
+
+ The bit between the ticks are R code. The text in between is [Markdown](https://www.markdownguide.org/). A very simple language.
+
+ Occasionally .html or . latex code interspersed.
+
+ You can make .pdf but .html is suitable for most purposes... .
+
+ If you want to make PDFs you'll need a latex distribution. On Windows, you need Miktex, installed here in the lab. On OSX, MacTeX. On Linux, TexLive.
+
+ More info [here](https://www.latex-project.org/get/).
+
+---
+## First coding ever.
+
+&lt;img src="http://i0.kym-cdn.com/entries/icons/original/000/021/807/4d7.png" width="200px" /&gt;
+
+Delete what's between the ticks.
+Enter:
+
+- Sys.Date() and Click "Run Current Chunk"
+
+Should give you:
+
+```r
+Sys.Date()
+```
+
+```
+## [1] "2019-05-31"
+```
+
+---
+## Sys.time()
+
+- Sys.time() and Click "Run Current Chunk"
+
+Should give you:
+
+
+```r
+Sys.time()
+```
+
+```
+## [1] "2019-05-31 15:39:48 BST"
+```
+
+---
+## R and RStudio
+R is not really a programme but rather works based on packages. Some basic operations can be done in base R, but mostly we will need packages.
+
+First we install some packages. This can be done via the install.packages command. In RStudio you also have a button to click.
+
+**Thomas shows Rstudio button**
+
+Try installing the 'ggplot2' package via the button.
+
+---
+## Loading a package.
+
+* packages: and then tick ggplot2
+
+* Or:
+
+
+```r
+library(ggplot2) #loading ggplot2
+```
+
+
+```r
+library(ggplot2) #loading ggplot2
+```
+
+'#' to write comments in your code
+
+---
+## R as a calculator. {.build}
+Use ; if you want several operations.
+
+
+```r
+2+3; 5*7; 3-5
+```
+
+```
+## [1] 5
+```
+
+```
+## [1] 35
+```
+
+```
+## [1] -2
+```
+
+---
+## Mathematical functions.
+
+Mathematical functions are shown below (Crawley, 2013:17).
+
+&lt;img src="Figure1_crawley.png" width="700px" /&gt;
+
+---
+## Let's make a variable...
+
+We often want to store things on which we'll do the calculations.
+
+```r
+thomas_age&lt;-37
+```
+
+**IMPORTANT**
+
+ Variable names in R are case sensitive, so Thomas is not the same as thomas.
+
+ Variable names should not begin with numbers (e.g. 2x) or symbols (e.g. %x or $x).
+
+ Variable names should not contain blank spaces (use body_weight or body.weight not body weight).
+
+
+---
+## Object modes (atomic structures)
+ **integer** whole numbers (15, 23, 8, 42, 4, 16)
+
+ **numeric**	real numbers (double precision: 3.14, 0.0002, 6.022E23)
+
+ **character**	text string (“Hello World”, “ROFLMAO”, “DR Pollet”)
+
+ **logical**	TRUE/FALSE or T/F
+
+---
+## Object classes
+
+ **vector**		object with atomic mode
+
+ **factor**		vector object with discrete groups (ordered/unordered)
+
+ **matrix**		2-dimensional array
+
+ **array**		like matrices but multiple dimensions
+
+ **list**		vector of components
+
+ **data.frame**	"matrix –like" list of variables of same # of rows --&gt; **This is the one you care most about.**
+
+Many of the errors you potentially run into have to do with objects being the wrong class. (For example, R is expecting a data.frame, but you are offering it a matrix).
+
+---
+## Assignment, or how to label a vector (or variable)
+
+ **&lt;-** assign, this is to assign a variable. At your own risk you can also use = . [Why?](http://blog.revolutionanalytics.com/2008/12/use-equals-or-arrow-for-assignment.html)
+
+ **c(...)** combine / concatenate
+
+ seq(x) generate a sequence.
+
+ **[]** denotes the position of an element.
+
+---
+## Examples.
+
+
+```r
+# Now let's do some very simple examples.
+seq(1:5) # print a sequence
+```
+
+```
+## [1] 1 2 3 4 5
+```
+
+```r
+thomas_height&lt;-188.5 # in cm
+thomas_height # prints the value.
+```
+
+```
+## [1] 188.5
+```
+
+```r
+# number of coffee breaks in a week
+number_of_coffees_a_week&lt;-c(1,2,0,0,1,4,5)
+number_of_coffees_a_week
+```
+
+```
+## [1] 1 2 0 0 1 4 5
+```
+
+```r
+length(number_of_coffees_a_week) # how many elements
+```
+
+```
+## [1] 7
+```
+
+---
+##
+
+---
+## PRISMA flow chart in R.
+
+
+```r
+library(PRISMAstatement)
+prisma(found = 750,
+       found_other = 123,
+       no_dupes = 776,
+       screened = 776,
+       screen_exclusions = 13,
+       full_text = 763,
+       full_text_exclusions = 17,
+       qualitative = 746,
+       quantitative = 319,
+       width = 800, height = 800)
+```
+---
+## Output chart
+
+&lt;div class="figure" style="text-align: center"&gt;
+<div id="htmlwidget-6cf486734938150fcc41" style="width:500px;height:504px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6cf486734938150fcc41">{"x":{"diagram":"digraph prisma {\n    node [shape=\"box\", fontsize = 10];\n    graph [splines=ortho, nodesep=1, dpi = 72]\n    a -> nodups;\n    b -> nodups;\n    a [label=\"Records identified through\ndatabase searching\n(n = 750)\"];\n    b [label=\"Additional records identified\nthrough other sources\n(n = 123)\"]\n    nodups -> incex;\n    nodups [label=\"Records after duplicates removed\n(n = 776)\"];\n    incex -> {ex; ft}\n    incex [label=\"Records screened\n(n = 776)\"];\n    ex [label=\"Records excluded\n(n = 13)\"];\n    {rank=same; incex ex}\n    ft -> {qual; ftex};\n    ft [label=\"Full-text articles assessed\nfor eligibility\n(n = 763)\"];\n    {rank=same; ft ftex}\n    ftex [label=\"Full-text articles excluded,\nwith reasons\n(n = 17)\"];\n    qual -> quant\n    qual [label=\"Studies included in qualitative synthesis\n(n = 746)\"];\n    quant [label=\"Studies included in\nquantitative synthesis\n(meta-analysis)\n(n = 319)\"];\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;p class="caption"&gt;PRISMA Flow chart&lt;/p&gt;
+&lt;/div&gt;
+
+---
+## Any Questions?
+
+[http://tvpollet.github.io](http://tvpollet.github.io)
+
+Twitter: @tvpollet
+
+&lt;img src="https://media.giphy.com/media/3ohzdRoOp1FUYbtGDu/giphy.gif" width="600px" style="display: block; margin: auto;" /&gt;
+
+---
+## Acknowledgments
+
+* Numerous students and colleagues. Any mistakes are my own.
+
+* My colleagues who helped me with regards to meta-analysis specifically: Nexhmedin Morina, Stijn Peperkoorn, Gert Stulp, Mirre Simons, Johannes Honekopp.
+
+* [HBES](www.hbes.com) for funding this Those who have funded me (not these studies per se): [NWO](www.nwo.nl), [Templeton](www.templeton.org), [NIAS](http://nias.knaw.nl).
+
+* You for listening!
+
+&lt;img src="https://media.giphy.com/media/10avZ0rqdGFyfu/giphy.gif" width="300px" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+## References and further reading
+
+&lt;p&gt;&lt;cite&gt;Borenstein, M., L. V. Hedges, J. P. Higgins, et al.
+(2011).
+&lt;em&gt;Introduction to Meta-Analysis&lt;/em&gt;.
+John Wiley &amp;amp; Sons.
+ISBN: 1-119-96437-7.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Chen, D. D. and K. E. Peace
+(2013).
+&lt;em&gt;Applied Meta-Analysis with R&lt;/em&gt;.
+Chapman and Hall/CRC.
+ISBN: 1-4665-0600-8.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cooper, H.
+(2010).
+&lt;em&gt;Research Synthesis and Meta-Analysis: A Step-by-Step Approach&lt;/em&gt;.
+4th.
+Sage publications.
+ISBN: 1-4833-4704-4.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cooper, H., L. V. Hedges, and J. C. Valentine
+(2009).
+&lt;em&gt;The Handbook of Research Synthesis and Meta-Analysis&lt;/em&gt;.
+New York: Russell Sage Foundation.
+ISBN: 1-61044-138-9.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cooper, H. and E. A. Patall
+(2009).
+&amp;ldquo;The Relative Benefits of Meta-Analysis Conducted with Individual Participant Data versus Aggregated Data.&amp;rdquo;
+In: &lt;em&gt;Psychological Methods&lt;/em&gt; 14.2, pp. 165-176.
+ISSN: 1433806886.
+DOI: &lt;a href="https://doi.org/10.1037/a0015565"&gt;10.1037/a0015565&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+---
+## More refs 1.
+
+&lt;p&gt;&lt;cite&gt;Crawley, M. J.
+(2013).
+&lt;em&gt;The R Book: Second Edition&lt;/em&gt;.
+New York, NY: John Wiley &amp;amp; Sons.
+ISBN: 1-118-44896-0.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cumming, G.
+(2014).
+&amp;ldquo;The New Statistics&amp;rdquo;.
+In: &lt;em&gt;Psychological Science&lt;/em&gt; 25.1, pp. 7-29.
+ISSN: 0956-7976.
+DOI: &lt;a href="https://doi.org/10.1177/0956797613504966"&gt;10.1177/0956797613504966&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Fisher, R. A.
+(1946).
+&lt;em&gt;Statistical Methods for Research Workers&lt;/em&gt;.
+10th ed.
+Edinburgh, UK: Oliver &amp;amp; Boyd.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Flore, P. C. and J. M. Wicherts
+(2015).
+&amp;ldquo;Does Stereotype Threat Influence Performance of Girls in Stereotyped Domains? A Meta-Analysis&amp;rdquo;.
+In: &lt;em&gt;Journal of School Psychology&lt;/em&gt; 53.1, pp. 25-44.
+ISSN: 0022-4405.
+DOI: &lt;a href="https://doi.org/10.1016/j.jsp.2014.10.002"&gt;10.1016/j.jsp.2014.10.002&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Glass, G. V.
+(1976).
+&amp;ldquo;Primary, Secondary, and Meta-Analysis of Research&amp;rdquo;.
+In: &lt;em&gt;Educational researcher&lt;/em&gt; 5.10, pp. 3-8.
+ISSN: 0013-189X.
+DOI: &lt;a href="https://doi.org/10.3102/0013189X005010003"&gt;10.3102/0013189X005010003&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+---
+## More refs 2.
+
+&lt;p&gt;&lt;cite&gt;Goh, J. X., J. A. Hall, and R. Rosenthal
+(2016).
+&amp;ldquo;Mini Meta-Analysis of Your Own Studies: Some Arguments on Why and a Primer on How&amp;rdquo;.
+In: &lt;em&gt;Social and Personality Psychology Compass&lt;/em&gt; 10.10, pp. 535-549.
+ISSN: 1751-9004.
+DOI: &lt;a href="https://doi.org/10.1111/spc3.12267"&gt;10.1111/spc3.12267&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Harrer, M., P. Cuijpers, and D. D. Ebert
+(2019).
+&lt;em&gt;Doing Meta-Analysis in R: A Hands-on Guide&lt;/em&gt;.
+DOI: &lt;a href="https://doi.org/10.5281/zenodo.2551803"&gt;10.5281/zenodo.2551803&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Hedges, L. V. and I. Olkin
+(1980).
+&amp;ldquo;Vote-Counting Methods in Research Synthesis.&amp;rdquo;
+In: &lt;em&gt;Psychological bulletin&lt;/em&gt; 88.2, pp. 359-369.
+ISSN: 1939-1455.
+DOI: &lt;a href="https://doi.org/10.1037/0033-2909.88.2.359"&gt;10.1037/0033-2909.88.2.359&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Hirschenhauser, K. and R. F. Oliveira
+(2006).
+&amp;ldquo;Social Modulation of Androgens in Male Vertebrates: Meta-Analyses of the Challenge Hypothesis&amp;rdquo;.
+In: &lt;em&gt;Animal Behaviour&lt;/em&gt; 71.2, pp. 265-277.
+ISSN: 0003-3472.
+DOI: &lt;a href="https://doi.org/10.1016/j.anbehav.2005.04.014"&gt;10.1016/j.anbehav.2005.04.014&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Koricheva, J., J. Gurevitch, and K. Mengersen
+(2013).
+&lt;em&gt;Handbook of Meta-Analysis in Ecology and Evolution&lt;/em&gt;.
+Princeton, NJ: Princeton University Press.
+ISBN: 0-691-13729-3.&lt;/cite&gt;&lt;/p&gt;
+
+---
+## More refs 3.
+
+&lt;p&gt;&lt;cite&gt;Kovalchik, S.
+(2013).
+&lt;em&gt;Tutorial On Meta-Analysis In R - R useR! Conference 2013&lt;/em&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Littell, J. H., J. Corcoran, and V. Pillai
+(2008).
+&lt;em&gt;Systematic Reviews and Meta-Analysis&lt;/em&gt;.
+Oxford, UK: Oxford University Press.
+ISBN: 0-19-532654-7.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Methley, A. M., S. Campbell, C. Chew-Graham, et al.
+(2014).
+&amp;ldquo;PICO, PICOS and SPIDER: A Comparison Study of Specificity and Sensitivity in Three Search Tools for Qualitative Systematic Reviews&amp;rdquo;.
+Eng.
+In: &lt;em&gt;BMC health services research&lt;/em&gt; 14, pp. 579-579.
+ISSN: 1472-6963.
+DOI: &lt;a href="https://doi.org/10.1186/s12913-014-0579-0"&gt;10.1186/s12913-014-0579-0&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Morina, N., K. Stam, T. V. Pollet, et al.
+(2018).
+&amp;ldquo;Prevalence of Depression and Posttraumatic Stress Disorder in Adult Civilian Survivors of War Who Stay in War-Afflicted Regions. A Systematic Review and Meta-Analysis of Epidemiological Studies&amp;rdquo;.
+In: &lt;em&gt;Journal of Affective Disorders&lt;/em&gt; 239, pp. 328-338.
+ISSN: 0165-0327.
+DOI: &lt;a href="https://doi.org/10.1016/j.jad.2018.07.027"&gt;10.1016/j.jad.2018.07.027&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Nakagawa, S., D. W. A. Noble, A. M. Senior, et al.
+(2017).
+&amp;ldquo;Meta-Evaluation of Meta-Analysis: Ten Appraisal Questions for Biologists&amp;rdquo;.
+In: &lt;em&gt;BMC Biology&lt;/em&gt; 15.1, p. 18.
+ISSN: 1741-7007.
+DOI: &lt;a href="https://doi.org/10.1186/s12915-017-0357-7"&gt;10.1186/s12915-017-0357-7&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+---
+## More refs 4.
+
+&lt;p&gt;&lt;cite&gt;Popper, K.
+(1959).
+&lt;em&gt;The Logic of Scientific Discovery&lt;/em&gt;.
+London, UK: Hutchinson.
+ISBN: 1-134-47002-9.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Roberts, P. D., G. B. Stewart, and A. S. Pullin
+(2006).
+&amp;ldquo;Are Review Articles a Reliable Source of Evidence to Support Conservation and Environmental Management? A Comparison with Medicine&amp;rdquo;.
+In: &lt;em&gt;Biological conservation&lt;/em&gt; 132.4, pp. 409-423.
+ISSN: 0006-3207.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Schwarzer, G., J. R. Carpenter, and G. Rücker
+(2015).
+&lt;em&gt;Meta-Analysis with R&lt;/em&gt;.
+New York, NY: Springer.
+ISBN: 3-319-21415-2.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Viechtbauer, W.
+(2015).
+&amp;ldquo;Package &amp;lsquo;metafor&amp;rsquo;: Meta-Analysis Package for R&amp;rdquo;.
+&lt;/p&gt;&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Weiss, B. and J. Daikeler
+(2017).
+&lt;em&gt;Syllabus for Course: &amp;ldquo;Meta-Analysis in Survey Methodology&amp;quot;, 6th Summer Workshop (GESIS)&lt;/em&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+---
+## More refs 5.
+
+&lt;p&gt;&lt;cite&gt;Wickham, H. and G. Grolemund
+(2016).
+&lt;em&gt;R for Data Science&lt;/em&gt;.
+Sebastopol, CA: O'Reilly..&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Wiernik, B.
+(2015).
+&lt;em&gt;A Brief Introduction to Meta-Analysis&lt;/em&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Wingfield, J. C., R. E. Hegner, A. M. Dufty Jr, et al.
+(1990).
+&amp;ldquo;The&amp;quot; Challenge Hypothesis&amp;quot;: Theoretical Implications for Patterns of Testosterone Secretion, Mating Systems, and Breeding Strategies&amp;rdquo;.
+In: &lt;em&gt;American Naturalist&lt;/em&gt; 136, pp. 829-846.
+ISSN: 0003-0147.&lt;/cite&gt;&lt;/p&gt;
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+})();
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

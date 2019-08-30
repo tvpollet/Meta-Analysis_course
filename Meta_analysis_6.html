@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Meta-analysis course part 6: Advanced topics.</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Thomas Pollet (@tvpollet), Northumbria University" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Meta-analysis course part 6: Advanced topics.
+### Thomas Pollet (<span class="citation">@tvpollet</span>), Northumbria University
+### 2019-08-28 | <a href="http://tvpollet.github.io/disclaimer">disclaimer</a>
+
+---
+
+
+
+
+
+
+
+
+## Outline of this section.
+
+Advanced topics: 
+
+- Multilevel meta-analysis
+- Meta-SEM
+- Network meta-analysis
+- Machine learning (Metaforest)
+
+
+---
+## 'Multilevel' meta-analysis.
+
+The word "multilevel" into **quotation marks.** 
+
+Yet, every meta-analytic model: a multilevel structure (Pastor &amp; Lazowski, 2018). 
+
+So, we have already fitted multilevel meta-analytic models (maybe even without knowing).
+
+--&gt; Multilevel meta-analytic models in this context: **3 levels**
+
+---
+## Why are meta-analyses multilevel by default?
+
+
+Remember: random effect meta-analysis.
+`$$\hat\theta_k = \mu + \epsilon_k + \zeta_k$$`
+???
+We discussed that the terms `\(\epsilon_k\)` and `\(\zeta_k\)` are introduced in a random-effects model because we assume that there are two sources of variability. The first one is caused by the **sampling error** ($\epsilon_k$) of individual studies, which causes their effect size estimates to deviate from the true effect size `\(\theta_k\)`. The second one, `\(\zeta_k\)` is the between-study heterogeneity caused by the fact that the true effect size of a study `\(k\)` itself is again only part of an **overarching distribution of true effect sizes**, from which the individual true effect size `\(\theta_k\)` was drawn. Our aim in the random-effects model is therefore to estimate the mean of this distribution of true effect sizes, `\(\mu\)`.
+
+---
+## Two error terms
+
+The two error terms correspond with the two levels within our meta-analysis data: the **"participant" level** (level 1) and the **"study" level** (level 2). The figure below symbolizes this structure. In the lower level (level 1), we have the participants (and/or patients). 
+
+In the tradition of multilevel modeling, such data is called **nested data**: in most meta-analyses, one can say that **participants are "nested" within studies**.
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="multilevel-model.png" alt="Illustration of nested structure from Harrer (2019)" width="450px" /&gt;
+&lt;p class="caption"&gt;Illustration of nested structure from Harrer (2019)&lt;/p&gt;
+&lt;/div&gt;
+
+---
+## Formula split
+
+**Level 1 (participants) model:**
+`\begin{equation}
+  \label{eq:1}
+  \hat\theta_k = \theta_k + \epsilon_k
+\end{equation}`
+**Level 2 (studies) model:**
+`\begin{equation}
+  \label{eq:2}
+  \theta_k = \mu + \zeta_k
+\end{equation}`
+
+
+???
+You might have already detected that we can substitute `\(\theta_k\)` in the first equation with its definition in the second equation. What we then get is **exactly the generic formula for the meta-analytic model from before** (even a fixed-effects model can be defined as having a multilevel structure, yet with `\(\zeta_k\)` being zero). Thus, it is evident that the way we define a meta-analytic model already has multilevel properties "built-in", given that we assume that participants are nested within studies in our data.  
+
+---
+## Three-level multilevel meta-analysis.
+
+**Statistical independence** is a key assumptions of meta-analytic pooling. 
+
+If violated, i.e.  effect sizes are correlated, artificially reduction of heterogeneity --&gt; false-positive results.  
+
+Dependence may stem from different sources:
+1.  **Dependence introduced by the authors of the individual studies**. For example, using more than one measure to measure the same construct.
+2.  **Dependence introduced as part of the meta-analysis**. For example, some studies were conducted in Europe, others in Latin America, it would be sensible to account for that non-independence (i.e. a sample from Belgium is more similar to one from the Netherlands than it is to one from Brazil).
+
+???
+We can take such dependencies into account by integrating a **third layer** into the structure of our meta-analysis model. For example, one could model that different questionnaires are nested within studies. Or one could create a model in which studies are nested within cultural regions. This creates a three-level meta-analytic model, as illustrated by the figure below.
+
+---
+## Illustration of 3 level meta-analysis.
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="multilevel-model2.png" alt="Illustration of nested structure from Harrer (2019)" width="450px" /&gt;
+&lt;p class="caption"&gt;Illustration of nested structure from Harrer (2019)&lt;/p&gt;
+&lt;/div&gt;
+
+---
+## Equations
+
+**Level 1 model**
+`$$\hat\theta_{ij} = \theta_{ij} + \epsilon_{ij}$$`
+**Level 2 model**
+`$$\theta_{ij} = \kappa_{j} + \zeta_{(2)ij}$$`
+**Level 3 model**
+`$$\kappa_{j} = \beta_{0} + \zeta_{(3)j}$$`
+Where `\(\theta_{ij}\)` is the **true effect size**, `\(\hat\theta_{ij}\)` its estimator in the `\(i\)`th effect size in cluster `\(j\)`, `\(\kappa_{j}\)` the **average effect size** in `\(j\)` and `\(\beta_0\)` the average population effect. 
+
+We can piece these formulae together and get this:
+`$$\hat\theta_{ij} = \beta_{0} + \zeta_{(2)ij} + \zeta_{(3)j} + \epsilon_{ij}$$`
+
+---
+## Example in `metafor`
+
+More information [here](http://www.metafor-project.org/doku.php/analyses:konstantopoulos2011). Data are part of `metafor` package.
+
+
+```r
+library(metafor)
+Data &lt;- dat.konstantopoulos2011 
+head(Data)
+```
+
+```
+##   district school study year     yi    vi 
+## 1       11      1     1 1976 -0.180 0.118 
+## 2       11      2     2 1976 -0.220 0.118 
+## 3       11      3     3 1976  0.230 0.144 
+## 4       11      4     4 1976 -0.300 0.144 
+## 5       12      1     5 1989  0.130 0.014 
+## 6       12      2     6 1989 -0.260 0.014
+```
+
+???
+4 studies were conducted in district 11, 4 studies in district 12, 3 studies in district 18, and so on. Variables `yi` and `vi` are the standardized mean differences and corresponding sampling variances.
+
+---
+## Konstantopolous (2011) data
+
+* These are data illustrating a pattern from Cooper et al. (2003).
+
+* 56 studies, each comparing the level of academic achievement in a group of students following a modified school calendar with that of a group of students following a more traditional school calendar. The difference between the two groups was quantified as standardized mean difference (positive values: higher mean level of achievement in the group following the modified school calendar).
+
+* Various schools which are clustered in districts --&gt; non-independence. Needs a multilevel structure!
+
+---
+## Our standard (2-level) meta-analysis
+
+
+```r
+standard&lt;-rma(yi,vi,data=Data)
+standard
+```
+
+```
+## 
+## Random-Effects Model (k = 56; tau^2 estimator: REML)
+## 
+## tau^2 (estimated amount of total heterogeneity): 0.0884 (SE = 0.0202)
+## tau (square root of estimated tau^2 value):      0.2974
+## I^2 (total heterogeneity / total variability):   94.70%
+## H^2 (total variability / sampling variability):  18.89
+## 
+## Test for Heterogeneity:
+## Q(df = 55) = 578.8640, p-val &lt; .0001
+## 
+## Model Results:
+## 
+## estimate      se    zval    pval   ci.lb   ci.ub 
+##   0.1279  0.0439  2.9161  0.0035  0.0419  0.2139  ** 
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+---
+## Meta-regression example.
+
+The paper reports. We first calculater
+
+
+```r
+library(dplyr)
+Data &lt;- Data %&gt;% mutate(year_centered = year - mean(year))
+year_centered_mod&lt;- rma(yi, vi, mods = ~ year_centered, data=Data)
+year_centered_mod
+```
+
+```
+## 
+## Mixed-Effects Model (k = 56; tau^2 estimator: REML)
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0.0889 (SE = 0.0205)
+## tau (square root of estimated tau^2 value):             0.2981
+## I^2 (residual heterogeneity / unaccounted variability): 94.71%
+## H^2 (unaccounted variability / sampling variability):   18.89
+## R^2 (amount of heterogeneity accounted for):            0.00%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 54) = 550.2597, p-val &lt; .0001
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 1.3826, p-val = 0.2397
+## 
+## Model Results:
+## 
+##                estimate      se    zval    pval    ci.lb   ci.ub 
+## intrcpt          0.1258  0.0440  2.8593  0.0042   0.0396  0.2120  ** 
+## year_centered    0.0052  0.0044  1.1758  0.2397  -0.0034  0.0138     
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+???
+No significant effect of year, i.e. year is unlikely to explain the heterogeneity found in effect sizes.
+
+---
+## Multilevel meta-analysis (Three level model)
+
+
+```r
+multilevel&lt;-rma.mv(yi, vi, random = ~ 1 | district/study, data=Data)
+multilevel
+```
+
+```
+## 
+## Multivariate Meta-Analysis Model (k = 56; method: REML)
+## 
+## Variance Components:
+## 
+##             estim    sqrt  nlvls  fixed          factor 
+## sigma^2.1  0.0651  0.2551     11     no        district 
+## sigma^2.2  0.0327  0.1809     56     no  district/study 
+## 
+## Test for Heterogeneity:
+## Q(df = 55) = 578.8640, p-val &lt; .0001
+## 
+## Model Results:
+## 
+## estimate      se    zval    pval   ci.lb   ci.ub 
+##   0.1847  0.0846  2.1845  0.0289  0.0190  0.3504  * 
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+???
+Random effects not just for study but also for district.
+
+---
+## Comparing variance across levels
+
+This function from Harrer (2019) based on [Abbink &amp; Willink (2016)](http://www.tqmp.org/RegularArticles/vol12-3/p154/p154.pdf). Modified it for our purposes you can get it [here](INSERT LINK).
+
+
+```r
+require("ggplot2")
+source("variance_distribution.r")
+```
+
+---
+## Result.
+
+
+```r
+result&lt;-variance.distribution.3lm(data = Data,
+                          m = multilevel)
+```
+
+
+```r
+plot(result[[1]])
+```
+
+&lt;img src="Meta_analysis_6_files/figure-html/unnamed-chunk-7-1.svg" width="300px" /&gt;
+
+???
+This returns a ggplot2 object and a dataframe. can't get it to render.
+
+---
+## Result dataframe.
+
+
+```r
+result[[2]]
+```
+
+```
+##            Level % of total variance
+## 1 Sampling error            4.812686
+## 2       District           63.324838
+## 3         School           31.862476
+```
+
+---
+## Intraclass correlation
+
+The three-level model used allows for the underlying true effects within districts to be correlated. 
+Such a model implies an intraclass correlation coefficient (ICC) of 
+
+`$$\rho= \frac{\sigma_{1}^2}{\sigma_{1}^2+\sigma_{2}^2}$$`
+
+for true effects within the same level of the grouping variable 
+
+whereby `\(\sigma_{1}^2\)` is the variance component corresponding to the grouping variable and is the variance component corresponding to the level nested within the grouping variable).
+
+
+```r
+multilevel$sigma2[1] / sum(multilevel$sigma2)
+```
+
+```
+## [1] 0.6652655
+```
+
+???
+The higher ICC, the the more important the higher level (group) factor is. And can be used as a justification for running multilevel models
+
+---
+## Refit a 2 level model.
+
+
+```r
+standard2&lt;-rma.mv(yi, vi, random = ~ 1 | district/study, data=Data, sigma2 = c(0, NA))
+standard2
+```
+
+```
+## 
+## Multivariate Meta-Analysis Model (k = 56; method: REML)
+## 
+## Variance Components:
+## 
+##             estim    sqrt  nlvls  fixed          factor 
+## sigma^2.1  0.0000  0.0000     11    yes        district 
+## sigma^2.2  0.0884  0.2974     56     no  district/study 
+## 
+## Test for Heterogeneity:
+## Q(df = 55) = 578.8640, p-val &lt; .0001
+## 
+## Model Results:
+## 
+## estimate      se    zval    pval   ci.lb   ci.ub 
+##   0.1279  0.0439  2.9161  0.0035  0.0419  0.2139  ** 
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+---
+## Compare models.
+
+Lower is better.
+
+
+```r
+anova(multilevel,standard2)
+```
+
+```
+## 
+##         df     AIC     BIC    AICc   logLik     LRT   pval       QE 
+## Full     3 21.9174 27.9394 22.3880  -7.9587                578.8640 
+## Reduced  2 37.6910 41.7057 37.9218 -16.8455 17.7736 &lt;.0001 578.8640
+```
+
+---
+## Adding a moderator.
+
+
+```r
+multilevel2&lt;-rma.mv(yi, vi, random = ~ 1 | district/study, mods = ~ year_centered, data=Data)
+multilevel2
+```
+
+```
+## 
+## Multivariate Meta-Analysis Model (k = 56; method: REML)
+## 
+## Variance Components:
+## 
+##             estim    sqrt  nlvls  fixed          factor 
+## sigma^2.1  0.0723  0.2688     11     no        district 
+## sigma^2.2  0.0327  0.1807     56     no  district/study 
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 54) = 550.2597, p-val &lt; .0001
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 0.3169, p-val = 0.5735
+## 
+## Model Results:
+## 
+##                estimate      se    zval    pval    ci.lb   ci.ub 
+## intrcpt          0.1783  0.0891  2.0008  0.0454   0.0036  0.3531  * 
+## year_centered    0.0053  0.0094  0.5629  0.5735  -0.0132  0.0238    
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+
+---
+## Different approach via `metaSEM`
+
+
+```r
+require(metaSEM)
+Meta_3&lt;-meta3(y=yi, v=vi, cluster=district, data=Data)
+sink("Metasem.txt")
+summary(Meta_3)
+```
+
+```
+## 
+## Call:
+## meta3(y = yi, v = vi, cluster = district, data = Data)
+## 
+## 95% confidence intervals: z statistic approximation
+## Coefficients:
+##             Estimate  Std.Error     lbound     ubound z value Pr(&gt;|z|)   
+## Intercept  0.1844554  0.0805411  0.0265977  0.3423131  2.2902 0.022010 * 
+## Tau2_2     0.0328648  0.0111397  0.0110314  0.0546982  2.9502 0.003175 **
+## Tau2_3     0.0577384  0.0307423 -0.0025154  0.1179921  1.8781 0.060362 . 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Q statistic on the homogeneity of effect sizes: 578.864
+## Degrees of freedom of the Q statistic: 55
+## P value of the Q statistic: 0
+## 
+## Heterogeneity indices (based on the estimated Tau2):
+##                               Estimate
+## I2_2 (Typical v: Q statistic)   0.3440
+## I2_3 (Typical v: Q statistic)   0.6043
+## 
+## Number of studies (or clusters): 11
+## Number of observed statistics: 56
+## Number of estimated parameters: 3
+## Degrees of freedom: 53
+## -2 log likelihood: 16.78987 
+## OpenMx status1: 0 ("0" or "1": The optimization is considered fine.
+## Other values may indicate problems.)
+```
+
+```r
+sink()
+```
+
+???
+NOTICE reversal in order. Also notice slight discrepancies in estimates as OpenMX uses ML rather than REML.
+Tau2_2 = School (/study)
+Tau2_3 
+
+
+---
+## MetaSEM
+
+Some of you might be familiar with SEM.
+
+As you might have already guessed, you can recast everything into a SEM framework! (Note that multilevel and SEM are very much alike!, Curran, 2003 -  in fact we already did one!)
+
+Just some examples: everything you'd need to know in Cheung (2015a-b)
+
+???
+Note maths heavy...
+
+---
+## MetaSEM: Multivariate meta-analysis.
+
+* Ideally, we don't want to average effect sizes or rely on just one --&gt; multivariate meta-analysis.
+
+* MetaSEM allows us to model these dependent effect sizes in a single model.
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="Metasem-illus2.png" alt="Example graph from Cheung (2015:138)" width="450px" /&gt;
+&lt;p class="caption"&gt;Example graph from Cheung (2015:138)&lt;/p&gt;
+&lt;/div&gt;
+
+???
+Note that we can also add explicit latent structures.?
+
+---
+## BCG example
+
+* For a meta-analysis on contingency tables, we calculate the logarithm of the odds ratio between the treatment group and the control group as the effect size. --&gt; univariate effect size.
+
+* Van Houwelingen et al. (2002): this can hide a lot of information, especially variation between control and intervention.
+
+* The data have been used to examine the overall effectiveness of the BCG vaccine for preventing tuberculosis (it also has moderators that may potentially influence effect size). 
+
+---
+## MetaSEM: Dependent effect sizes (Cheung, 2015: 147).
+
+`ln_Odd_V` (natural logarithm of the odds of the vaccinated group) and `ln_Odd_NV` (natural logarithm of the odds of the nonvaccinated group)
+
+Sampling variances are `v_ln_Odd_V` (sampling variance of `ln_Odd_V`) and `v_ln_Odd_NV` (sampling variance of `ln_Odd_NV`).
+
+The control group and thetreatment group are independent, the sampling covariance between the effect size
+is 0 (`cov_V_NV`).
+
+
+```r
+require(metaSEM)
+head(BCG)
+```
+
+```
+##   Trial               Author Year  VD   VWD NVD  NVWD Latitude Allocation
+## 1     1              Aronson 1948   4   119  11   128       44     random
+## 2     2     Ferguson &amp; Simes 1949   6   300  29   274       55     random
+## 3     3      Rosenthal et al 1960   3   228  11   209       42     random
+## 4     4    Hart &amp; Sutherland 1977  62 13536 248 12619       52     random
+## 5     5 Frimodt-Moller et al 1973  33  5036  47  5761       13  alternate
+## 6     6      Stein &amp; Aronson 1953 180  1361 372  1079       44  alternate
+##        ln_OR     v_ln_OR  ln_Odd_V ln_Odd_NV  v_ln_Odd_V cov_V_NV
+## 1 -0.9386941 0.357124952 -3.392829 -2.454135 0.258403361        0
+## 2 -1.6661907 0.208132394 -3.912023 -2.245832 0.170000000        0
+## 3 -1.3862944 0.433413078 -4.330733 -2.944439 0.337719298        0
+## 4 -1.4564435 0.020314413 -5.385974 -3.929530 0.016202909        0
+## 5 -0.2191411 0.051951777 -5.027860 -4.808719 0.030501601        0
+## 6 -0.9581220 0.009905266 -2.023018 -1.064896 0.006290309        0
+##   v_ln_Odd_NV
+## 1 0.098721591
+## 2 0.038132394
+## 3 0.095693780
+## 4 0.004111504
+## 5 0.021450177
+## 6 0.003614956
+```
+
+---
+##  Using Metasem (note: cbind)
+
+
+```r
+bcg1 &lt;- meta(y=cbind(ln_Odd_V, ln_Odd_NV),
+v=cbind(v_ln_Odd_V, cov_V_NV, v_ln_Odd_NV),
+data=BCG, model.name="Random effects model")
+sink("multivariate_dependent.txt")
+summary(bcg1)
+```
+
+```
+## 
+## Call:
+## meta(y = cbind(ln_Odd_V, ln_Odd_NV), v = cbind(v_ln_Odd_V, cov_V_NV, 
+##     v_ln_Odd_NV), data = BCG, model.name = "Random effects model")
+## 
+## 95% confidence intervals: z statistic approximation
+## Coefficients:
+##            Estimate Std.Error   lbound   ubound  z value Pr(&gt;|z|)    
+## Intercept1 -4.83374   0.34020 -5.50052 -4.16697 -14.2086  &lt; 2e-16 ***
+## Intercept2 -4.09597   0.43475 -4.94806 -3.24389  -9.4216  &lt; 2e-16 ***
+## Tau2_1_1    1.43137   0.58304  0.28863  2.57411   2.4550  0.01409 *  
+## Tau2_2_1    1.75733   0.72425  0.33781  3.17684   2.4264  0.01525 *  
+## Tau2_2_2    2.40733   0.96742  0.51122  4.30344   2.4884  0.01283 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Q statistic on the homogeneity of effect sizes: 5270.386
+## Degrees of freedom of the Q statistic: 24
+## P value of the Q statistic: 0
+## 
+## Heterogeneity indices (based on the estimated Tau2):
+##                              Estimate
+## Intercept1: I2 (Q statistic)   0.9887
+## Intercept2: I2 (Q statistic)   0.9955
+## 
+## Number of studies (or clusters): 13
+## Number of observed statistics: 26
+## Number of estimated parameters: 5
+## Degrees of freedom: 21
+## -2 log likelihood: 66.17587 
+## OpenMx status1: 0 ("0" or "1": The optimization is considered fine.
+## Other values may indicate problems.)
+```
+
+```r
+sink()
+```
+
+???
+The test of homogeneity of effect sizes is Q(24) = 5270.3863, _p_ &lt; 0.001, which is statistically significant. The estimated I2 for the vaccinated and the nonvaccinated groups are 0.9887 and 0.9955, respectively. These indicate an extremely high degree of heterogeneity on the population effect sizes. The estimated average effect sizes for the vaccinated and the nonvaccinated groups (and their approximate 95% Wald CIs) are −4.8338 (−5.5005,−4.1670) and −4.0960 (−4.9481,−3.2439), respectively.
+
+---
+## Testing average effects.
+
+
+```r
+bcg2 &lt;- meta(y=cbind(ln_Odd_V, ln_Odd_NV), data=BCG,
+v=cbind(v_ln_Odd_V, cov_V_NV, v_ln_Odd_NV),
+intercept.constraints=c("0*Intercept",
+"0*Intercept"),
+model.name="Equal intercepts")
+sink("multivariate_dependent2.txt")
+summary(bcg2)
+```
+
+```
+## 
+## Call:
+## meta(y = cbind(ln_Odd_V, ln_Odd_NV), v = cbind(v_ln_Odd_V, cov_V_NV, 
+##     v_ln_Odd_NV), data = BCG, intercept.constraints = c("0*Intercept", 
+##     "0*Intercept"), model.name = "Equal intercepts")
+## 
+## 95% confidence intervals: z statistic approximation
+## Coefficients:
+##            Estimate Std.Error    lbound    ubound  z value Pr(&gt;|z|)    
+## Intercept -5.375013  0.458426 -6.273512 -4.476514 -11.7249  &lt; 2e-16 ***
+## Tau2_1_1   1.700312  0.855106  0.024334  3.376290   1.9884  0.04677 *  
+## Tau2_2_1   2.455619  1.311290 -0.114462  5.025701   1.8727  0.06111 .  
+## Tau2_2_2   4.108667  1.990211  0.207925  8.009408   2.0644  0.03898 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Q statistic on the homogeneity of effect sizes: 5270.386
+## Degrees of freedom of the Q statistic: 24
+## P value of the Q statistic: 0
+## 
+## Heterogeneity indices (based on the estimated Tau2):
+##                              Estimate
+## Intercept1: I2 (Q statistic)   0.9905
+## Intercept2: I2 (Q statistic)   0.9974
+## 
+## Number of studies (or clusters): 13
+## Number of observed statistics: 26
+## Number of estimated parameters: 4
+## Degrees of freedom: 22
+## -2 log likelihood: 77.05836 
+## OpenMx status1: 0 ("0" or "1": The optimization is considered fine.
+## Other values may indicate problems.)
+```
+
+```r
+sink()
+```
+
+---
+## Test.
+
+We can reject the null hypothesis of equal average population effect sizes is rejected
+
+
+```r
+anova(bcg1,bcg2)
+```
+
+```
+##                   base       comparison ep minus2LL df      AIC  diffLL
+## 1 Random effects model             &lt;NA&gt;  5 66.17587 21 24.17587      NA
+## 2 Random effects model Equal intercepts  4 77.05836 22 33.05836 10.8825
+##   diffdf            p
+## 1     NA           NA
+## 2      1 0.0009707732
+```
+
+---
+## These are ln(odds)
+
+Convert these to odds. (but see Hafdahl (2009))
+
+
+```r
+Est &lt;- summary(bcg1)$coefficients
+exp( Est[1:2, c("Estimate", "lbound", "ubound") ] )
+```
+
+```
+##               Estimate      lbound     ubound
+## Intercept1 0.007956678 0.004084649 0.01549919
+## Intercept2 0.016639521 0.007097169 0.03901185
+```
+
+---
+## Equal variances?
+
+It seems that the non-vaccinated group ( `\(\tau_2^{2,2}\)` = 2.41) has a higher degree of heterogeneity than the vaccinated group ( `\(\tau^2_{1,1}\)` = 1.43).
+
+--
+
+Is this significantly so?
+
+
+---
+## Formal test.
+
+
+```r
+bcg3 &lt;- meta(y=cbind(ln_Odd_V, ln_Odd_NV), data=BCG,
+v=cbind(v_ln_Odd_V, cov_V_NV, v_ln_Odd_NV),
+RE.constraints=matrix(c("0.1*Tau2_Eq","0*Tau2_2_1",
+"0*Tau2_2_1","0.1*Tau2_Eq"),
+ncol=2, nrow=2),
+model.name="Equal variances")
+sink("multivariate_dependent3.txt")
+summary(bcg3)
+```
+
+```
+## 
+## Call:
+## meta(y = cbind(ln_Odd_V, ln_Odd_NV), v = cbind(v_ln_Odd_V, cov_V_NV, 
+##     v_ln_Odd_NV), data = BCG, RE.constraints = matrix(c("0.1*Tau2_Eq", 
+##     "0*Tau2_2_1", "0*Tau2_2_1", "0.1*Tau2_Eq"), ncol = 2, nrow = 2), 
+##     model.name = "Equal variances")
+## 
+## 95% confidence intervals: z statistic approximation
+## Coefficients:
+##            Estimate Std.Error   lbound   ubound  z value  Pr(&gt;|z|)    
+## Intercept1 -4.83659   0.39241 -5.60569 -4.06748 -12.3254 &lt; 2.2e-16 ***
+## Intercept2 -4.08256   0.38911 -4.84520 -3.31991 -10.4920 &lt; 2.2e-16 ***
+## Tau2_Eq     1.91972   0.73758  0.47408  3.36535   2.6027  0.009249 ** 
+## Tau2_2_1    1.76544   0.73885  0.31732  3.21357   2.3894  0.016874 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Q statistic on the homogeneity of effect sizes: 5270.386
+## Degrees of freedom of the Q statistic: 24
+## P value of the Q statistic: 0
+## 
+## Heterogeneity indices (based on the estimated Tau2):
+##                              Estimate
+## Intercept1: I2 (Q statistic)   0.9915
+## Intercept2: I2 (Q statistic)   0.9944
+## 
+## Number of studies (or clusters): 13
+## Number of observed statistics: 26
+## Number of estimated parameters: 4
+## Degrees of freedom: 22
+## -2 log likelihood: 71.24705 
+## OpenMx status1: 0 ("0" or "1": The optimization is considered fine.
+## Other values may indicate problems.)
+```
+
+```r
+sink()
+```
+
+---
+## Anova
+
+
+```r
+anova(bcg1,bcg3)
+```
+
+```
+##                   base      comparison ep minus2LL df      AIC   diffLL
+## 1 Random effects model            &lt;NA&gt;  5 66.17587 21 24.17587       NA
+## 2 Random effects model Equal variances  4 71.24705 22 27.24705 5.071183
+##   diffdf          p
+## 1     NA         NA
+## 2      1 0.02432678
+```
+
+???
+We reject the assumption of equal heterogeneity.
+
+---
+## Plot
+
+
+```r
+plot(bcg1, xlim=c(-8,0), ylim=c(-8,0))
+```
+
+&lt;img src="Meta_analysis_6_files/figure-html/unnamed-chunk-22-1.png" width="450px" /&gt;
+
+???
+The x- and the y-axes represent the first and the second effect sizes for the vaccinated group and the nonvaccinated
+group, respectively. The small circle dots are the observed effect sizes. The dashed ellipses around them are the 95% confidence ellipses. 
+
+---
+## Plot interpretation.
+
+&lt;img src="Meta_analysis_6_files/figure-html/unnamed-chunk-23-1.png" width="300px" style="display: block; margin: auto;" /&gt;
+
+???
+A confidence ellipse is the bivariate generalization of the CI. If we were able to repeat Study i by collecting new data, 95% of such ellipses constructed in the replications will contain Study i’s true bivariate effect sizes. The confidence ellipses around the studies are not tilted in the figure, showing that the effect sizes are conditionally independent. The solid square in the location (−4.8338,−4.0960) represents the estimated average population effect sizes for the vaccinated and the nonvaccinated groups.
+The small ellipse in a solid line is the 95% confidence ellipse of the average effect sizes. It indicates the best estimates of the average population effect sizes for the vaccinated and the nonvaccinated groups in the long run. The large ellipse in a dashed line indicates the random effects for the 95% of studies that may fall inside this ellipse. It is constructed based on the estimated variance component of the random effects, which is a bivariate generalization of the 95% plausible value interval (Raudenbush, 2009). If we randomly select studies, 95% of the selected studies may fall inside the ellipse in long run. Therefore, the true population effect sizes of the studies vary greatly. Moreover, we also calculate the average effect size for the vaccinated group (−4.8338 in the x-axis) and the average effect size for the nonvaccinated group (−4.0960 in the y-axis) and their 95% CIs. They are shown by the diamonds near the x-axis and the y-axis. The arrows represent the 95% plausible value interval. MENTION potential bias
+
+---
+## Forest plots.
+
+
+```r
+library("metafor")
+plot(bcg1, xlim=c(-8,0), ylim=c(-8,0), diag.panel=TRUE)
+forest( rma(yi=ln_Odd_V, vi=v_ln_Odd_V, method="ML", data=BCG) )
+title("Forest plot for the vaccinated group")
+forest(rma(yi=ln_Odd_NV, vi=v_ln_Odd_NV, method="ML",
+data=BCG))
+title("Forest plot for the non-vaccinated group")
+```
+
+![](Meta_analysis_6_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
+
+???
+Researchers may get some insights on how the effect sizes are correlated when comparing the forest plots and the confidence ellipses. In this example, the high correlation (0.9467) between the random effects is mainly due to the base rate
+differences on the vaccinated and the nonvaccinated groups. **Frailty risk**. It is not possible to get this information from two separate univariate meta-analyses.
+
+---
+## Reason for doing this,.... .
+
+Think of biases which could exist, even in RCTs.
+
+INSERT gosoapbox Questions.
+
+--
+
+Selection bias, survivorship bias, frailty bias, confounding, 
+
+
+---
+## What's more...
+
+Not covered here but all the principles used in SEM can be applied to meta-analyses. Therefore, one can do moderation / mediation models. As well as multilevel models, as SEM and multilevel are very closely related...
+
+&lt;img src="https://media.giphy.com/media/FyKfqRxVbzciY/giphy.gif" width="400px" style="display: block; margin: auto;" /&gt;
+
+
+---
+## Network Analysis: Comparing interventions.
+
+In a clinical setting, not just whether **one particular intervention is effective** , but: is **one intervention more or less effective than another type of intervention for some condition or population**. 
+
+Problem: **head-to-head** comparisons between two treatments: **only very few, if any, randomized controlled trials have compared the effects of two interventions directly**.
+
+Yet, often the same **control group** (e.g., waitlist control groups, or placebos). 
+
+This allows **indirect comparisons** of the effects of different interventions. 
+
+These meta-analysis methods are also referred to as **network meta-analyses** (Dias et al., 2013), (sometimes also **mixed-treatment comparison** meta-analyses), allows for **multiple direct and indirect intervention comparisons to be integrated into our analysis**, which can be formalized as a **"network"** of comparisons. Network Meta-Analysis is a "hot" research topic, and in the last decade, its methodology has been increasingly picked up by applied researchers in the medical field (e.g., Schwarzer et al., 2015). 
+
+**But**: Network Meta-Analysis: additional **challenges and potential pitfalls**, particularly in terms of heterogeneity or network **inconsistency**. 
+
+???
+Note: Network meta-analyses: **Multiple-treatments meta-analysis (MTM)** 
+
+---
+## Most simple graph... .
+
+First, we have to understand what meta-analysts **mean** when they talk about a "network" of treatments. Let us first consider a simple **pairwise comparison** between two conditions. Let us assume we have a randomized controlled trial `\(i\)`, which **compared the effect of one treatment A** (e.g., Cognitive Behavioral Therapy for depression) to **another condition B** (e.g., a waitlist control group). 
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="net-graph1.png" alt="Example graph from Harrer (2019)" width="600px" /&gt;
+&lt;p class="caption"&gt;Example graph from Harrer (2019)&lt;/p&gt;
+&lt;/div&gt;
+
+The form in which the treatment comparison is displayed here is called a **graph**. Graphs are structures used to model **how different objects relate to each other**, 
+
+---
+## Graph theory.
+
+An entire subfield of mathematics: **Graph theory** (in R: check out 'igraph', 'dagr', etc.). 
+
+Basic graph has two core components:  **Nodes** , representing **two conditions `\(A\)` and `\(B\)`** in trial `\(i\)`. The second component is the **line** connecting the two nodes, which is called an **edge**. This edge represents how `\(A\)` and `\(B\)` relate to each other. In our case, the interpretation of this line is quite straightforward: we can describe the relationship between `\(A\)` and `\(B\)` as the **effect size** `\(\hat\theta_{i,A,B}\)` we observe for the comparison between `\(A\)` and `\(B\)`. 
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="net-graph1.png" alt="Example graph from Harrer (2019)" width="600px" /&gt;
+&lt;p class="caption"&gt;Example graph from Harrer (2019)&lt;/p&gt;
+&lt;/div&gt;
+
+---
+## Add another study.
+
+
+Enter **data of another study** `\(j\)`. In this trial, the condition `\(B\)` (which we imagined to be a waitlist control group) was also included. But instead of using treatment `\(A\)`, like in the first study, this study **used another treatment `\(C\)` ** (e.g., psychodynamic therapy), which was compared to `\(B\)`. We can add this information to our graph:
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="net-graph2.png" alt="Example graph from Harrer (2019)" width="600px" /&gt;
+&lt;p class="caption"&gt;Example graph from Harrer (2019)&lt;/p&gt;
+&lt;/div&gt;
+
+---
+## Indirect evidence.
+
+All nodes (conditions) are either **directly or indirectly connected**. 
+`\(B\)` condition (our waitlist control group), is directly connected to all other nodes, i.e., it takes only one "step" on the graph to get from `\(B\)` to all the other nodes `\(A\)` and `\(C\)`: `\(B \rightarrow A, B \rightarrow C\)`. `\(A\)` and `\(C\)` both have only one direct connection, and they both connect to `\(B\)`: `\(A \rightarrow B\)` and `\(C \rightarrow B\)`. 
+
+However, there is an **indirect connection** between `\(A\)` and `\(C\)`, where `\(B\)` serves as the **link**, or **"bridge"** between the two conditions: `\(A \rightarrow B \rightarrow C\)`. This indirect connection means that we have **indirect evidence** for the relationship between `\(A\)` and `\(C\)`, which we can infer from the information the entire network provides us with:     
+
+From our direct evidence we can therefore calculate the **indirect evidence** `\(\hat\theta_{A,C}^{indirect}\)`, the effect size between ** `\(A\)` and `\(C\)` ** (e.g., Cognitive-Behavioral Therapy and Psychodynamic Therapy) like this:
+
+`\begin{align}
+\hat\theta_{A,C}^{indirect} = \hat\theta_{B,A}^{direct} - \hat\theta_{B,C}^{direct}
+\end{align}`
+
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="net-graph3.png" alt="Example graph from Harrer (2019)" width="300px" /&gt;
+&lt;p class="caption"&gt;Example graph from Harrer (2019)&lt;/p&gt;
+&lt;/div&gt;
+
+---
+## Power of network meta-analysis
+
+The equation lets us calculate an **estimate of the effect size of a comparison, _even_ if the two conditions were never directly compared in an RCT**. 
+
+Even if there is direct evidence for a specific comparison (e.g. `\(A-B\)`), we can also **add information on indirect evidence** to further "fortify" our model and make our effect sizes estimations **even more precise**. 
+
+Great strengths of network meta-analytical models: 
+* **All available information** can be pooled in a set of connected studies in one analysis. Usually one would do pairwise meta-analysis with trials comparing different treatments to, say, a placebo. We would have to pool each comparison (e.g. treatment `\(A\)` compared to a placebo, treatment `\(B\)` compared to a placebo, treatment `\(A\)` compared to treatment `\(B\)`) in a seperate meta-analysis.
+* Incorporates **indirect evidence**, which is discarded in conventional meta-analysis. In pairwise meta-analysis, we can only pool direct evidence from comparisons which were actually conducted and reported in randomized controlled trials. 
+* If all assumptions are met, and results are conclusive enough, network meta-analyses allow us to draw cogent conclusions concerning **which type of treatment may be more or less preferable** , rather than this works better than control.
+
+---
+## Assumptions
+
+
+`\begin{align}
+V_{A,C}^{indirect} = V_{B,A}^{direct} + V_{B,C}^{direct}
+\end{align}`
+
+In order to calculate the variance of the indirect comparison, we **add up** the variance of the direct comparisons. 
+--&gt; effect size estimated from indirect evidence will always have a greater variance, and thus a lower precision than direct evidence (Dias et al., 2015). 
+
+Makes sense: higher confidence in effect size estimates which were **actually observed** (because researchers actually performed a study using this comparison), and thus give it a higher weight, compared to effect size estimates derived from indirect evidence. 
+
+**Important**: The above equation  only holds if a **core assumption of network meta-analysis** is met: the assumption of **transitivity**, or statistically speaking, **network consistency** (Efthimiou et al., 2016). 
+
+---
+## Transitivity.
+
+Most of the **criticism** of network meta-analysis focuses on the **use of indirect evidence**, especially when direct evidence for a comparison is actually available (e.g., Edwards et al., 2009). 
+
+Key issue: participants in a randomized controlled trial (which we use as direct evidence in network meta-analysis) are randomly allocated to one of the treatment conditions (e.g., `\(A\)` and `\(B\)`), the **treatment conditions themselves** ($A, B, ...$) **were not randomly selected in the trials** included in our network (e.g., Edwards et al., 2009). 
+
+Yet, the fact that the selected treatment comparisons in our study pool will hardly ever follow a random pattern across trials does **not constitute a problem** for network meta-analytical models *per se* (Dias et al., 2016). In fact, what is required for equations `\((1)\)` and `\((2)\)` to hold is the following: **the selection, or non-selection, of a specific comparison in a specific trial must be unrelated to the true (relative) effect size of that comparison** (Dias et al., 2013). This statement is very abstract, so let us elaborate on it a little.
+
+This requirement is derived from the **transitivity assumption** of network meta-analyses. 
+
+
+---
+## Transitivity II: What does that mean?
+
+The transitivity assumption's core tenet is that we can **combine direct evidence** (e.g. from the comparisons `\(A-B\)` and `\(C-B\)`) to create indirect evidence about a related comparison (e.g. `\(A-C\)`), as we have already expressed in formula `\((1)\)` above (e.g., Efthimiou et al., 2016).
+
+The assumption of transitivity also relates to, or is derived from, the **exchangeability assumption** (earlier described). This assumption presupposes that an effect size `\(\hat\theta_i\)` of a comparison `\(i\)` is _randomly_ drawn from an "overarching" distribution of true effect sizes, the mean of which can be estimated. Translating this assumption to our scenario, we can think about **network meta-analytical models as consisting of a set of `\(K\)` trials which each contain all possible `\(M\)` treatment comparisons** (e.g. `\(A-B\)`,$A-C$,$B-C$, and so forth), but that **some of the treatment comparisons have been "deleted", and are thus "missing"" in some trials**. 
+
+Key assumption here is that the relative effect of a comparison, e.g. `\(A-B\)` is *exchangeable* between trials, no matter if a trial _actually_ assessed this comparison or if this comparison is "missing". 
+
+The assumption of transitivity may be violated when **covariates**, or **effect modifiers** (e.g., the age or gender composition of the sample) are not evenly distributed across trials reporting data on, for example, `\(A-B\)` and `\(C-B\)` comparisons (Song et al., 2009). 
+
+Transitivity as such cannot be tested statistically, but the risk for violating this assumption may be **attenuated by only including studies for which the population, methodology and studied target condition is as similar as possible**.
+
+The 'statistical manifestation' of transitivity has been referred to as **consistency** (e.g., Efthimiou et al., 2006). Consistency means that the **direct evidence** in a network for the effect size between two treatments (e.g. `\(A\)` and `\(B\)`) **does not differ from the indirect evidence calculated for that same comparison** (Schwarzer et al., 2015):
+`$$\theta_{A,B}^{indirect} = \theta_{A,B}^{direct}$$`
+
+???
+debate on whether transitivity is an additional assumption or is implied in _any_ meta-analysis
+The assumption of exchangeability thus basically means that the effect size `\(\hat\theta\)` of a specific comparison (e.g. `\(A-B\)`) must stem from a random draw from the same overarching distribution of effect sizes, no matter if this effect size is derived through direct or indirect evidence. 
+
+
+---
+## Potential solution.
+
+Several methods have been proposed to evaluate inconsistency in network meta-analysis models, including **net heat plots** [@krahn2013graphical] ADD REFERENCE and **node splitting** [@dias2010checking] ADD REFERENCE. We will describe these methods in further detail in the following two subchapters where we explain how to perform a network meta-analysis in R.
+
+
+---
+## More complex examples.
+
+In what follows, basic examples. 
+
+With an increasing number of treatments `\(S\)`, the number of (direct and indirect) pairwise comparisons `\(C\)` that need to be estimated skyrockets!
+
+These can be estimated with [Bayesian](https://www.analyticsvidhya.com/blog/2016/06/bayesian-statistics-beginners-simple-english/) or frequentist methods. I will not explain the maths behind these (look [here](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/frequentist-network-meta-analysis.html) and  [here](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/bayesian-network-meta-analysis.html))
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="net-graph4.png" alt="Example graph from Harrer (2019)" width="300px" /&gt;
+&lt;p class="caption"&gt;Example graph from Harrer (2019)&lt;/p&gt;
+&lt;/div&gt;
+
+---
+## Example of a frequentist network meta-analysis, using `netmeta`
+
+We use the Senn (2013) data on Diabetes. Note that these are diabetes effects of a number of drugs on the HbA1c value (Mean Difference). 
+
+
+```
+## Warning: package 'meta' was built under R version 3.5.2
+```
+
+```
+##      TE   seTE   treat1.long treat2.long treat1 treat2           studlab
+## 1 -1.90 0.1414     Metformin     Placebo   metf   plac      DeFronzo1995
+## 2 -0.82 0.0992     Metformin     Placebo   metf   plac         Lewin2007
+## 3 -0.20 0.3579     Metformin    Acarbose   metf   acar        Willms1999
+## 4 -1.34 0.1435 Rosiglitazone     Placebo   rosi   plac      Davidson2007
+## 5 -1.10 0.1141 Rosiglitazone     Placebo   rosi   plac Wolffenbuttel1999
+## 6 -1.30 0.1268  Pioglitazone     Placebo   piog   plac        Kipnes2001
+```
+
+???
+Data has 28 rows, representing the treatment comparisons, and **7 columns**, some of which may already seem familiar to you if you have worked yourself through previous chapters. 
+
+* The first column, **TE**, contains the **effect size** of each comparison, and **seTE** contains the respective **standard error**. In case you do not have precalculated effect size data for each comparison, you can first use the `metacont` ([Chapter 4.1.2](#fixed.raw)) or `metabin` function ([Chapter 4.3](#binary)), and then extract the calculated effect sizes from the meta-analysis object you created using the `$TE` and `$seTE` selector.
+* **treat1.long**, **treat2.long**, **treat1** and **treat2** represent the **two treatments being compared**. Variables **treat1** and **treat2** simply contain a shortened name of the original treatment name, and are thus redundant.
+* The **studlab** column contains the **unique study label**, signifying in which study the specific treatment comparison was made. We can easily check if we have **multiarm studies** contributing more than one comparison by using the `summary()` function.
+
+---
+## Labels
+
+
+```r
+summary(Data$studlab)
+```
+
+```
+##    Length     Class      Mode 
+##        28 character character
+```
+
+???
+We see that all studies **only contribute one comparison**, except for `Willms1999`, which **contributes 3**. For all later steps, it is essential that you (1) include the **studlab** column in your dataset, (2) each individual study gets a unique label/name in the column, and (3) studies which contribute 2+ comparisons are named exactly the same across comparisons. 
+
+---
+## Code setup from Harrer (2019).
+
+
+Code                  Description                                                                                                                                                                                                                                                                                                                                                                              
+--------------------  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+TE                    The name of the column in our dataset containing the effect sizes for each comparison                                                                                                                                                                                                                                                                                                    
+seTE                  The name of the column in our dataset containing the standard error of the effect size for each comparison                                                                                                                                                                                                                                                                               
+treat1                The column in our dataset containing the name of the first treatment in a comparison                                                                                                                                                                                                                                                                                                     
+treat2                The column in our dataset containing the name of the second treatment in a comparison                                                                                                                                                                                                                                                                                                    
+studlab               The column in our dataset containing the name of the study a comparison was extracted from. Although this argument is per se optional, we recommend to always specify it, because this is the only way to let the function know if multiarm trials are part of our network                                                                                                               
+data                  The dataset containing all our network data                                                                                                                                                                                                                                                                                                                                              
+sm                    The summary measure underlying our TE column. This can be specified as 'RD' (Risk Difference), 'RR' (Risk Ratio), 'OR' (Odds Ratio), 'HR' (hazard ratio), 'MD' (mean difference), 'SMD' (standardized mean difference), etc.                                                                                                                                                             
+comb.fixed            Whether a fixed-effects network meta-analysis should be conducted (TRUE/FALSE)                                                                                                                                                                                                                                                                                                           
+comb.random           Whether a random-effects network meta-analysis should be conducted (TRUE/FALSE)                                                                                                                                                                                                                                                                                                          
+reference.group       This lets us specify which treatment should be taken as a reference treatment (e.g. reference.group = 'placebo') for all other treatments                                                                                                                                                                                                                                                
+tol.multiarm          The effect sizes for comparisons from multi-arm studies are, by design, consistent. Sometimes however, original papers may report slightly deviating results for each comparison, which may result in a violation of consistency. This argument lets us specify a tolerance threshold (a numeric value) for the inconsistency of effect sizes and their variances allowed in our network 
+details.chkmultiarm   Whether we want to print out effect estimates of multiarm comparisons with inconsistent effect sizes.                                                                                                                                                                                                                                                                                    
+sep.trts              The character trough which compared treatments are seperated, e.g. ' vs. '                                                                                                                                                                                                                                                                                                               
+
+---
+## Fitting a network meta-analysis (fixed).
+
+
+```r
+freq_netmeta &lt;- netmeta(TE = TE,
+                     seTE = seTE,
+                     treat1 = treat1,
+                     treat2 = treat2,
+                     studlab = paste(Data$studlab),
+                     data = Data,
+                     sm = "MD",
+                     comb.fixed = TRUE,
+                     comb.random = FALSE,
+                     reference.group = "plac",
+                     details.chkmultiarm = TRUE,
+                     sep.trts = " vs ")
+```
+
+```
+## Warning: Note, treatments within a comparison have been re-sorted in
+## increasing order.
+```
+
+---
+## Let's look at the output.
+
+CHECK WHY DOES IT NOT PRINT DF
+
+
+```r
+sink("frequentist meta-analysis")
+freq_netmeta
+```
+
+```
+## Original data (with adjusted standard errors for multi-arm studies):
+## 
+##                    treat1 treat2      TE   seTE seTE.adj narms multiarm
+## DeFronzo1995         metf   plac -1.9000 0.1414   0.1414     2         
+## Lewin2007            metf   plac -0.8200 0.0992   0.0992     2         
+## Willms1999           acar   metf  0.2000 0.3579   0.3884     3        *
+## Davidson2007         plac   rosi  1.3400 0.1435   0.1435     2         
+## Wolffenbuttel1999    plac   rosi  1.1000 0.1141   0.1141     2         
+## Kipnes2001           piog   plac -1.3000 0.1268   0.1268     2         
+## Kerenyi2004          plac   rosi  0.7700 0.1078   0.1078     2         
+## Hanefeld2004         metf   piog -0.1600 0.0849   0.0849     2         
+## Derosa2004           piog   rosi  0.1000 0.1831   0.1831     2         
+## Baksi2004            plac   rosi  1.3000 0.1014   0.1014     2         
+## Rosenstock2008       plac   rosi  1.0900 0.2263   0.2263     2         
+## Zhu2003              plac   rosi  1.5000 0.1624   0.1624     2         
+## Yang2003             metf   rosi  0.1400 0.2239   0.2239     2         
+## Vongthavaravat2002   rosi   sulf -1.2000 0.1436   0.1436     2         
+## Oyama2008            acar   sulf -0.4000 0.1549   0.1549     2         
+## Costa1997            acar   plac -0.8000 0.1432   0.1432     2         
+## Hermansen2007        plac   sita  0.5700 0.1291   0.1291     2         
+## Garber2008           plac   vild  0.7000 0.1273   0.1273     2         
+## Alex1998             metf   sulf -0.3700 0.1184   0.1184     2         
+## Johnston1994         migl   plac -0.7400 0.1839   0.1839     2         
+## Johnston1998a        migl   plac -1.4100 0.2235   0.2235     2         
+## Kim2007              metf   rosi -0.0000 0.2339   0.2339     2         
+## Johnston1998b        migl   plac -0.6800 0.2828   0.2828     2         
+## Gonzalez-Ortiz2004   metf   plac -0.4000 0.4356   0.4356     2         
+## Stucci1996           benf   plac -0.2300 0.3467   0.3467     2         
+## Moulin2006           benf   plac -1.0100 0.1366   0.1366     2         
+## Willms1999           metf   plac -1.2000 0.3758   0.4125     3        *
+## Willms1999           acar   plac -1.0000 0.4669   0.8242     3        *
+## 
+## Number of treatment arms (by study):
+##                    narms
+## DeFronzo1995           2
+## Lewin2007              2
+## Willms1999             3
+## Davidson2007           2
+## Wolffenbuttel1999      2
+## Kipnes2001             2
+## Kerenyi2004            2
+## Hanefeld2004           2
+## Derosa2004             2
+## Baksi2004              2
+## Rosenstock2008         2
+## Zhu2003                2
+## Yang2003               2
+## Vongthavaravat2002     2
+## Oyama2008              2
+## Costa1997              2
+## Hermansen2007          2
+## Garber2008             2
+## Alex1998               2
+## Johnston1994           2
+## Johnston1998a          2
+## Kim2007                2
+## Johnston1998b          2
+## Gonzalez-Ortiz2004     2
+## Stucci1996             2
+## Moulin2006             2
+## 
+## Results (fixed effect model):
+## 
+##                    treat1 treat2      MD             95%-CI     Q leverage
+## DeFronzo1995         metf   plac -1.1141 [-1.2309; -0.9973] 30.89     0.18
+## Lewin2007            metf   plac -1.1141 [-1.2309; -0.9973]  8.79     0.36
+## Willms1999           acar   metf  0.2867 [ 0.0622;  0.5113]  0.05     0.09
+## Davidson2007         plac   rosi  1.2018 [ 1.1084;  1.2953]  0.93     0.11
+## Wolffenbuttel1999    plac   rosi  1.2018 [ 1.1084;  1.2953]  0.80     0.17
+## Kipnes2001           piog   plac -1.0664 [-1.2151; -0.9178]  3.39     0.36
+## Kerenyi2004          plac   rosi  1.2018 [ 1.1084;  1.2953] 16.05     0.20
+## Hanefeld2004         metf   piog -0.0477 [-0.1845;  0.0891]  1.75     0.68
+## Derosa2004           piog   rosi  0.1354 [-0.0249;  0.2957]  0.04     0.20
+## Baksi2004            plac   rosi  1.2018 [ 1.1084;  1.2953]  0.94     0.22
+## Rosenstock2008       plac   rosi  1.2018 [ 1.1084;  1.2953]  0.24     0.04
+## Zhu2003              plac   rosi  1.2018 [ 1.1084;  1.2953]  3.37     0.09
+## Yang2003             metf   rosi  0.0877 [-0.0449;  0.2203]  0.05     0.09
+## Vongthavaravat2002   rosi   sulf -0.7623 [-0.9427; -0.5820]  9.29     0.41
+## Oyama2008            acar   sulf -0.3879 [-0.6095; -0.1662]  0.01     0.53
+## Costa1997            acar   plac -0.8274 [-1.0401; -0.6147]  0.04     0.57
+## Hermansen2007        plac   sita  0.5700 [ 0.3170;  0.8230]  0.00     1.00
+## Garber2008           plac   vild  0.7000 [ 0.4505;  0.9495]  0.00     1.00
+## Alex1998             metf   sulf -0.6746 [-0.8482; -0.5011]  6.62     0.56
+## Johnston1994         migl   plac -0.9439 [-1.1927; -0.6952]  1.23     0.48
+## Johnston1998a        migl   plac -0.9439 [-1.1927; -0.6952]  4.35     0.32
+## Kim2007              metf   rosi  0.0877 [-0.0449;  0.2203]  0.14     0.08
+## Johnston1998b        migl   plac -0.9439 [-1.1927; -0.6952]  0.87     0.20
+## Gonzalez-Ortiz2004   metf   plac -1.1141 [-1.2309; -0.9973]  2.69     0.02
+## Stucci1996           benf   plac -0.9052 [-1.1543; -0.6561]  3.79     0.13
+## Moulin2006           benf   plac -0.9052 [-1.1543; -0.6561]  0.59     0.87
+## Willms1999           metf   plac -1.1141 [-1.2309; -0.9973]  0.04     0.02
+## Willms1999           acar   plac -0.8274 [-1.0401; -0.6147]  0.04     0.02
+## 
+## Number of studies: k = 26
+## Number of treatments: n = 10
+## Number of pairwise comparisons: m = 28
+## Number of designs: d = 15
+## 
+## Fixed effects model
+## 
+## Treatment estimate (sm = 'MD', comparison: other treatments vs 'plac'):
+##           MD             95%-CI
+## acar -0.8274 [-1.0401; -0.6147]
+## benf -0.9052 [-1.1543; -0.6561]
+## metf -1.1141 [-1.2309; -0.9973]
+## migl -0.9439 [-1.1927; -0.6952]
+## piog -1.0664 [-1.2151; -0.9178]
+## plac       .                  .
+## rosi -1.2018 [-1.2953; -1.1084]
+## sita -0.5700 [-0.8230; -0.3170]
+## sulf -0.4395 [-0.6188; -0.2602]
+## vild -0.7000 [-0.9495; -0.4505]
+## 
+## Quantifying heterogeneity / inconsistency:
+## tau^2 = 0.1087; I^2 = 81.4%
+## 
+## Tests of heterogeneity (within designs) and inconsistency (between designs):
+##                     Q d.f.  p-value
+## Total           96.99   18 &lt; 0.0001
+## Within designs  74.46   11 &lt; 0.0001
+## Between designs 22.53    7   0.0021
+```
+
+```r
+sink()
+```
+
+???
+
+* The first thing we see are the calculated effect sizes for each comparison, with an asterisk signifying multiarm studies, for which the standard error had to be corrected.
+* Next, we see an overview of the number of treatment arms in each included study. Again, it is the study `Willms2003` which stands out here because it contains three treatment arms, and thus multiple comparisons.
+* The next table shows us the fitted values for each comparison in our network meta-analysis model. The `Q` column in this table is usually very interesting, because it tells us which comparison may contribute substantially to the overall inconsistency in our network. For example, we see that the `Q` value of `DeFronzo1995` is rather high, with `\(Q=30.89\)`.
+* We then get to the core of our network model: the `Treatment estimates`. As specified, the effects of all treatments are displayed in comparison to the placebo condition, which is why there is no effect shown for `plac`.
+* We also see that the `heterogeneity/inconsistency` in our network model is very high, with `\(I^2 = 81.4\%\)`. This means that a random-effects model may be warranted, and that we should rerun the function setting `comb.random` to `TRUE`.
+* The last part of the output (`Tests of heterogeneity`) breaks down the total heterogeneity in our network into heterogeneity attributable to within and between-design variation, respectively. The heterogeneity between treatment designs reflects the actual inconsistency in our network, and is highly significant ($p=0.0021$). The ("conventional") within-designs heterogeneity is also highly significant. The information provided here is yet another sign that the random-effects model may be necessary for our network meta-analysis model. 
+
+---
+## Visualisation.
+
+
+```r
+netgraph(freq_netmeta, 
+         seq = c("plac", "migl", "benf", "acar", "metf", "rosi", "sulf", "piog", "sita", "vild"))
+```
+
+&lt;img src="Meta_analysis_6_files/figure-html/netgraph1-1.svg" width="450px" style="display: block; margin: auto;" /&gt;
+
+???
+* First, we see the overall **structure** of comparisons in our network, allowing us to understand which treatments were compared with each other in the original data. 
+* Second, we can see that the edges have a **different thickness**, which corresponds to **how often** we find this specific comparison in our network. We see that Rosiglitazone has been compared to Placebo in many, many trials
+* We also see the one **multiarm** trial in our network, which is represented by the **blue triangle** in our network. This is the study `Willms2003`, which compared Meformin, Acarbose and Placebo.
+
+---
+## 3D visualisation... .
+
+
+```r
+library(rgl)
+netgraph(freq_netmeta, dim = "3d")
+```
+
+---
+## The treatment ranking
+
+Most interesting: **which intervention works the best?**. 
+
+- The `netrank()` generates a **ranking** of treatments from most to least beneficial. The `netrank()` function is a frequentist treatment ranking method using **P-scores**. These P-scores measure the certainty that one treatment is better than another, averaged over all competing treatments. 
+
+- The P-score has been shown to be equivalent to the **SUCRA** score (Bayesian analysis) [@rucker2015ranking] ADD REFERENCE
+
+- Need to specify the `small.values` parameter, which defines if smaller effect sizes in a comparison indicate a beneficial (`"good"`) or harmful (`"bad"`) effect. 
+
+---
+## `netrank`
+
+
+```r
+netrank(freq_netmeta, small.values = "good")
+```
+
+```
+##      P-score
+## rosi  0.9789
+## metf  0.8513
+## piog  0.7686
+## migl  0.6200
+## benf  0.5727
+## acar  0.4792
+## vild  0.3512
+## sita  0.2386
+## sulf  0.1395
+## plac  0.0000
+```
+
+---
+## Forest.
+
+
+```r
+netmeta::forest.netmeta(freq_netmeta, 
+       reference.group = "plac",
+       xlim=c(-1.5,0.5),
+       sortvar = -Pscore,
+       col.square = "blue",
+       smlab = "Medications vs. Placebo \n (HbA1c value)")
+```
+
+![](Meta_analysis_6_files/figure-html/unnamed-chunk-38-1.png)&lt;!-- --&gt;
+
+---
+## Netheat plot
+
+
+```r
+netheat(freq_netmeta, nchar.trts = 4)
+```
+
+&lt;img src="Meta_analysis_6_files/figure-html/unnamed-chunk-39-1.svg" width="450px" style="display: block; margin: auto;" /&gt;
+
+???
+Plots specific **designs**, not all `\(m\)` treatment comparisons in our network. Thus, we also have rows and columns for the multiarm study `Willms1999`, which had a design comparing **"Plac"**, **"Metf"** and **Acar**. Treatment comparison with only one kind of evidence (i.e. only direct or indirect evidence) are omitted in this plot, because we are interested in **cases of inconsistency** between direct and indirect evidence. Beyond that, the net heat plot has two important features (Schwarzer et al., 2015):
+
+1.  **Grey boxes**. The grey boxes for each comparison of designs signify **importance**. The bigger the box, the more important a comparison is. An easy way to analyse this is to gow through the rows of the plot one after another, and then to check for each row in which columns the grey boxes are the largest. A common finding is that the boxes are large in a row where the row comparison and the column comparison intersect, meaning that direct evidence was used. For example, a particularly big grey box can be seen at the intersection of the "Plac vs Rosi2 row and the "Plac vs Rosi" column.
+2.  **Colored backgrounds**. The colored backgrounds, ranging from blue to red, signify the inconsistency of the comparison in a row attributable to the design in a column. Inconsistent fields are displayed in the upper-left corner in red. For example, in the row for "Rosi vs Sulf", we see that the entry in column "Metf vs Sulf" is displayed in red. This means that the evidence contributed by "Metf vs Sulf" for the estimation of "Metf vs Sulf" is inconsistent with the other evidence.
+
+---
+## Fixed vs. random evaluation.
+
+* Results are based on the **fixed-effects model**, which we used for our network analysis to begin with. 
+* Too much unexpected heterogeneity. 
+
+
+```r
+netheat(freq_netmeta, nchar.trts = 4, random=T)
+```
+
+&lt;img src="Meta_analysis_6_files/figure-html/unnamed-chunk-40-1.svg" width="450px" style="display: block; margin: auto;" /&gt;
+
+---
+## Net splitting.
+
+ **Net splitting**, also known as **node splitting**. 
+This method splits our network estimates into the contribution of direct and indirect evidence, which allows us to control for inconsistency in specific comparisons in our network. 
+
+
+```r
+sink("net_splitting")
+netsplit(freq_netmeta)
+```
+
+```
+## Back-calculation method to split direct and indirect evidence
+## 
+## Fixed effect model: 
+## 
+##    comparison k prop     nma  direct  indir.    Diff     z  p-value
+##  acar vs benf 0    0  0.0778       .  0.0778       .     .        .
+##  acar vs metf 1 0.10  0.2867  0.2000  0.2966 -0.0966 -0.26   0.7981
+##  acar vs migl 0    0  0.1166       .  0.1166       .     .        .
+##  acar vs piog 0    0  0.2391       .  0.2391       .     .        .
+##  acar vs plac 2 0.63 -0.8274 -0.8172 -0.8446  0.0274  0.12   0.9030
+##  acar vs rosi 0    0  0.3745       .  0.3745       .     .        .
+##  acar vs sita 0    0 -0.2574       . -0.2574       .     .        .
+##  acar vs sulf 1 0.53 -0.3879 -0.4000 -0.3740 -0.0260 -0.11   0.9088
+##  acar vs vild 0    0 -0.1274       . -0.1274       .     .        .
+##  benf vs metf 0    0  0.2089       .  0.2089       .     .        .
+##  benf vs migl 0    0  0.0387       .  0.0387       .     .        .
+##  benf vs piog 0    0  0.1612       .  0.1612       .     .        .
+##  benf vs plac 2 1.00 -0.9052 -0.9052       .       .     .        .
+##  benf vs rosi 0    0  0.2967       .  0.2967       .     .        .
+##  benf vs sita 0    0 -0.3352       . -0.3352       .     .        .
+##  benf vs sulf 0    0 -0.4657       . -0.4657       .     .        .
+##  benf vs vild 0    0 -0.2052       . -0.2052       .     .        .
+##  metf vs migl 0    0 -0.1702       . -0.1702       .     .        .
+##  metf vs piog 1 0.68 -0.0477 -0.1600  0.1866 -0.3466 -2.32   0.0201
+##  metf vs plac 4 0.58 -1.1141 -1.1523 -1.0608 -0.0915 -0.76   0.4489
+##  metf vs rosi 2 0.18  0.0877  0.0731  0.0908 -0.0178 -0.10   0.9204
+##  metf vs sita 0    0 -0.5441       . -0.5441       .     .        .
+##  metf vs sulf 1 0.56 -0.6746 -0.3700 -1.0611  0.6911  3.88   0.0001
+##  metf vs vild 0    0 -0.4141       . -0.4141       .     .        .
+##  migl vs piog 0    0  0.1225       .  0.1225       .     .        .
+##  migl vs plac 3 1.00 -0.9439 -0.9439       .       .     .        .
+##  migl vs rosi 0    0  0.2579       .  0.2579       .     .        .
+##  migl vs sita 0    0 -0.3739       . -0.3739       .     .        .
+##  migl vs sulf 0    0 -0.5044       . -0.5044       .     .        .
+##  migl vs vild 0    0 -0.2439       . -0.2439       .     .        .
+##  piog vs plac 1 0.36 -1.0664 -1.3000 -0.9363 -0.3637 -2.30   0.0215
+##  piog vs rosi 1 0.20  0.1354  0.1000  0.1442 -0.0442 -0.22   0.8289
+##  piog vs sita 0    0 -0.4964       . -0.4964       .     .        .
+##  piog vs sulf 0    0 -0.6269       . -0.6269       .     .        .
+##  piog vs vild 0    0 -0.3664       . -0.3664       .     .        .
+##  rosi vs plac 6 0.83 -1.2018 -1.1483 -1.4665  0.3182  2.50   0.0125
+##  sita vs plac 1 1.00 -0.5700 -0.5700       .       .     .        .
+##  sulf vs plac 0    0 -0.4395       . -0.4395       .     .        .
+##  vild vs plac 1 1.00 -0.7000 -0.7000       .       .     .        .
+##  rosi vs sita 0    0 -0.6318       . -0.6318       .     .        .
+##  rosi vs sulf 1 0.41 -0.7623 -1.2000 -0.4575 -0.7425 -3.97 &lt; 0.0001
+##  rosi vs vild 0    0 -0.5018       . -0.5018       .     .        .
+##  sita vs sulf 0    0 -0.1305       . -0.1305       .     .        .
+##  sita vs vild 0    0  0.1300       .  0.1300       .     .        .
+##  sulf vs vild 0    0  0.2605       .  0.2605       .     .        .
+## 
+## Legend:
+##  comparison - Treatment comparison
+##  k          - Number of studies providing direct evidence
+##  prop       - Direct evidence proportion
+##  nma        - Estimated treatment effect (MD) in network meta-analysis
+##  direct     - Estimated treatment effect (MD) derived from direct evidence
+##  indir.     - Estimated treatment effect (MD) derived from indirect evidence
+##  Diff       - Difference between direct and indirect treatment estimates
+##  z          - z-value of test for disagreement (direct versus indirect)
+##  p-value    - p-value of test for disagreement (direct versus indirect)
+```
+
+```r
+sink()
+```
+
+???
+The important information here is in the `p-value` column. If the value in this column is `\(p&lt;0.05\)`, there is a **significant disagreement** (inconsistency) between the direct and indirect estimate. We see in the output that there are indeed a few comparisons showing significant inconsistency between direct and indirect evidence when using the fixed-effects model. 
+
+---
+## Forest.
+
+
+```r
+forest(netsplit(freq_netmeta))
+```
+
+![](Meta_analysis_6_files/figure-html/unnamed-chunk-42-1.png)&lt;!-- --&gt;
+
+---
+## Publication bias.
+
+Assessing the publication bias of a network meta-analysis in its aggregated form is difficult. Analyzing so-called **comparison-adjusted funnel plot** has been proposed to evaluate the risk of publication bias under specific circumstances. 
+
+Comparison-adjusted funnel plots allow to assess potential publication bias if we have an *a priori* hypothesis concerning which mechanism may underlie publication bias.
+
+For example, publication bias exists due to studies suggesting **new form of treatment is superior** to an already known treatment have a **higher chance** of getting published, even if they have a small sample size, and thus a larger standard error of their effect size estimate.
+
+The `funnel()` function in `netmeta` makes it easy to generate comparison-adjusted funnel plots to test such hypotheses. 
+
+---
+## Funnel.
+
+
+```r
+funnel &lt;- funnel(freq_netmeta, 
+                 order = c("plac", "sita", "piog", "vild", "rosi",
+                         "acar", "metf", "migl",
+                         "benf", "sulf"),
+                 pch = 19,
+                 col = c("blue", "red", "purple", "yellow", "grey", "green", "black", "brown",
+                         "orange", "pink", "khaki", "plum", "aquamarine", "sandybrown", "coral"),
+                 linreg = TRUE,
+                 xlim = c(-1, 2),
+                 ylim = c(0.5, 0),
+                 studlab = TRUE,
+                 cex.studlab = 0.7)
+```
+
+![](Meta_analysis_6_files/figure-html/unnamed-chunk-43-1.png)&lt;!-- --&gt;
+
+???
+If our hypothesis is true, we would expect that studies with a **small sample**, and thus a higher **standard error** would by asymmetrically distributed around the zero line in our funnel plot. This is because we would expect that small studies comparing a novel treatment to an older one, yet finding that the new treatment is not better, are less likely to get published. In our plot, and from the p-value for Egger's Test ($p=0.93$), however, we see that such funnel asymmetry is **not present**. Therefore, we cannot say that publication bias is present in our network because of "innovative" treatments with favorable trial effect being more likely to get published.
+
+---
+## Random effects
+
+
+```r
+freq_netmeta_rand &lt;- netmeta(TE = TE,
+                     seTE = seTE,
+                     treat1 = treat1,
+                     treat2 = treat2,
+                     studlab = paste(Data$studlab),
+                     data = Data,
+                     sm = "MD",
+                     comb.fixed = FALSE,
+                     comb.random = TRUE,
+                     reference.group = "plac",
+                     details.chkmultiarm = TRUE,
+                     sep.trts = " vs ")
+```
+
+```
+## Warning: Note, treatments within a comparison have been re-sorted in
+## increasing order.
+```
+
+---
+## Random effects
+
+
+```r
+freq_netmeta_rand
+```
+
+```
+## Original data (with adjusted standard errors for multi-arm studies):
+## 
+##                    treat1 treat2      TE   seTE seTE.adj narms multiarm
+## DeFronzo1995         metf   plac -1.9000 0.1414   0.1414     2         
+## Lewin2007            metf   plac -0.8200 0.0992   0.0992     2         
+## Willms1999           acar   metf  0.2000 0.3579   0.3884     3        *
+## Davidson2007         plac   rosi  1.3400 0.1435   0.1435     2         
+## Wolffenbuttel1999    plac   rosi  1.1000 0.1141   0.1141     2         
+## Kipnes2001           piog   plac -1.3000 0.1268   0.1268     2         
+## Kerenyi2004          plac   rosi  0.7700 0.1078   0.1078     2         
+## Hanefeld2004         metf   piog -0.1600 0.0849   0.0849     2         
+## Derosa2004           piog   rosi  0.1000 0.1831   0.1831     2         
+## Baksi2004            plac   rosi  1.3000 0.1014   0.1014     2         
+## Rosenstock2008       plac   rosi  1.0900 0.2263   0.2263     2         
+## Zhu2003              plac   rosi  1.5000 0.1624   0.1624     2         
+## Yang2003             metf   rosi  0.1400 0.2239   0.2239     2         
+## Vongthavaravat2002   rosi   sulf -1.2000 0.1436   0.1436     2         
+## Oyama2008            acar   sulf -0.4000 0.1549   0.1549     2         
+## Costa1997            acar   plac -0.8000 0.1432   0.1432     2         
+## Hermansen2007        plac   sita  0.5700 0.1291   0.1291     2         
+## Garber2008           plac   vild  0.7000 0.1273   0.1273     2         
+## Alex1998             metf   sulf -0.3700 0.1184   0.1184     2         
+## Johnston1994         migl   plac -0.7400 0.1839   0.1839     2         
+## Johnston1998a        migl   plac -1.4100 0.2235   0.2235     2         
+## Kim2007              metf   rosi -0.0000 0.2339   0.2339     2         
+## Johnston1998b        migl   plac -0.6800 0.2828   0.2828     2         
+## Gonzalez-Ortiz2004   metf   plac -0.4000 0.4356   0.4356     2         
+## Stucci1996           benf   plac -0.2300 0.3467   0.3467     2         
+## Moulin2006           benf   plac -1.0100 0.1366   0.1366     2         
+## Willms1999           metf   plac -1.2000 0.3758   0.4125     3        *
+## Willms1999           acar   plac -1.0000 0.4669   0.8242     3        *
+## 
+## Number of treatment arms (by study):
+##                    narms
+## DeFronzo1995           2
+## Lewin2007              2
+## Willms1999             3
+## Davidson2007           2
+## Wolffenbuttel1999      2
+## Kipnes2001             2
+## Kerenyi2004            2
+## Hanefeld2004           2
+## Derosa2004             2
+## Baksi2004              2
+## Rosenstock2008         2
+## Zhu2003                2
+## Yang2003               2
+## Vongthavaravat2002     2
+## Oyama2008              2
+## Costa1997              2
+## Hermansen2007          2
+## Garber2008             2
+## Alex1998               2
+## Johnston1994           2
+## Johnston1998a          2
+## Kim2007                2
+## Johnston1998b          2
+## Gonzalez-Ortiz2004     2
+## Stucci1996             2
+## Moulin2006             2
+## 
+## Results (random effects model):
+## 
+##                    treat1 treat2      MD             95%-CI
+## DeFronzo1995         metf   plac -1.1268 [-1.4291; -0.8244]
+## Lewin2007            metf   plac -1.1268 [-1.4291; -0.8244]
+## Willms1999           acar   metf  0.2850 [-0.2208;  0.7908]
+## Davidson2007         plac   rosi  1.2335 [ 0.9830;  1.4839]
+## Wolffenbuttel1999    plac   rosi  1.2335 [ 0.9830;  1.4839]
+## Kipnes2001           piog   plac -1.1291 [-1.5596; -0.6986]
+## Kerenyi2004          plac   rosi  1.2335 [ 0.9830;  1.4839]
+## Hanefeld2004         metf   piog  0.0023 [-0.4398;  0.4444]
+## Derosa2004           piog   rosi  0.1044 [-0.3347;  0.5435]
+## Baksi2004            plac   rosi  1.2335 [ 0.9830;  1.4839]
+## Rosenstock2008       plac   rosi  1.2335 [ 0.9830;  1.4839]
+## Zhu2003              plac   rosi  1.2335 [ 0.9830;  1.4839]
+## Yang2003             metf   rosi  0.1067 [-0.2170;  0.4304]
+## Vongthavaravat2002   rosi   sulf -0.8169 [-1.2817; -0.3521]
+## Oyama2008            acar   sulf -0.4252 [-0.9456;  0.0951]
+## Costa1997            acar   plac -0.8418 [-1.3236; -0.3600]
+## Hermansen2007        plac   sita  0.5700 [-0.1240;  1.2640]
+## Garber2008           plac   vild  0.7000 [ 0.0073;  1.3927]
+## Alex1998             metf   sulf -0.7102 [-1.1713; -0.2491]
+## Johnston1994         migl   plac -0.9497 [-1.4040; -0.4955]
+## Johnston1998a        migl   plac -0.9497 [-1.4040; -0.4955]
+## Kim2007              metf   rosi  0.1067 [-0.2170;  0.4304]
+## Johnston1998b        migl   plac -0.9497 [-1.4040; -0.4955]
+## Gonzalez-Ortiz2004   metf   plac -1.1268 [-1.4291; -0.8244]
+## Stucci1996           benf   plac -0.7311 [-1.2918; -0.1705]
+## Moulin2006           benf   plac -0.7311 [-1.2918; -0.1705]
+## Willms1999           metf   plac -1.1268 [-1.4291; -0.8244]
+## Willms1999           acar   plac -0.8418 [-1.3236; -0.3600]
+## 
+## Number of studies: k = 26
+## Number of treatments: n = 10
+## Number of pairwise comparisons: m = 28
+## Number of designs: d = 15
+## 
+## Random effects model
+## 
+## Treatment estimate (sm = 'MD', comparison: other treatments vs 'plac'):
+##           MD             95%-CI
+## acar -0.8418 [-1.3236; -0.3600]
+## benf -0.7311 [-1.2918; -0.1705]
+## metf -1.1268 [-1.4291; -0.8244]
+## migl -0.9497 [-1.4040; -0.4955]
+## piog -1.1291 [-1.5596; -0.6986]
+## plac       .                  .
+## rosi -1.2335 [-1.4839; -0.9830]
+## sita -0.5700 [-1.2640;  0.1240]
+## sulf -0.4166 [-0.8887;  0.0556]
+## vild -0.7000 [-1.3927; -0.0073]
+## 
+## Quantifying heterogeneity / inconsistency:
+## tau^2 = 0.1087; I^2 = 81.4%
+## 
+## Tests of heterogeneity (within designs) and inconsistency (between designs):
+##                     Q d.f.  p-value
+## Total           96.99   18 &lt; 0.0001
+## Within designs  74.46   11 &lt; 0.0001
+## Between designs 22.53    7   0.0021
+```
+
+---
+## Bayesian meta-analysis.
+
+In the interest of space/time, not covered here but read [here](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/bayesian-network-meta-analysis.html)
+
+---
+## Metaforest.
+
+No time to cover this here, but exciting developments: [Metaforest](https://cran.r-project.org/web/packages/metaforest/metaforest.pdf).
+
+Techniques from machine learning applied to meta-analysis. Especially useful when you have a large number of candidate moderators in regression.
+
+You can view an example [here](https://github.com/cran/metaforest)
+
+---
+## Any Questions?
+
+[http://tvpollet.github.io](http://tvpollet.github.io)
+
+Twitter: @tvpollet
+
+&lt;img src="https://media.giphy.com/media/3ohzdRoOp1FUYbtGDu/giphy.gif" width="600px" style="display: block; margin: auto;" /&gt;
+
+---
+## Acknowledgments
+
+* Numerous students and colleagues. Any mistakes are my own.
+
+* My colleagues who helped me with regards to meta-analysis Nexhmedin Morina, Stijn Peperkoorn, Gert Stulp, Mirre Simons, Johannes Honekopp.
+
+* HBES for funding this Those who have funded me (not these studies per se): [NWO](www.nwo.nl), [Templeton](www.templeton.org), [NIAS](http://nias.knaw.nl).
+
+* You for listening!
+
+&lt;img src="https://media.giphy.com/media/10avZ0rqdGFyfu/giphy.gif" width="300px" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+## References and further reading
+
+&lt;p&gt;&lt;cite&gt;Aloe, A. M. and C. G. Thompson
+(2013).
+&amp;ldquo;The Synthesis of Partial Effect Sizes&amp;rdquo;.
+In: &lt;em&gt;Journal of the Society for Social Work and Research&lt;/em&gt; 4.4, pp. 390-405.
+DOI: &lt;a href="https://doi.org/10.5243/jsswr.2013.24"&gt;10.5243/jsswr.2013.24&lt;/a&gt;.
+eprint: https://doi.org/10.5243/jsswr.2013.24.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Barendregt, J. J., S. A. Doi, Y. Y. Lee, et al.
+(2013).
+&amp;ldquo;Meta-Analysis of Prevalence&amp;rdquo;.
+In: &lt;em&gt;Journal of Epidemiology and Community Health&lt;/em&gt; 67.11, pp. 974-978.
+ISSN: 0143-005X.
+DOI: &lt;a href="https://doi.org/10.1136/jech-2013-203104"&gt;10.1136/jech-2013-203104&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Becker, B. J. and M. Wu
+(2007).
+&amp;ldquo;The Synthesis of Regression Slopes in Meta-Analysis&amp;rdquo;.
+In: &lt;em&gt;Statistical science&lt;/em&gt; 22.3, pp. 414-429.
+ISSN: 0883-4237.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Borenstein, M., L. V. Hedges, J. P. Higgins, et al.
+(2009).
+&lt;em&gt;Introduction to Meta-Analysis&lt;/em&gt;.
+John Wiley &amp;amp; Sons.
+ISBN: 1-119-96437-7.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Chen, D. D. and K. E. Peace
+(2013).
+&lt;em&gt;Applied Meta-Analysis with R&lt;/em&gt;.
+Chapman and Hall/CRC.
+ISBN: 1-4665-0600-8.&lt;/cite&gt;&lt;/p&gt;
+---
+## More refs.
+
+&lt;p&gt;&lt;cite&gt;Cooper, H.
+(2010).
+&lt;em&gt;Research Synthesis and Meta-Analysis: A Step-by-Step Approach&lt;/em&gt;.
+4th.
+Sage publications.
+ISBN: 1-4833-4704-4.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cooper, H., L. V. Hedges, and J. C. Valentine
+(2009).
+&lt;em&gt;The Handbook of Research Synthesis and Meta-Analysis&lt;/em&gt;.
+New York: Russell Sage Foundation.
+ISBN: 1-61044-138-9.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cooper, H. and E. A. Patall
+(2009).
+&amp;ldquo;The Relative Benefits of Meta-Analysis Conducted with Individual Participant Data versus Aggregated Data.&amp;rdquo;
+In: &lt;em&gt;Psychological Methods&lt;/em&gt; 14.2, pp. 165-176.
+ISSN: 1433806886.
+DOI: &lt;a href="https://doi.org/10.1037/a0015565"&gt;10.1037/a0015565&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Crawley, M. J.
+(2013).
+&lt;em&gt;The R Book: Second Edition&lt;/em&gt;.
+New York, NY: John Wiley &amp;amp; Sons.
+ISBN: 1-118-44896-0.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cumming, G.
+(2014).
+&amp;ldquo;The New Statistics&amp;rdquo;.
+In: &lt;em&gt;Psychological Science&lt;/em&gt; 25.1, pp. 7-29.
+ISSN: 0956-7976.
+DOI: &lt;a href="https://doi.org/10.1177/0956797613504966"&gt;10.1177/0956797613504966&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Meta-analysis course: part 5: Subgroup analysis &amp; Meta-regression</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Thomas Pollet (@tvpollet), Northumbria University" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Meta-analysis course: part 5: Subgroup analysis &amp; Meta-regression
+### Thomas Pollet (<span class="citation">@tvpollet</span>), Northumbria University
+### 2019-08-30 | <a href="http://tvpollet.github.io/disclaimer">disclaimer</a>
+
+---
+
+
+
+
+
+
+
+
+
+
+
+## Where are we at?
+
+* Principles of systematic reviews / meta-analysis
+
+* Effect sizes
+
+* Fixed vs. random effects meta-analyses
+
+* Publication bias
+
+* **Moderators and metaregression**
+
+* Advanced 'stuff'.
+
+---
+## This section.
+
+Remember heterogeneity? 
+
+Many causes could exist: We could try and explain this!
+
+--&gt; Search for potential moderators.
+
+---
+## When to look for moderators
+
+- If you run a meta-analysis and there is substantial heterogeneity left (between-study variance)
+
+- Several potential explanation for remaining heterogeneity:
+
+  * Sampling error
+  * Uncorrected artifacts (e.g., issues with measurement)
+  * Moderators
+
+--&gt; if your number of studies is relatively small then likely just sampling error. Better to understand how wide the uncertainty is.
+
+---
+## Moderators: a priori vs. post-hoc
+
+- Consider any relevant moderators _before_ doing the analyses:
+  * Theory
+  * Methodology
+
+- Avoid looking for moderators post-hoc --&gt; likely fishing expedition.
+
+---
+## Testing moderators.
+
+- Compared to original research studies, meta-analysis can have much greater statistical power to uncover moderators.
+
+- Each primary study (of e.g, N=40) might not have sufficient subgroup members to examine an effect. But pooled data (20 studies, totaling N=800) would allow us to detect it.
+
+- However, even in meta-analysis there are considerable constraints on power to detect effects
+
+---
+## Statistical power to detect moderators.
+
+- The effective sample size is the number of studies:
+  * Not sensible to test a large number of moderators when one has only 20-30 studies!
+
+- Potential influence of moderators to explain heterogeneity is limited by real variation in the effect --&gt; So, if something is inherently 'noisy' (or poorly measured) then we don't have much chance of capturing some of that variance with a moderator.
+
+---
+## Two methods
+
+- Subset analysis
+- Meta-regression
+
+---
+## Subset analysis
+
+- We can conduct a separate meta-analysis on each subset (e.g., men vs. women, student sample versus non-student sample).
+
+- If the moderator matters, there will be observable differences. Differences between mean effect size across the subsets (do confidence intervals overlap)? . Shinkage of variance in each subset.
+
+- If we evaluate multiple moderators, we need to be really wary of correlated predictors.
+
+---
+## Three approaches to subgroup analysis.
+
+* fixed effect models,
+* random effects models with a common estimate for `\(\tau^2\)`.
+* random effects models with separate estimates for between-study variance `\(\tau^2\)`
+across the subgroups
+
+---
+## When to use a fixed effect?
+
+* If you assume that **all studies in subgroup** stem from the same population, and all have **one shared true effect**, you may use the **fixed-effect-model**. However, unlikely this assumption is ever **true in psychological** and **medical research**, even when we divide our studies into subgroups.
+
+* Therefore, we typically use a **random-effect-model** which assumes that the studies within a subgroup are drawn from a **universe** of populations follwing its own distribution,... .
+
+---
+## A fixed effects example: Subgroup 1.
+
+Control consists of control, Waiting list (WLC), information only. Here we compore waiting list versus no intervention.
+
+
+```r
+model_subgroup1&lt;-metagen(TE,
+        seTE,
+        data=madata,
+        studlab=paste(Author),
+        comb.random = FALSE,
+        method.tau = "SJ",
+        hakn = TRUE,
+        prediction=TRUE,
+        sm="SMD",
+        subset = Control =='WLC')
+```
+
+---
+## Subgroup 2.
+
+
+```r
+model_subgroup2&lt;-metagen(TE,
+        seTE,
+        data=madata,
+        studlab=paste(Author),
+        comb.random = FALSE,
+        method.tau = "SJ",
+        hakn = TRUE,
+        prediction=TRUE,
+        sm="SMD",
+        subset = Control =='information only')
+```
+
+---
+## Subgroup 3
+
+
+```r
+model_subgroup3&lt;-metagen(TE,
+        seTE,
+        data=madata,
+        studlab=paste(Author),
+        comb.random = FALSE,
+        method.tau = "SJ",
+        hakn = TRUE,
+        prediction=TRUE,
+        sm="SMD",
+        subset = Control =='no intervention')
+```
+
+---
+## Create vectors needed.
+
+We would need vectors of the estimate of the treatment effects and corresponding errors.
+
+
+```r
+# Subgroup treatment effects (fixed effect model)
+ TE.control &lt;- c(model_subgroup1$TE.fixed, model_subgroup2$TE.fixed,model_subgroup3$TE.fixed)
+# Corresponding standard errors (fixed effect model)
+ seTE.control &lt;- c(model_subgroup1$seTE.fixed, model_subgroup2$seTE.fixed, model_subgroup3$seTE.fixed)
+```
+
+---
+## Fixed effect meta-analysis.
+
+This uses the generic invariance method. This suggests there is no significant difference in ( `\(Q=5.49\)`,$p=0.064$ ).
+
+
+```r
+model_control&lt;-metagen(TE.control,
+        seTE.control,
+        comb.random = FALSE,
+        sm="SMD")
+sink("model_control.txt")
+model_control
+```
+
+```
+##      SMD           95%-CI %W(fixed)
+## 1 0.6688 [0.4839; 0.8537]      27.3
+## 2 0.4016 [0.2048; 0.5983]      24.1
+## 3 0.4141 [0.2757; 0.5525]      48.7
+## 
+## Number of studies combined: k = 3
+## 
+##                       SMD           95%-CI    z  p-value
+## Fixed effect model 0.4805 [0.3840; 0.5771] 9.75 &lt; 0.0001
+## 
+## Quantifying heterogeneity:
+## tau^2 = 0.0134; H = 1.66 [1.00; 3.10]; I^2 = 63.5% [0.0%; 89.6%]
+## 
+## Test of heterogeneity:
+##     Q d.f. p-value
+##  5.49    2  0.0644
+## 
+## Details on meta-analytical method:
+## - Inverse variance method
+```
+
+```r
+sink()
+```
+
+--
+## Shorter route... 
+
+
+```r
+model_control_u&lt;-update.meta(model_hksj, 
+                             byvar=Control, 
+                             comb.random = FALSE, 
+                             comb.fixed = TRUE)
+sink("model_control_u.txt")
+model_control_u
+```
+
+```
+##                           SMD            95%-CI %W(fixed)          Control
+## Call et al.            0.7091 [ 0.1979; 1.2203]       3.6              WLC
+## Cavanagh et al.        0.3549 [-0.0300; 0.7397]       6.3              WLC
+## DanitzOrsillo          1.7912 [ 1.1139; 2.4685]       2.0              WLC
+## de Vibe et al.         0.1825 [-0.0484; 0.4133]      17.5  no intervention
+## Frazier et al.         0.4219 [ 0.1380; 0.7057]      11.6 information only
+## Frogeli et al.         0.6300 [ 0.2458; 1.0142]       6.3  no intervention
+## Gallego et al.         0.7249 [ 0.2846; 1.1652]       4.8  no intervention
+## Hazlett-Stevens &amp; Oren 0.5287 [ 0.1162; 0.9412]       5.5  no intervention
+## Hintz et al.           0.2840 [-0.0453; 0.6133]       8.6 information only
+## Kang et al.            1.2751 [ 0.6142; 1.9360]       2.1  no intervention
+## Kuhlmann et al.        0.1036 [-0.2781; 0.4853]       6.4  no intervention
+## Lever Taylor et al.    0.3884 [-0.0639; 0.8407]       4.6              WLC
+## Phang et al.           0.5407 [ 0.0619; 1.0196]       4.1  no intervention
+## Rasanen et al.         0.4262 [-0.0794; 0.9317]       3.6              WLC
+## Ratanasiripong         0.5154 [-0.1731; 1.2039]       2.0  no intervention
+## Shapiro et al.         1.4797 [ 0.8618; 2.0977]       2.4              WLC
+## SongLindquist          0.6126 [ 0.1683; 1.0569]       4.7              WLC
+## Warnecke et al.        0.6000 [ 0.1120; 1.0880]       3.9 information only
+## 
+## Number of studies combined: k = 18
+## 
+##                        SMD            95%-CI    z  p-value
+## Fixed effect model  0.4805 [ 0.3840; 0.5771] 9.75 &lt; 0.0001
+## Prediction interval        [-0.2084; 1.3954]              
+## 
+## Quantifying heterogeneity:
+## tau^2 = 0.1337; H = 1.64 [1.27; 2.11]; I^2 = 62.6% [37.9%; 77.5%]
+## 
+## Quantifying residual heterogeneity:
+## H = 1.63 [1.25; 2.14]; I^2 = 62.5% [35.7%; 78.2%]
+## 
+## Test of heterogeneity:
+##      Q d.f. p-value
+##  45.50   17  0.0002
+## 
+## Results for subgroups (fixed effect model):
+##                              k    SMD           95%-CI     Q  tau^2   I^2
+## Control = WLC                7 0.6688 [0.4839; 0.8537] 22.17 0.2501 72.9%
+## Control = no intervention    8 0.4141 [0.2757; 0.5525] 16.70 0.0789 58.1%
+## Control = information only   3 0.4016 [0.2048; 0.5983]  1.14 0.0068  0.0%
+## 
+## Test for subgroup differences (fixed effect model):
+##                    Q d.f. p-value
+## Between groups  5.49    2  0.0644
+## Within groups  40.02   15  0.0005
+## 
+## Details on meta-analytical method:
+## - Inverse variance method
+```
+
+```r
+sink()
+```
+
+---
+## A random effects example: Region.
+
+
+
+---
+## Subgroup Analyses using the Random-Effects-Model: common.
+
+This model assumes a common `\(\tau^2\)` , we use our previous model and update it!
+
+
+```r
+region_subgroup_common&lt;-update.meta(model_hksj, 
+                             byvar=region, 
+                             comb.random = TRUE, 
+                             comb.fixed = FALSE,
+                             tau.common=TRUE)
+sink("region_subgroup_common.txt")
+region_subgroup_common
+```
+
+```
+##                           SMD            95%-CI %W(random)      region
+## Call et al.            0.7091 [ 0.1979; 1.2203]        5.2 Netherlands
+## Cavanagh et al.        0.3549 [-0.0300; 0.7397]        6.1 Netherlands
+## DanitzOrsillo          1.7912 [ 1.1139; 2.4685]        4.2 Netherlands
+## de Vibe et al.         0.1825 [-0.0484; 0.4133]        7.1         USA
+## Frazier et al.         0.4219 [ 0.1380; 0.7057]        6.8         USA
+## Frogeli et al.         0.6300 [ 0.2458; 1.0142]        6.1         USA
+## Gallego et al.         0.7249 [ 0.2846; 1.1652]        5.7         USA
+## Hazlett-Stevens &amp; Oren 0.5287 [ 0.1162; 0.9412]        5.9   Argentina
+## Hintz et al.           0.2840 [-0.0453; 0.6133]        6.5   Argentina
+## Kang et al.            1.2751 [ 0.6142; 1.9360]        4.3   Argentina
+## Kuhlmann et al.        0.1036 [-0.2781; 0.4853]        6.1   Australia
+## Lever Taylor et al.    0.3884 [-0.0639; 0.8407]        5.6   Australia
+## Phang et al.           0.5407 [ 0.0619; 1.0196]        5.4   Australia
+## Rasanen et al.         0.4262 [-0.0794; 0.9317]        5.3       China
+## Ratanasiripong         0.5154 [-0.1731; 1.2039]        4.1       China
+## Shapiro et al.         1.4797 [ 0.8618; 2.0977]        4.5       China
+## SongLindquist          0.6126 [ 0.1683; 1.0569]        5.7       China
+## Warnecke et al.        0.6000 [ 0.1120; 1.0880]        5.4       China
+## 
+## Number of studies combined: k = 18
+## 
+##                         SMD            95%-CI    t  p-value
+## Random effects model 0.5935 [ 0.3891; 0.7979] 6.13 &lt; 0.0001
+## Prediction interval         [-0.2084; 1.3954]              
+## 
+## Quantifying heterogeneity:
+## tau^2 = 0.1337; H = 1.64 [1.27; 2.11]; I^2 = 62.6% [37.9%; 77.5%]
+## 
+## Quantifying residual heterogeneity:
+## tau^2 = 0.1416; H = 2.00; I^2 = 75.1%
+## 
+## Test of heterogeneity:
+##      Q d.f. p-value
+##  45.50   17  0.0002
+## 
+## Results for subgroups (random effects model):
+##                        k    SMD            95%-CI     Q  tau^2   I^2
+## region = Netherlands   3 0.8631 [-0.9173; 2.6435] 13.06 0.1416 84.7%
+## region = USA           4 0.4730 [ 0.0877; 0.8583]  6.87 0.1416 56.3%
+## region = Argentina     3 0.6263 [-0.5807; 1.8333]  6.95 0.1416 71.2%
+## region = Australia     3 0.3355 [-0.2205; 0.8914]  2.13 0.1416  6.1%
+## region = China         5 0.7122 [ 0.2008; 1.2236]  7.81 0.1416 48.8%
+## 
+## Test for subgroup differences (random effects model):
+##                    Q d.f. p-value
+## Between groups  3.96    4  0.4121
+## Within groups  36.83   13  0.0004
+## 
+## Details on meta-analytical method:
+## - Inverse variance method
+## - Sidik-Jonkman estimator for tau^2 (assuming common tau^2 in subgroups)
+## - Hartung-Knapp adjustment for random effects model
+```
+
+```r
+sink()
+```
+
+---
+## Result.
+
+**Pooled effect for each subgroup** (country). 
+Under `Test for subgroup differences (random effects model)`: **test for subgroup differences using the random-effects-model**, which is **not significant** , `\(Q=3.96\)`,$p=0.4121$. 
+This means that we did not find differences in the overall effect between different regions.
+
+---
+## Separate heterogeneity estimates for country.
+
+
+```r
+region_subgroup_sep&lt;-update.meta(model_hksj, 
+                             byvar=region, 
+                             comb.random = TRUE, 
+                             comb.fixed = FALSE,
+                             tau.common=FALSE)
+sink("region_subgroup_sep.txt")
+region_subgroup_sep
+```
+
+```
+##                           SMD            95%-CI %W(random)      region
+## Call et al.            0.7091 [ 0.1979; 1.2203]        5.2 Netherlands
+## Cavanagh et al.        0.3549 [-0.0300; 0.7397]        6.1 Netherlands
+## DanitzOrsillo          1.7912 [ 1.1139; 2.4685]        4.2 Netherlands
+## de Vibe et al.         0.1825 [-0.0484; 0.4133]        7.1         USA
+## Frazier et al.         0.4219 [ 0.1380; 0.7057]        6.8         USA
+## Frogeli et al.         0.6300 [ 0.2458; 1.0142]        6.1         USA
+## Gallego et al.         0.7249 [ 0.2846; 1.1652]        5.7         USA
+## Hazlett-Stevens &amp; Oren 0.5287 [ 0.1162; 0.9412]        5.9   Argentina
+## Hintz et al.           0.2840 [-0.0453; 0.6133]        6.5   Argentina
+## Kang et al.            1.2751 [ 0.6142; 1.9360]        4.3   Argentina
+## Kuhlmann et al.        0.1036 [-0.2781; 0.4853]        6.1   Australia
+## Lever Taylor et al.    0.3884 [-0.0639; 0.8407]        5.6   Australia
+## Phang et al.           0.5407 [ 0.0619; 1.0196]        5.4   Australia
+## Rasanen et al.         0.4262 [-0.0794; 0.9317]        5.3       China
+## Ratanasiripong         0.5154 [-0.1731; 1.2039]        4.1       China
+## Shapiro et al.         1.4797 [ 0.8618; 2.0977]        4.5       China
+## SongLindquist          0.6126 [ 0.1683; 1.0569]        5.7       China
+## Warnecke et al.        0.6000 [ 0.1120; 1.0880]        5.4       China
+## 
+## Number of studies combined: k = 18
+## 
+##                         SMD            95%-CI    t  p-value
+## Random effects model 0.5935 [ 0.3891; 0.7979] 6.13 &lt; 0.0001
+## Prediction interval         [-0.2084; 1.3954]              
+## 
+## Quantifying heterogeneity:
+## tau^2 = 0.1337; H = 1.64 [1.27; 2.11]; I^2 = 62.6% [37.9%; 77.5%]
+## 
+## Quantifying residual heterogeneity:
+## H = 1.68 [1.27; 2.24]; I^2 = 64.7% [37.6%; 80.0%]
+## 
+## Test of heterogeneity:
+##      Q d.f. p-value
+##  45.50   17  0.0002
+## 
+## Results for subgroups (random effects model):
+##                        k    SMD            95%-CI     Q  tau^2   I^2
+## region = Netherlands   3 0.9142 [-0.9150; 2.7433] 13.06 0.4508 84.7%
+## region = USA           4 0.4456 [ 0.0600; 0.8312]  6.87 0.0357 56.3%
+## region = Argentina     3 0.6371 [-0.5837; 1.8580]  6.95 0.1826 71.2%
+## region = Australia     3 0.3194 [-0.2427; 0.8815]  2.13 0.0204  6.1%
+## region = China         5 0.7098 [ 0.2018; 1.2177]  7.81 0.1110 48.8%
+## 
+## Test for subgroup differences (random effects model):
+##                     Q d.f. p-value
+## Between groups   4.52    4  0.3405
+## 
+## Details on meta-analytical method:
+## - Inverse variance method
+## - Sidik-Jonkman estimator for tau^2
+## - Hartung-Knapp adjustment for random effects model
+```
+
+```r
+sink()
+```
+
+---
+## Interpretation and note.
+
+* This model now allows for each country to have its own `\(\tau^2\)` estimate. As before we find no evidence for subgroup differences, `\(Q=4.52\)`, `\(p=0.3405\)`.
+
+--
+
+* Ideally, you'd want lots of studies (!) as currently some of the groups have very few cases. As with regression (Harrell, 2015), we can question how good estimates are when you have &lt;10 cases per predictor.
+
+---
+## Meta-regression.
+
+There isn't much of a conceptual difference between a subset analysis and a meta-regression (dummy coded).
+
+* A conventional regression, we estimate a parameter `\(y\)` using a covariate `\(x_i\)` with `\(n\)`  regression coefficients `\(B\)` and a as intercept. Equation:
+`$$y=b_0 + b_1x_1 + ...+b_nx_n + a$$`
+
+In a meta-regression, we want to estimate the **effect size** `\(\theta\)` for different values of the covariate(s), so our regression looks like this:
+`$$\hat \theta_k = \theta + b_1x_{1k} + ... + b_nx_{nk} + \epsilon_k + \zeta_k$$`
+---
+## Meta-regression: two extra terms.
+
+Two **extra terms in the equation**: `\(\epsilon_k\)` and `\(\zeta_k\)`.  Two types of **independent errors** which cause our regression prediction to be **imperfect**. 
+
+--
+
+The first one, `\(\epsilon_k\)`, is the sampling error through which the effect size of the study deviates from its "true" effect. It is assumed to follow a normal distribution.?
+
+--
+
+The second one, `\(\zeta_k\)`, denotes that even the true effect size of the study is only sampled from **an overarching distribution of effect sizes** (think back to section on fixed vs. random effect). In a **fixed-effect-model**, we assume that all studies actually share the **same true effect size** and that the **between-study heterogeneity** `\(\tau^2 = 0\)`. In this case, we do not consider `\(\zeta_k\)` in our equation, but only `\(\epsilon_k\)`. 
+
+???
+Note I use b's here rather than `\(\beta\)`'s in order to avoid confusion based on standardisation.
+
+---
+## Terminology (Harrer, 2019 on meta-regression).
+
+* Equation includes **fixed effects** (the `\(\beta\)` coefficients) as well as **random effects** ( `\(\zeta_k\)` ), the model used in meta-regression is often called **a mixed-effects-model**. 
+
+--
+
+* **Subgroup analyses with more than two subgroups** are nothing else than a **meta-regression** with a **categorical predictor**. For meta-regression, these subgroups are then **dummy-coded**. An effect is a shift up or down... .
+
+--
+
+&lt;img src="dummy.png" width="400px" style="display: block; margin: auto;" /&gt;
+
+---
+## Assessing regression models: significance
+
+To evaluate the **statistical significance of a predictor**, we a **t-test** of its `\(b\)`-weight is performed, as in OLS regression.
+$$ t=\frac{b}{SE_{b}}$$
+
+This gives us a `\(p\)`-value telling us if a variable significantly predicts effect size differences in our regression model.
+
+
+---
+## Assessing regression models: variance.
+
+Our aim is to find a model **which explains as much as possible of the current variability in effect sizes** we find in our data.
+
+In conventional regression, `\(R^2\)` is commonly used to quantify the **goodness of fit** of our model in percent (0-100%). As this measure is commonly used, and many researchers know how to to interpret it, we can also calculate a `\(R^2\)` analog for meta-regression using this formula:
+`$$R_2=\frac{\hat\tau^2_{Random}-\hat\tau^2_{Regress}}{\hat\tau^2_{Random}}$$`
+Where `\(\hat\tau^2_{Random}\)` is the estimated total heterogeneity based on the random-effects-model and `\(\hat\tau^2_{Regress}\)` the total heterogeneity of our mixed-effects regression model.
+
+
+---
+## Metaregression (categorical)
+
+
+```r
+sink("metareg_control.txt")
+metareg(model_hksj,Control)
+```
+
+```
+## 
+## Mixed-Effects Model (k = 18; tau^2 estimator: SJ)
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0.1343 (SE = 0.0536)
+## tau (square root of estimated tau^2 value):             0.3665
+## I^2 (residual heterogeneity / unaccounted variability): 73.92%
+## H^2 (unaccounted variability / sampling variability):   3.84
+## R^2 (amount of heterogeneity accounted for):            0.00%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 15) = 40.0161, p-val = 0.0005
+## 
+## Test of Moderators (coefficients 2:3):
+## F(df1 = 2, df2 = 15) = 0.9467, p-val = 0.4100
+## 
+## Model Results:
+## 
+##                         estimate      se    tval    pval    ci.lb   ci.ub 
+## intrcpt                   0.4252  0.2250  1.8899  0.0782  -0.0543  0.9048 
+## Controlno intervention    0.1003  0.2678  0.3744  0.7134  -0.4706  0.6711 
+## ControlWLC                0.3380  0.2765  1.2224  0.2404  -0.2514  0.9274 
+##  
+## intrcpt                 . 
+## Controlno intervention 
+## ControlWLC 
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+sink()
+```
+
+???
+We see in the output that the `metareg` function uses the values of "Control" (i.e, the three different types of control groups) as a **moderator**. It takes **"information only"** as a dummy-coded *reference group*, and **"no intervention"** and **"WLC"** as dummy-coded **predictors**. If you wanted to swap those 
+Under `Test of Moderators`, we can see that control groups are not significantly associated with effect size differences `\(F_{2,15}=0.947\)`, `\(p=0.41\)`. Our regression model does not explain any of the variability in our effect size data ($R^2=0\%$). 
+Below `Model Results`, we can also see the `\(b\)`-values (`estimate`) of both predictors, and their significance level `pval`. As we can see, both predictors were not significant.
+
+---
+## Metaregression 
+
+Imagine that we wanted to test if publication year had affected the estimates of effect sizes.
+
+
+```r
+madata$pub_year&lt;-c(2001,2002,2011,2013,2013,2014,1999,2018,2001,2002,2011,2013,2013,2014,1999,2018,2003,2005)
+madata$pub_year&lt;-as.numeric(madata$pub_year)
+model_pub_year&lt;-metagen(TE,seTE,studlab = Author,comb.fixed = FALSE,data=madata)
+```
+
+---
+## Run the model.
+
+
+```r
+output_pub_year&lt;-metareg(model_pub_year,pub_year)
+sink("metareg_pub_year.txt")
+output_pub_year
+```
+
+```
+## 
+## Mixed-Effects Model (k = 18; tau^2 estimator: DL)
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0.0831 (SE = 0.0488)
+## tau (square root of estimated tau^2 value):             0.2883
+## I^2 (residual heterogeneity / unaccounted variability): 64.69%
+## H^2 (unaccounted variability / sampling variability):   2.83
+## R^2 (amount of heterogeneity accounted for):            0.00%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 16) = 45.3076, p-val = 0.0001
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 0.0054, p-val = 0.9412
+## 
+## Model Results:
+## 
+##           estimate       se     zval    pval     ci.lb    ci.ub 
+## intrcpt    -1.4580  27.6151  -0.0528  0.9579  -55.5825  52.6666    
+## pub_year    0.0010   0.0137   0.0737  0.9412   -0.0259   0.0280    
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+sink()
+```
+
+
+---
+## Basic plotting.
+
+
+```r
+bubble.metareg(output_pub_year,
+              xlab = "Publication Year",
+              col.line = "blue",
+              studlab = TRUE)
+```
+
+&lt;img src="Meta_analysis_5_files/figure-html/bubbleplot-1.svg" width="400px" style="display: block; margin: auto;" /&gt;
+
+---
+## Interactions,... .
+
+Thus far, we only considered the case where we have multiple predictor variables `\(x_1,x_2, ... x_n\)`, and along with their predictor estimates `\(\beta_n\)`, **add them together** to calculate our estimate of the true effect size `\(\hat \theta_k\)` for each study `\(k\)`. 
+
+In multiple meta-regression models, however, we can not only model such **additive relationships**. We can also model so-called **interactions** (multiplicative relationships), as in OLS regression. 
+
+Interactions mean that the **relationship** between one **predictor variable** (e.g., `\(x_1\)`) and the **estimated effect size** is different for different values of another predictor variable (e.g. `\(x_2\)`).
+
+---
+## Interaction: example
+
+Imagine a scenario where we want to model 2 predictors and their relationship to the estimated effect size `\(\hat\theta\)`: the **publication year** ($x_1$) of a study and the **quality** ($x_2$) of a study, which we rate like this:
+
+`$$\begin{equation}
+  x_2 = \left \{\begin{array}{ll}
+      0: bad
+      \\1: moderate
+      \\2: good
+    \end{array}
+  \right.
+\end{equation}$$`
+
+As we described before, we can now imagine a meta-regression model in which we combine these two predictors `\(x_1\)` and `\(x_2\)` and assume an additive relationship. We can do this by simply adding them:
+`$$\hat \theta_k = \theta + \beta_1x_{1k} + \beta_2x_{2k} + \epsilon_k + \zeta_k$$` 
+
+
+---
+## Example: continued.
+
+Let's assume that, overall, higher publication year ($x_1$) is associated with higher effect sizes (i.e., reported effect sizes have risen over the years). We could now ask ourselves if this positive relationship **varies** depending on the quality of the studies ($x_2$). 
+
+The rise in effect sizes was strongest for high-quality studies, while effect sizes stayed mostly the same over the years for studies of lower quality? 
+
+Visualisation of assumed relationship between effect size ($\hat \theta_k$), publication year ($x_1$) and study quality ($x_2$) the following way:
+
+---
+## Interaction equation.
+
+**Interaction term** to our meta-regression model. This interaction term allows predictions of `\(x_1\)` to vary for different values of `\(x_2\)` (and vice versa). This means introducing a third predictor, `\(\beta_3\)`, capturing this interaction `\(x_{1k}x_{2k}\)` :
+`$$\hat \theta_k = \theta + \beta_1x_{1k} + \beta_2x_{2k} + \beta_3x_{1k}x_{2k}+ \epsilon_k + \zeta_k$$`
+
+---
+## Common pitfalls: Overfitting I
+
+* **Overfitting: seeing a signal when there is none**
+To better understand the risks of (multiple) meta-regression models, we have to understand the concept of **overfitting**. Statistical model which fits the data **too closely** (Harrell, 2015: 72-ff). 
+
+&lt;img src="overfitting.png" width="400px" style="display: block; margin: auto;" /&gt;
+
+---
+## Common pitfalls: Overfitting II
+
+Risk of building a **non-robust model, which produces false-positive results**, is **even higher** once we go from conventional regression to **meta-regression** . Several reasons exist:
+1.  Our **datasets are mostly small**, as we can only use the synthesized data of all analyzed studies `\(k\)`.
+2.  Meta-analysis is **comprehensive overview of all evidence**, we have no **additional data** on which we can "test" how well our regression model can predict high or low effect sizes.
+3.  Heterogeneity causes problems. Every variable might be a potential explanation for the heterogeneity we find, while it seems straightforward: **most of such explanations are spurious** (Higgins &amp; Thompson,2004).
+4.  Meta-regression makes it very easy to **"play around" with predictors**.  This massively **increases the risk of spurious findings** (Higgins &amp; Thompson, 2004), because we can try several predictors indefinitely until we find a 'significant model', which is then very likely to be overfitted (i.e., it mostly models statistical noise).
+
+
+???
+We can test numerous meta-regression models, include many more predictors or remove them in an attempt to explain the heterogeneity in our data. Such an approach is of course tempting, and often found in practice, because we, as meta-analysts, want to find a significant model which explains why effect sizes differ (Higgins et al., 2002).
+---
+## Potential solutions.
+
+**Some guidelines have been proposed to avoid an excessive false positive rate when building meta-regression models:**
+
+- Minimize the number of investigated predictors. In multiple meta-regression, this translates to the concept of **parsimony**, or simplicity: when evaluating the fit of a meta-regression model, we prefer models which achieve a good fit with less predictors. Information criteria such as the *Akaike* and *Bayesian information criterion* can help with such decisions (more to follow).
+- Predictor selection should be based on **predefined scientific or theoretical questions** we want to answer in our meta-regression.
+- When the number of studies is low (which is very likely to be the case), and we want to compute the significance of a predictor, the Knapp-Hartung adjustment (continuous outcomes) is recommended to obtain more reliable estimates (Higgins et al., 2002, Journal of Health Services).
+- We can use **permutation** to assess the robustness of our model in resampled data. We will describe the details of this method later.
+
+---
+## Common pitfalls: Multicollinearity
+
+Multicollinearity means that one or more predictorq in our regression model can be (linearly) **predicted from another predictor** in our model with relatively high accuracy (Harrell, 2015:78-ff). This basically means that we have two or more predictors in our model which are **highly correlated**. Most of the dangers of multicollinearity are associated with the problem of **overfitting** which we described above. High collinearity can cause our predictor coefficient estimates `\(b\)` to behave erratically, and change considerably with minor changes in our data. It also limits the size of the explained variance by the model, in our case the `\(R^2\)` analog. 
+
+**Multicollinearity in meta-regression is common** . Although multiple regression can handle lower degrees of collinearity, we should **check** and, if necessary, **control for very highly correlated predictors**. There is no consolidated yes-no-rule for the presence of multicollinearity. A crude, but often effective way is to check for very high correlations (i.e., `\(r\geq0.8\)`) before fitting the model. Multicollinearity can then be reduced by either (1) removing one of the close-to-redundant predictors, or (2) trying to combine the predictors into one single predictor.
+
+---
+## Example.
+
+We will rely on the `metafor` package rather than the `meta` package.
+
+
+```r
+library(metafor)
+library(tidyverse)
+```
+
+For our multiple meta-regression examples, we will use [Harrer (2019)](https://github.com/MathiasHarrer/Doing-Meta-Analysis-in-R/blob/master/mvreg_data.rda) `mvreg.data` dataset, a "toy" dataset, simulated for illustrative purposes. 
+
+
+```r
+load("mvreg_data.rda")
+levels(mvreg.data$continent)[levels(mvreg.data$continent)==0] = "Europe"
+levels(mvreg.data$continent)[levels(mvreg.data$continent)==1] = "North America"
+mvreg.data$continent = as.character(mvreg.data$continent)
+```
+
+---
+## Data
+
+**Let's have a look at the structure of the data:** 
+
+
+```r
+head(mvreg.data)
+```
+
+```
+##           yi       sei reputation quality    pubyear     continent
+## 1 0.09437543 0.1959031        -11       6 -0.8547536 North America
+## 2 0.09981923 0.1918510          0       9 -0.7527718        Europe
+## 3 0.16931607 0.1193179        -11       5 -0.6604835 North America
+## 4 0.17511107 0.1161592          4       9 -0.5630484        Europe
+## 5 0.27301641 0.1646946        -10       2 -0.4308793 North America
+## 6 0.28594668 0.1704299         -9      10 -0.3582629        Europe
+```
+
+???
+We see that there are 6 variables in our dataset. The `yi` and `sei` columns store the **effect size** and **standard error** of a particular study. Thus, these columns correspond to the `TE` and `seTE` columns we used before. We have named these variables this way because this is the standard notation that `metafor` uses: `yi` corresponds to the effect size `\(y_i\)` we want to predict in our meta-regression, while `sei` is `\(SE_i\)`, the standard error. To designate the variance of an effect size, `metafor` uses `vi`, or `\(v_i\)` in mathematical notation, which we do not need here because `yi` and `sei` contain all the information we need.
+
+The other four variables we have in our dataset are potential predictors for our meta-regression. We want to check if `reputation`, the (mean-centered) impact score of the journal the study was published in, `quality`, the quality of the study rated from 0 to 10, `pubyear`, the (standardized) publication year, and `continent`, the continent in which the study was performed, are associated with different effect sizes.
+
+For `continent`, note that we store information as a predictor with 2 labels: `Europe` and `North America`, meaning that this predictor is a **dummy variable**. Always remember that such dummy variables have to be converted from a `chr` to a factor vector before we can proceed.
+
+
+---
+## Collinearity check
+
+Multicollinearity could be an issue. A quick way to check for high intercorrelation is to calculate a **intercorrelation matrix** for all continuous variables with the following code:
+
+
+```r
+cor_table&lt;-cor(mvreg.data[,3:5])
+cor_table
+```
+
+```
+##            reputation    quality    pubyear
+## reputation  1.0000000  0.3015694  0.3346594
+## quality     0.3015694  1.0000000 -0.1551123
+## pubyear     0.3346594 -0.1551123  1.0000000
+```
+
+
+---
+## Correlation plot
+
+The `ggcorrplot` package allows visualising the intercorrelations. Make sure to install the `ggcorrplot` package first, and then use this code:
+
+
+```r
+require(ggcorrplot)
+ggcorrplot(cor_table, hc.order = TRUE, type = "lower",
+   lab = TRUE) 
+```
+
+&lt;img src="Meta_analysis_5_files/figure-html/unnamed-chunk-19-1.svg" width="400px" style="display: block; margin: auto;" /&gt;
+
+???
+Some correlations but not very large.
+
+---
+## Fitting a meta-regression model without interaction terms
+
+
+```r
+model_qual &lt;- rma(yi=yi, 
+              sei=sei, 
+              data=mvreg.data, 
+              method = "ML", 
+              mods = ~ quality, 
+              test="knha")
+sink("model_qual.txt")
+model_qual
+```
+
+```
+## 
+## Mixed-Effects Model (k = 36; tau^2 estimator: ML)
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0.0667 (SE = 0.0275)
+## tau (square root of estimated tau^2 value):             0.2583
+## I^2 (residual heterogeneity / unaccounted variability): 60.04%
+## H^2 (unaccounted variability / sampling variability):   2.50
+## R^2 (amount of heterogeneity accounted for):            7.37%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 34) = 88.6130, p-val &lt; .0001
+## 
+## Test of Moderators (coefficient 2):
+## F(df1 = 1, df2 = 34) = 3.5330, p-val = 0.0688
+## 
+## Model Results:
+## 
+##          estimate      se    tval    pval    ci.lb   ci.ub 
+## intrcpt    0.3429  0.1354  2.5318  0.0161   0.0677  0.6181  * 
+## quality    0.0356  0.0189  1.8796  0.0688  -0.0029  0.0740  . 
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+sink()
+```
+
+???
+We see that the `\(p\)` value for our predictor is non-significant `\(p=0.0744\)`, but only marginally so. Under `Test of Moderators (coefficient(s) 2)`, we can see the overall test results for our regression model ($F_{1,34}=3.68, p=0.0688$). Because we only included one predictor, the `\(p\)`-value reported there is identical to the one we saw before. In total, our model explains `\(R^2=7.37\%\)` of the heterogeneity in our data, which we can see next to the `R^2 (amount of heterogeneity accounted for)` line in our output. 
+
+---
+## Adding reputation as a moderator.
+
+
+```r
+model_qual_rep &lt;- rma(yi=yi, 
+              sei=sei, 
+              data=mvreg.data, 
+              method = "ML", 
+              mods = ~ quality + reputation, 
+              test="knha")
+sink("model_qual_rep.txt")
+model_qual_rep
+```
+
+```
+## 
+## Mixed-Effects Model (k = 36; tau^2 estimator: ML)
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0.0238 (SE = 0.0161)
+## tau (square root of estimated tau^2 value):             0.1543
+## I^2 (residual heterogeneity / unaccounted variability): 34.62%
+## H^2 (unaccounted variability / sampling variability):   1.53
+## R^2 (amount of heterogeneity accounted for):            66.95%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 33) = 58.3042, p-val = 0.0042
+## 
+## Test of Moderators (coefficients 2:3):
+## F(df1 = 2, df2 = 33) = 12.2476, p-val = 0.0001
+## 
+## Model Results:
+## 
+##             estimate      se    tval    pval    ci.lb   ci.ub 
+## intrcpt       0.5005  0.1090  4.5927  &lt;.0001   0.2788  0.7222  *** 
+## quality       0.0110  0.0151  0.7312  0.4698  -0.0197  0.0417      
+## reputation    0.0343  0.0075  4.5435  &lt;.0001   0.0189  0.0496  *** 
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+sink()
+```
+
+---
+## Comparing models via a Likelihood Ratio Test
+
+
+```r
+anova(model_qual, model_qual_rep)
+```
+
+```
+## 
+##         df     AIC     BIC    AICc   logLik     LRT   pval      QE  tau^2 
+## Full     4 19.4816 25.8157 20.7720  -5.7408                58.3042 0.0238 
+## Reduced  3 36.9808 41.7314 37.7308 -15.4904 19.4992 &lt;.0001 88.6130 0.0667 
+##              R^2 
+## Full 
+## Reduced 64.3197%
+```
+
+???
+The test is highly significant ($\chi^2_1=19.50, p&lt;0.001$), which means that that our full model indeed provides a better fit. Another important statistic is reported in the `AICc` column. This provides us with the *Akaike's Information Criterion*, corrected for small samples. As we mentioned before, AICc penalizes complex models with more predictors to avoid overfitting. It is important to note that **lower values of AIC(c) mean that a model performs better**. Interestingly, in our output, we see that the full model ($AICc=20.77$) has a better AIC value than our reduced model ($AICc=37.73$), despite having more predictors. All of this suggests that our multiple regression **does indeed provide a good fit** to our data.
+
+---
+## AIC(c) / BIC
+
+Too much to cover here. But these are information criteria which allows comparing models (derived on Maximum Likelihood, ML). 
+
+Smaller AIC/BIC is better.
+
+We should be careful with rules of thumb but these have been proposed (Burnham &amp; Anderson, 2002, 2004):
+
+_Models having `\(\Delta \leq 2\)` are on a par, those where `\(4 \leq \Delta \leq 7\)` the lowest one has moderate support over the other, and cases where `\(\Delta \geq 10\)` have strong support over the other._
+
+AICc is a correction for small samples (Burnham &amp; Anderson, 2002).
+
+---
+## Modeling interaction terms
+
+Model an **interaction hypothesis** with predictors `pubyear` (publication year) and `continent`. 
+Examine the relationship between publication year and effect size differs for Europe and North America. To model this in our `rma` function, we have to **connect our predictors** with `*` in the `mods` parameter. 
+
+Here, we do not compare the models directly using the `anova` function, we specify the `\(\tau^2\)` estimator to be `"REML"` (restricted maximum likelihood) this time:
+
+
+```r
+interaction_model &lt;- rma(yi=yi,
+                         sei=sei, 
+                         data=mvreg.data, 
+                         method = "REML", 
+                         mods = ~ pubyear*continent, 
+                         test="knha")
+sink("interaction_model.txt")
+interaction_model
+```
+
+```
+## 
+## Mixed-Effects Model (k = 36; tau^2 estimator: REML)
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0 (SE = 0.0098)
+## tau (square root of estimated tau^2 value):             0
+## I^2 (residual heterogeneity / unaccounted variability): 0.00%
+## H^2 (unaccounted variability / sampling variability):   1.00
+## R^2 (amount of heterogeneity accounted for):            100.00%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 32) = 24.8408, p-val = 0.8124
+## 
+## Test of Moderators (coefficients 2:4):
+## F(df1 = 3, df2 = 32) = 28.7778, p-val &lt; .0001
+## 
+## Model Results:
+## 
+##                                 estimate      se    tval    pval    ci.lb 
+## intrcpt                           0.3892  0.0421  9.2472  &lt;.0001   0.3035 
+## pubyear                           0.1683  0.0834  2.0184  0.0520  -0.0015 
+## continentNorth America            0.3986  0.0658  6.0539  &lt;.0001   0.2645 
+## pubyear:continentNorth America    0.6323  0.1271  4.9754  &lt;.0001   0.3734 
+##                                  ci.ub 
+## intrcpt                         0.4750  *** 
+## pubyear                         0.3380    . 
+## continentNorth America          0.5327  *** 
+## pubyear:continentNorth America  0.8911  *** 
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+sink()
+```
+
+???
+Note that `metafor` automatically **includes not only the interaction term**, but also both `pubyear` and `contintent` as **"normal" lower-order predictors** (as one should do). Also note that, as `continent` is a factor, `rma` detected that this is a **dummy predictor**, and used our category `Europe` as the `\(D=0\)` dummy against which the `North America` category is compared. We see that our interaction term `pubyear:continentNorth America` has a positive coefficient ($b=0.6323$), and that it is highly significant ($p&lt;0.0001$), meaning that assumed interaction effect might in fact exist: there is an increase in effect sizes in recent years, but it is stronger for studies conducted in North America. We also see that model we fitted explains `\(R^2=100\%\)` of our heterogeneity. This is because our data was simulated for illustrative purposes. In practice, you will hardly ever explain **all** of the heterogeneity in your data (in fact, one should rather be concerned if one finds such results in real-life data, as this might mean we have overfitted our model).
+
+---
+## Permutation test.
+
+Permutation is a process where we **rearrange**, or **shuffle**, the order of our data. As an example, imagine we have a set `\(S\)` containing **3 numbers**: `\(S=\{1,2,3 \}\)`. One possible permutation of this set is `\((2,1,3)\)`; another is `\((3,2,1)\)`. Permuted results both contain **all 3 numbers from before**, but in a different order.
+
+Permutation can also be used to perform **permutation tests**, which is a specific form of **resampling methods**. These can be used to validate the **robustness** of a statistical model by providing it with (slightly) different data sampled from the same data source or generative process (Good, 2013). It allows us ** to assess if the coeffients capture a true pattern underlying our data**, or if we falsely assumed patterns, when they are statistical noise.
+
+Technical details (Good, 2013; Viechtbauer 2015): In brief, we **re-calculate** the **p-values** of our overall meta-regression model and its coefficients based on the test statitics obtained across all possible, or many randomly selected, permutations. **How often is the test statistic we obtain from in our permuted data equal or greater than our original test statistic?**. F
+
+---
+## Permutation test via `metafor`
+
+Default is 1,000 permutations. You can change this iter=10,000. If you have a lot of time, you can also ask for an exact permutation test.
+
+
+```r
+permutest(model_qual_rep, iter=10000)
+```
+
+???
+We again see our **familiar output** including the **results for all predictors**. Looking at the `pval*` column, we see that our p-value for the `reputation` predictor has decreased from `\(p&lt;0.0001\)` to `\(p^*=0.001\)`. The p-value of our overall model has decreased from `\(p=0.0001\)` to `\(p^*=0.001\)`. However, as both of these p-values are still highly significant, this indicates that our model might indeed capture a real pattern underlying our data. It has been **recommended** to always use this **permutation test on our meta-regression model before we report a meta-regression model** to be significant in our research [@higgins2004controlling]. 
+
+---
+## Output.
+
+
+```r
+permutest(model_qual_rep)
+```
+
+```
+## Running 1000 iterations for approximate permutation test.
+## 
+  |                                                                       
+  |                                                                 |   0%
+  |                                                                       
+  |                                                                 |   1%
+  |                                                                       
+  |=                                                                |   1%
+  |                                                                       
+  |=                                                                |   2%
+  |                                                                       
+  |==                                                               |   2%
+  |                                                                       
+  |==                                                               |   3%
+  |                                                                       
+  |==                                                               |   4%
+  |                                                                       
+  |===                                                              |   4%
+  |                                                                       
+  |===                                                              |   5%
+  |                                                                       
+  |====                                                             |   5%
+  |                                                                       
+  |====                                                             |   6%
+  |                                                                       
+  |====                                                             |   7%
+  |                                                                       
+  |=====                                                            |   7%
+  |                                                                       
+  |=====                                                            |   8%
+  |                                                                       
+  |======                                                           |   8%
+  |                                                                       
+  |======                                                           |   9%
+  |                                                                       
+  |======                                                           |  10%
+  |                                                                       
+  |=======                                                          |  10%
+  |                                                                       
+  |=======                                                          |  11%
+  |                                                                       
+  |=======                                                          |  12%
+  |                                                                       
+  |========                                                         |  12%
+  |                                                                       
+  |========                                                         |  13%
+  |                                                                       
+  |=========                                                        |  13%
+  |                                                                       
+  |=========                                                        |  14%
+  |                                                                       
+  |=========                                                        |  15%
+  |                                                                       
+  |==========                                                       |  15%
+  |                                                                       
+  |==========                                                       |  16%
+  |                                                                       
+  |===========                                                      |  16%
+  |                                                                       
+  |===========                                                      |  17%
+  |                                                                       
+  |===========                                                      |  18%
+  |                                                                       
+  |============                                                     |  18%
+  |                                                                       
+  |============                                                     |  19%
+  |                                                                       
+  |=============                                                    |  19%
+  |                                                                       
+  |=============                                                    |  20%
+  |                                                                       
+  |=============                                                    |  21%
+  |                                                                       
+  |==============                                                   |  21%
+  |                                                                       
+  |==============                                                   |  22%
+  |                                                                       
+  |===============                                                  |  22%
+  |                                                                       
+  |===============                                                  |  23%
+  |                                                                       
+  |===============                                                  |  24%
+  |                                                                       
+  |================                                                 |  24%
+  |                                                                       
+  |================                                                 |  25%
+  |                                                                       
+  |=================                                                |  25%
+  |                                                                       
+  |=================                                                |  26%
+  |                                                                       
+  |=================                                                |  27%
+  |                                                                       
+  |==================                                               |  27%
+  |                                                                       
+  |==================                                               |  28%
+  |                                                                       
+  |===================                                              |  28%
+  |                                                                       
+  |===================                                              |  29%
+  |                                                                       
+  |===================                                              |  30%
+  |                                                                       
+  |====================                                             |  30%
+  |                                                                       
+  |====================                                             |  31%
+  |                                                                       
+  |====================                                             |  32%
+  |                                                                       
+  |=====================                                            |  32%
+  |                                                                       
+  |=====================                                            |  33%
+  |                                                                       
+  |======================                                           |  33%
+  |                                                                       
+  |======================                                           |  34%
+  |                                                                       
+  |======================                                           |  35%
+  |                                                                       
+  |=======================                                          |  35%
+  |                                                                       
+  |=======================                                          |  36%
+  |                                                                       
+  |========================                                         |  36%
+  |                                                                       
+  |========================                                         |  37%
+  |                                                                       
+  |========================                                         |  38%
+  |                                                                       
+  |=========================                                        |  38%
+  |                                                                       
+  |=========================                                        |  39%
+  |                                                                       
+  |==========================                                       |  39%
+  |                                                                       
+  |==========================                                       |  40%
+  |                                                                       
+  |==========================                                       |  41%
+  |                                                                       
+  |===========================                                      |  41%
+  |                                                                       
+  |===========================                                      |  42%
+  |                                                                       
+  |============================                                     |  42%
+  |                                                                       
+  |============================                                     |  43%
+  |                                                                       
+  |============================                                     |  44%
+  |                                                                       
+  |=============================                                    |  44%
+  |                                                                       
+  |=============================                                    |  45%
+  |                                                                       
+  |==============================                                   |  45%
+  |                                                                       
+  |==============================                                   |  46%
+  |                                                                       
+  |==============================                                   |  47%
+  |                                                                       
+  |===============================                                  |  47%
+  |                                                                       
+  |===============================                                  |  48%
+  |                                                                       
+  |================================                                 |  48%
+  |                                                                       
+  |================================                                 |  49%
+  |                                                                       
+  |================================                                 |  50%
+  |                                                                       
+  |=================================                                |  50%
+  |                                                                       
+  |=================================                                |  51%
+  |                                                                       
+  |=================================                                |  52%
+  |                                                                       
+  |==================================                               |  52%
+  |                                                                       
+  |==================================                               |  53%
+  |                                                                       
+  |===================================                              |  53%
+  |                                                                       
+  |===================================                              |  54%
+  |                                                                       
+  |===================================                              |  55%
+  |                                                                       
+  |====================================                             |  55%
+  |                                                                       
+  |====================================                             |  56%
+  |                                                                       
+  |=====================================                            |  56%
+  |                                                                       
+  |=====================================                            |  57%
+  |                                                                       
+  |=====================================                            |  58%
+  |                                                                       
+  |======================================                           |  58%
+  |                                                                       
+  |======================================                           |  59%
+  |                                                                       
+  |=======================================                          |  59%
+  |                                                                       
+  |=======================================                          |  60%
+  |                                                                       
+  |=======================================                          |  61%
+  |                                                                       
+  |========================================                         |  61%
+  |                                                                       
+  |========================================                         |  62%
+  |                                                                       
+  |=========================================                        |  62%
+  |                                                                       
+  |=========================================                        |  63%
+  |                                                                       
+  |=========================================                        |  64%
+  |                                                                       
+  |==========================================                       |  64%
+  |                                                                       
+  |==========================================                       |  65%
+  |                                                                       
+  |===========================================                      |  65%
+  |                                                                       
+  |===========================================                      |  66%
+  |                                                                       
+  |===========================================                      |  67%
+  |                                                                       
+  |============================================                     |  67%
+  |                                                                       
+  |============================================                     |  68%
+  |                                                                       
+  |=============================================                    |  68%
+  |                                                                       
+  |=============================================                    |  69%
+  |                                                                       
+  |=============================================                    |  70%
+  |                                                                       
+  |==============================================                   |  70%
+  |                                                                       
+  |==============================================                   |  71%
+  |                                                                       
+  |==============================================                   |  72%
+  |                                                                       
+  |===============================================                  |  72%
+  |                                                                       
+  |===============================================                  |  73%
+  |                                                                       
+  |================================================                 |  73%
+  |                                                                       
+  |================================================                 |  74%
+  |                                                                       
+  |================================================                 |  75%
+  |                                                                       
+  |=================================================                |  75%
+  |                                                                       
+  |=================================================                |  76%
+  |                                                                       
+  |==================================================               |  76%
+  |                                                                       
+  |==================================================               |  77%
+  |                                                                       
+  |==================================================               |  78%
+  |                                                                       
+  |===================================================              |  78%
+  |                                                                       
+  |===================================================              |  79%
+  |                                                                       
+  |====================================================             |  79%
+  |                                                                       
+  |====================================================             |  80%
+  |                                                                       
+  |====================================================             |  81%
+  |                                                                       
+  |=====================================================            |  81%
+  |                                                                       
+  |=====================================================            |  82%
+  |                                                                       
+  |======================================================           |  82%
+  |                                                                       
+  |======================================================           |  83%
+  |                                                                       
+  |======================================================           |  84%
+  |                                                                       
+  |=======================================================          |  84%
+  |                                                                       
+  |=======================================================          |  85%
+  |                                                                       
+  |========================================================         |  85%
+  |                                                                       
+  |========================================================         |  86%
+  |                                                                       
+  |========================================================         |  87%
+  |                                                                       
+  |=========================================================        |  87%
+  |                                                                       
+  |=========================================================        |  88%
+  |                                                                       
+  |==========================================================       |  88%
+  |                                                                       
+  |==========================================================       |  89%
+  |                                                                       
+  |==========================================================       |  90%
+  |                                                                       
+  |===========================================================      |  90%
+  |                                                                       
+  |===========================================================      |  91%
+  |                                                                       
+  |===========================================================      |  92%
+  |                                                                       
+  |============================================================     |  92%
+  |                                                                       
+  |============================================================     |  93%
+  |                                                                       
+  |=============================================================    |  93%
+  |                                                                       
+  |=============================================================    |  94%
+  |                                                                       
+  |=============================================================    |  95%
+  |                                                                       
+  |==============================================================   |  95%
+  |                                                                       
+  |==============================================================   |  96%
+  |                                                                       
+  |===============================================================  |  96%
+  |                                                                       
+  |===============================================================  |  97%
+  |                                                                       
+  |===============================================================  |  98%
+  |                                                                       
+  |================================================================ |  98%
+  |                                                                       
+  |================================================================ |  99%
+  |                                                                       
+  |=================================================================|  99%
+  |                                                                       
+  |=================================================================| 100%
+```
+
+```
+## 
+## Test of Moderators (coefficients 2:3):
+## F(df1 = 2, df2 = 33) = 12.2476, p-val* = 0.0010
+## 
+## Model Results:
+## 
+##             estimate      se    tval   pval*    ci.lb   ci.ub 
+## intrcpt       0.5005  0.1090  4.5927  0.1890   0.2788  0.7222      
+## quality       0.0110  0.0151  0.7312  0.4280  -0.0197  0.0417      
+## reputation    0.0343  0.0075  4.5435  0.0010   0.0189  0.0496  *** 
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+---
+## Permutation test: 
+
+**Recommendation** to use this **permutation test on our meta-regression model before we report a meta-regression model**.
+
+If the **number of studies** `\(k\)` included in our model is **small**, conventionally used tresholds for statistical significance (i.e., p &lt; 0.05) **cannot be reached**. A permutation test using `permutest` can only reach statistical significance if `\(k \geq 5\)`. Details on the `permutest` function can be found [here](https://www.rdocumentation.org/packages/metafor/versions/2.1-0/topics/permutest). Note that you can for example also gain Confidence Intervals.  
+
+
+---
+## Review: Pros/cons of meta-regression.
+
+Pros:
+
+- We don't have to dichotomize continuous moderators.
+- We can test more than one predictor in a uniform framework (controlling for another, if we have a large number of studies but [beware](http://www.the100.ci/2017/03/14/that-one-weird-third-variable-problem-nobody-ever-mentions-conditioning-on-a-collider/))
+
+Cons:
+
+- Low statistical power (small samples and possibly reliability issues). It's regression... .
+- Often more predictors than studies (small N, large p problem.)
+- Overfitting... .
+
+---
+## Some recommendations...
+
+- Hypothesize about a limited set of moderators _a priori_
+- Analyse categorical moderators with subgroups (but beware of correlated moderators)
+- Be very cautious with meta-regression.
+- If evidence for a strong moderator effect, avoid interpreting the overall effect size found and remove emphasis from it in your write up.
+
+&lt;img src="https://media.giphy.com/media/3ohzdRoOp1FUYbtGDu/giphy.gif" width="600px" style="display: block; margin: auto;" /&gt;
+
+???
+Readers will tend to focus on the headline and ignore the effects of moderators, i.e. the effect being found.
+
+---
+## Any Questions?
+
+[http://tvpollet.github.io](http://tvpollet.github.io)
+
+Twitter: @tvpollet
+
+&lt;img src="https://media.giphy.com/media/3ohzdRoOp1FUYbtGDu/giphy.gif" width="600px" style="display: block; margin: auto;" /&gt;
+
+---
+## Acknowledgments
+
+* Numerous students and colleagues. Any mistakes are my own.
+
+* My colleagues who helped me with regards to meta-analysis Nexhmedin Morina, Stijn Peperkoorn, Gert Stulp, Mirre Simons, Johannes Honekopp.
+
+* HBES for funding this Those who have funded me (not these studies per se): [NWO](www.nwo.nl), [Templeton](www.templeton.org), [NIAS](http://nias.knaw.nl).
+
+* You for listening!
+
+&lt;img src="https://media.giphy.com/media/10avZ0rqdGFyfu/giphy.gif" width="300px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+
+---
+## References and further reading
+
+&lt;p&gt;&lt;cite&gt;Aloe, A. M. and C. G. Thompson
+(2013).
+&amp;ldquo;The Synthesis of Partial Effect Sizes&amp;rdquo;.
+In: &lt;em&gt;Journal of the Society for Social Work and Research&lt;/em&gt; 4.4, pp. 390-405.
+DOI: &lt;a href="https://doi.org/10.5243/jsswr.2013.24"&gt;10.5243/jsswr.2013.24&lt;/a&gt;.
+eprint: https://doi.org/10.5243/jsswr.2013.24.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Barendregt, J. J, S. A. Doi, Y. Y. Lee, et al.
+(2013).
+&amp;ldquo;Meta-Analysis of Prevalence&amp;rdquo;.
+In: &lt;em&gt;Journal of Epidemiology and Community Health&lt;/em&gt; 67.11, pp. 974-978.
+ISSN: 0143-005X.
+DOI: &lt;a href="https://doi.org/10.1136/jech-2013-203104"&gt;10.1136/jech-2013-203104&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Becker, B. J. and M. Wu
+(2007).
+&amp;ldquo;The Synthesis of Regression Slopes in Meta-Analysis&amp;rdquo;.
+In: &lt;em&gt;Statistical science&lt;/em&gt; 22.3, pp. 414-429.
+ISSN: 0883-4237.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Borenstein, M, L. V. Hedges, J. P. Higgins, et al.
+(2009).
+&lt;em&gt;Introduction to Meta-Analysis&lt;/em&gt;.
+John Wiley &amp;amp; Sons.
+ISBN: 1-119-96437-7.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Chen, D. D. and K. E. Peace
+(2013).
+&lt;em&gt;Applied Meta-Analysis with R&lt;/em&gt;.
+Chapman and Hall/CRC.
+ISBN: 1-4665-0600-8.&lt;/cite&gt;&lt;/p&gt;
+---
+## More refs.
+
+&lt;p&gt;&lt;cite&gt;Cooper, H.
+(2010).
+&lt;em&gt;Research Synthesis and Meta-Analysis: A Step-by-Step Approach&lt;/em&gt;.
+4th.
+Sage publications.
+ISBN: 1-4833-4704-4.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cooper, H, L. V. Hedges, and J. C. Valentine
+(2009).
+&lt;em&gt;The Handbook of Research Synthesis and Meta-Analysis&lt;/em&gt;.
+New York: Russell Sage Foundation.
+ISBN: 1-61044-138-9.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cooper, H. and E. A. Patall
+(2009).
+&amp;ldquo;The Relative Benefits of Meta-Analysis Conducted with Individual Participant Data versus Aggregated Data.&amp;rdquo;
+In: &lt;em&gt;Psychological Methods&lt;/em&gt; 14.2, pp. 165-176.
+ISSN: 1433806886.
+DOI: &lt;a href="https://doi.org/10.1037/a0015565"&gt;10.1037/a0015565&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Crawley, M. J.
+(2013).
+&lt;em&gt;The R Book: Second Edition&lt;/em&gt;.
+New York, NY: John Wiley &amp;amp; Sons.
+ISBN: 1-118-44896-0.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cumming, G.
+(2014).
+&amp;ldquo;The New Statistics&amp;rdquo;.
+In: &lt;em&gt;Psychological Science&lt;/em&gt; 25.1, pp. 7-29.
+ISSN: 0956-7976.
+DOI: &lt;a href="https://doi.org/10.1177/0956797613504966"&gt;10.1177/0956797613504966&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

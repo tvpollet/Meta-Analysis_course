@@ -1,0 +1,32 @@
+
+Call:
+meta(y = cbind(ln_Odd_V, ln_Odd_NV), v = cbind(v_ln_Odd_V, cov_V_NV, 
+    v_ln_Odd_NV), data = BCG, model.name = "Random effects model")
+
+95% confidence intervals: z statistic approximation
+Coefficients:
+           Estimate Std.Error   lbound   ubound  z value Pr(>|z|)    
+Intercept1 -4.83374   0.34020 -5.50052 -4.16697 -14.2086  < 2e-16 ***
+Intercept2 -4.09597   0.43475 -4.94806 -3.24389  -9.4216  < 2e-16 ***
+Tau2_1_1    1.43137   0.58304  0.28863  2.57411   2.4550  0.01409 *  
+Tau2_2_1    1.75733   0.72425  0.33781  3.17684   2.4264  0.01525 *  
+Tau2_2_2    2.40733   0.96742  0.51122  4.30344   2.4884  0.01283 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Q statistic on the homogeneity of effect sizes: 5270.386
+Degrees of freedom of the Q statistic: 24
+P value of the Q statistic: 0
+
+Heterogeneity indices (based on the estimated Tau2):
+                             Estimate
+Intercept1: I2 (Q statistic)   0.9887
+Intercept2: I2 (Q statistic)   0.9955
+
+Number of studies (or clusters): 13
+Number of observed statistics: 26
+Number of estimated parameters: 5
+Degrees of freedom: 21
+-2 log likelihood: 66.17587 
+OpenMx status1: 0 ("0" or "1": The optimization is considered fine.
+Other values may indicate problems.)

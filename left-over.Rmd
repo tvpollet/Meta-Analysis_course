@@ -1,0 +1,80 @@
+---
+title: "left over"
+author: "Thomas"
+date: "22/07/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## Example.
+
+In the`madata` dataset, for which we generated `model_hksj`. Subgroup variable: `Control`. This variable specifies **which control group type was employed in which study**. There are **three subgroups**: `WLC` (waitlist control), `no intervention` and `information only`.
+
+---
+## Using `meta` byvar option.
+
+```{r}
+model_subgroup<-metagen(TE,
+        seTE,
+        data=madata,
+        studlab=paste(Author),
+        comb.fixed = TRUE,
+        comb.random = FALSE,
+        method.tau = "SJ",
+        byvar=Control,
+        hakn = TRUE,
+        prediction=TRUE,
+        sm="SMD",
+        tau.common=TRUE)
+```
+
+```{r}
+model_subgroup
+```
+
+
+---
+## The idea behind subgroup analyses: part 2
+
+**2. Comparing the effects of the subgroups**
+
+**We can compare the size of the effects of each subgroup**. However, to know if this difference is in fact significant and/or meaningful, we have to calculate the **Standard Error of the differences between subgroup effect sizes** $SE_{diff}$, to calculate **confidence intervals** and conduct **significance tests**. 
+
+There are **two ways to calculate** $SE_{diff}$, and both based on different assumptions. 
+* **Fixed-effects (plural) model**: The fixed-effects-model for subgroup comparisons is appropriate when **we are only interested in the subgroups at hand**. This is the case when **the subgroups we chose to examine** were not randomly "chosen", but represent fixed levels of a characteristic we want to examine. Gender is such a characteristic, as its two subgroups **female** and **male** were not randomly chosen, but are the two subgroups that gender (in its classical conception) has. Same does also apply, for example, if we were to examine if studies in patients with **clinical depression** versus **subclinical depression** yield different effects. Borenstein and Higgins argue that the **fixed-effects (plural) model** may be the **only plausible model** for most analysis in **medical research, prevention, and other fields**. 
+As this model assumes that **no further sampling error is introduced at the subgroup level** (because subgroups were not randomly sampled, but are fixed), $SE_{diff}$ only depends on the *variance within the subgroups* $A$ and $B$, $V_A$ and $V_B$.
+$$V_{Diff}=V_A + V_B$$
+The fixed-effects (plural) model can be used to test differences in the pooled effects between subgroups, while the pooling **within the subgroups is still conducted using a random-effects-model**. Such a combination is sometimes called a **mixed-effects-model**.
+* **Random-effects-model**: The random-effects-model for between-subgroup-effects is appropriate when the **subgroups we use were randomly sampled from a population of subgroups**. Such an example would be if we were interested if the effect of an intervention **varies by region** by looking at studies from 5 different countries. These variable "region" has many different potential subgroups (countries), from which we randomly selected five means that this has introduced a **new sampling error**, for which we have to control for using the **random-effects-model** for between-subgroup-comparisons.
+The (simplified) formula for the estimation of $V_{Diff}$ using this model therefore looks like this:
+$$V_{Diff}=V_A + V_B + \frac{\hat T^2_G}{m} $$
+Where $\hat T^2_G$ is the **estimated variance between the subgroups**, and $m$ is the **number of subgroups**.
+
+---
+
+---
+## Interpreting result.
+
+* The **pooled effects of the subgroups differ quite substantially** (*g* = 0.40-0.78), this difference is **not statistically significant**. 
+
+* Test for subgroup differences (mixed/fixed-effects (plural) model)` in the `Between groups` row. We can see that $Q=3.03$ and $p=0.2196$
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

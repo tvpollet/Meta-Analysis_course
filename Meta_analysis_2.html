@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Meta-analysis course Day 1: part 2</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Thomas Pollet (@tvpollet), Northumbria University" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Meta-analysis course Day 1: part 2
+### Thomas Pollet (<span class="citation">@tvpollet</span>), Northumbria University
+### 2019-06-28 | <a href="http://tvpollet.github.io/disclaimer">disclaimer</a>
+
+---
+
+
+
+
+
+
+
+
+
+---
+## Outline Course.
+
+* What is a meta-analysis?
+
+* Effect sizes.
+
+ADD STUFF
+
+---
+## Effect sizes
+
+Effect sizes:
+* make studies comparable
+* allows us to do c
+* is our 'dependent variable' ()
+
+--
+
+Any standardised metric can be an 'effect size' (correlation coefficient, odds ratio, etc), if:
+* comparable across studies
+* represents the **magnitude** and **direction** of the relationship of interest.
+* is independent of sample size (but we'll need some way to weigh it)
+
+
+---
+## Effect sizes: types
+
+* d family of effect sizes (Cohen's _d_) : e.g., Gender and Religiosity.
+* _r_ Family of effect sizes. : e.g., Age and facial attractiveness rating.
+* Effect sizes for categorical data (odds ratios) : e.g., Gender and mortality from alcohol abuse.
+
+---
+## Types of findings from research.
+
+Lipsey and Wilson (2001, p. 37) list different types of research findings:
+* One-variable “relationships” (e.g., proportions)
+* Two-variable relationships (e.g., correlations or mean differences)
+* Multivariate relationships (e.g., multiple regression or structural equation models) (not covered here)
+
+--
+
+Next to these, we often have reported test statistics (e.g., _t_, F-, `\(\chi^2\)`) --&gt; from these we can get effect sizes!
+
+---
+## Effect size.
+
+Definition: 'scale-free index of effect magnitude'
+
+--
+
+Which ones do you rely on most commonly?
+
+--
+
+These need to be comparable across studies if we want to compare between studies.
+
+---
+## Variance of effect size.
+
+* With the exception of some (e.g., a meta-analysis of prevalence) we will need some measure of variance ( `\(SE^2\)` )
+
+* This variance is a measure of statistical uncertainty. --&gt; they serve as a weight ( `\(1/SE^2\)` )
+
+* Effect sizes with large variances (i.e. small sample sizes) are weighted down.
+
+---
+## Variance of effect size II
+
+* Variance of effect sizes typically vary between studies. Most of the time, sample sizes (N) vary between studies.
+
+--
+
+* Why does this matter?
+
+--
+
+* Heteroscedasticity! (--&gt; violation of assumption)
+
+---
+## Effect size estimates and parameters.
+
+* Sample and (statistical) population as statistical concepts.
+
+* Effect size _estimates_ are based on studies.
+
+* Effect size _parameters_ refers to _population_ or the _true_ effect size.
+
+* Purpose of meta-analyis: make inference about effect size parameter based on effect size estimates.
+
+---
+## Overview
+
+Most common type of meta-analysis based on bivariate relationships.
+
+* The d family of effect sizes: a continuous and a
+(dichotomous) factor variable:
+  - Raw (unstandardized) mean difference
+  - Cohen’s _d_
+  - Hedge’s _g_
+
+* The r family of effect sizes: two continuous/ordinal
+variables, e.g.:
+   - Product-moment correlation coefficient (_r_)
+   - Spearman’s rank correlation coefficient ( `\(\rho\)` )
+
+* The odds ratio (OR) family, including proportions and other
+measures for categorical data, e.g.:
+   - Odds ratio (OR)
+   - Relative risk (RR)
+
+Do you know all of these?
+
+???
+Examples used largely follow @Borenstein2009
+
+---
+## Raw mean difference I
+
+Definition:
+
+* Raw difference between two (independent) means (e.g., comparison of a continuous variable by treatment and control group)
+* All studies in a meta-analysis use the **same** scale (e.g.,
+Height in cm, intelligence, Milliseconds,...)
+
+Definition of **population** parameter: `\(\theta\)` = `\(\Delta\)` :
+
+`$$\Delta=\mu_T - \mu_C$$`
+
+with:
+`\(\mu_T\)` , `\(\mu_c\)` : Independent population means for treatment and
+control group
+
+---
+## Raw mean difference II
+
+Effect size estimation:
+
+`$$D=\overline{X}_T - \overline{X}_C$$`
+
+whereby:
+`\(\overline{X}_T\)` , `\(\overline{X}_C\)` : Independent sample means for treatment and control group.
+
+---
+## Raw mean difference III
+
+Sampling variance of the effect size (_D_) is also needed.
+
+Let's assume that the _population_ SDs for `\(\mu_T\)` and `\(\mu_C\)` are the same then:
+
+`$$Var(D) = \frac{n_T+n_C}{n_Tn_C}{SD}^2_{pooled}$$`
+
+whereby
+
+`$${SD}_{pooled} = \sqrt{\frac{(n_T-1){SD}^2_{T}+(n_T-1){SD}^2_{C}}{n_T+n_C-2}}$$`
+
+[Pooled Standard deviation refresher](https://vimeo.com/68706988) using pint prices in Newcastle and London.
+
+---
+## Very Basic example by hand.
+
+.tiny[
+
+```r
+## Heart rates, note that I didn't capitalise subscripts
+y_t &lt;- 120; sd_t &lt;- 10.5; n_t &lt;- 50
+y_c &lt;- 100; sd_c &lt;- 10; n_c &lt;- 50
+## D:
+y_t - y_c
+```
+
+```
+## [1] 20
+```
+
+```r
+## If we assume that at population level sd_t = sd_c, then
+numerator &lt;- (((n_t - 1)*sd_t^2) + ((n_c - 1)*sd_c^2))
+(sd_pooled &lt;- sqrt(numerator / (n_t + n_c - 2)))
+```
+
+```
+## [1] 10.25305
+```
+
+```r
+## Variance of D
+(var_d &lt;- ((n_t + n_c)/(n_t * n_c)) * sd_pooled^2)
+```
+
+```
+## [1] 4.205
+```
+
+```r
+## SE of D
+sqrt(var_d)
+```
+
+```
+## [1] 2.05061
+```
+]
+
+---
+## Different population standard deviations
+
+If we cannot assume the same population standard deviations.
+
+`$$Var(D) = \frac{{SD}^2_{T}}{n_T} + \frac{{SD}^2_{C}}{n_C}$$`
+
+---
+## Standardized Mean Differences (SMD), _d_
+
+The standardized mean difference could be appropriate when:
+
+* Studies use different (continuous) outcome measures
+* Study designs compare the mean outcomes in treatment
+and control groups.
+* Analyses use ANOVA, _t_-tests, or sometimes `\(\chi^2\)`
+(if the underlying outcome can be viewed as continuous)
+
+---
+## Extract relevant information.
+
+Before we can proceed, you'd need to assess what's available and what's not. In studies you'll be looking for the following.
+
+  * Sample size
+  * ANOVA tables
+  * F or _t_ tests as reported in text
+  * Tables of counts ( `\(\chi^2\)` )
+
+---
+## Standardized mean difference: Cohen’s _d_ I
+
+Definition:
+* Difference between two (independent) means (e.g., comparison of a continuous variable by treatment and control group).
+* Studies use different dependent variables with different measurement scales and thus study outcomes cannot becompared directly.
+
+Definition of **population** parameter: `\(\theta\)` = `\(\delta\)` :
+
+`$$\delta= \frac{\mu_T - \mu_C}{\sigma}$$` with `\(\sigma_T = \sigma_C =\sigma\)` (thus assuming _population_ standard deviations are the same)
+
+with:
+`\(\mu_T\)` , `\(\mu_C\)` : Independent population means for treatment and
+control group
+
+???
+sigma = standard deviation.
+
+---
+## Standardized mean difference: Cohen’s _d_ II
+
+Effect size estimation:
+
+`$$d=\frac{\overline{X}_T - \overline{X}_C}{{SD}_{pooled}}$$`
+
+whereby:
+`\(\overline{X}_T\)` , `\(\overline{X}_C\)` : Independent sample means for treatment and control group.
+
+---
+## Standardized mean difference: Cohen’s _d_ III
+
+Sampling variance of effect size: Given the two sample standard deviation `\(SD_T\)` and `\(SD_C\)`, the variance of _d_ can be approximately estimated as:
+
+`$$Var(d) = \frac{n_T+n_C}{n_Tn_C}+\frac{d^2}{2(n_T+n_C)}$$`
+
+---
+## Again, a very basic example by hand.
+
+
+```r
+y_t &lt;- 120; sd_t &lt;- 5.5; n_t &lt;- 50
+y_c &lt;- 100; sd_c &lt;- 4.5; n_c &lt;- 50
+## If we assume that the population level standard deviations are the same, then
+numerator &lt;- (((n_t - 1)*sd_t^2) + ((n_c - 1)*sd_c^2))
+(sd_pooled &lt;- sqrt(numerator / (n_t + n_c - 2)))
+```
+
+```
+## [1] 5.024938
+```
+
+```r
+## Cohen's d:
+(d &lt;- (y_t - y_c)/sd_pooled)
+```
+
+```
+## [1] 3.980149
+```
+
+```r
+## Variance of Cohen's d:
+(var_d &lt;- ((n_t + n_c)/(n_t * n_c)) + ((d^2) / (2 * (n_t + n_c))))
+```
+
+```
+## [1] 0.1192079
+```
+
+```r
+## SE of Cohen's d:
+sqrt(var_d)
+```
+
+```
+## [1] 0.345265
+```
+
+
+---
+## Standardized mean difference: Hedges' _g_ I
+
+Definition: In small samples, Cohen’s d tends to overestimate `\(\mid\delta\mid\)`. It can be corrected by applying a simple correction factor _J_ which yields an unbiased estimate of `\(\delta\)`, this is called Hedges’ _g_.
+
+Definition of **population** parameter: `\(\theta\)` = `\(\delta\)` :
+
+`$$\delta= \frac{\mu_T - \mu_C}{\sigma}$$` with `\(\sigma_T = \sigma_C =\sigma\)` (thus assuming _population_ standard deviations are the same)
+
+with:
+`\(\mu_T\)` , `\(\mu_C\)` : Independent population means for treatment and
+control group
+
+---
+## Standardized mean difference: Hedges' _g_ II
+
+Effect size estimation:
+To convert from _d_ to _g_, a correction factor J can be used.
+The exact formula for _J_ can be found in Hedges (1981).
+Here, we present an approximation used by Borenstein (2009):
+
+_g_ = _J_ x _d_ , and `\(J= 1-\frac{3}{4df-1}\)`
+
+and `\(df= n_T + n_C - 2\)` for independent groups
+
+Sampling variance of effect size:
+
+`\(Var(g) = J^2 \ast Var(d)\)`
+
+---
+## Again, a very basic example by hand.
+
+
+```r
+## Hedge's g is based on Cohen's d
+## Calculate correction factor J
+J &lt;- (1 - (3/(4 * (n_t + n_c - 2) - 1)))
+J
+```
+
+```
+## [1] 0.9923274
+```
+
+```r
+## So, Hedge's g is
+g &lt;- d * J
+g
+```
+
+```
+## [1] 3.949611
+```
+
+```r
+## Variance
+(var_g &lt;- var_d * J)
+```
+
+```
+## [1] 0.1182933
+```
+
+```r
+## SE
+sqrt(var_g)
+```
+
+```
+## [1] 0.3439379
+```
+
+---
+## Overview
+
+Most common type of meta-analysis based on bivariate relationships.
+
+* The d family of effect sizes: a continuous and a
+(dichotomous) factor variable:
+  - Raw (unstandardized) mean difference
+  - Cohen’s _d_
+  - Hedge’s _g_
+
+* The r family of effect sizes: two continuous/ordinal
+variables, e.g.:
+  - Product-moment correlation coefficient (_r_)
+  - Spearman’s rank correlation coefficient ($\rho$)
+
+* The odds ratio (OR) family, including proportions and other
+measures for categorical data, e.g.:
+  - Odds ratio (OR)
+  - Relative risk (RR)
+
+---
+## Assumptions about the _r_ family of effect sizes.
+
+The correlation coefficient could be appropriate when:
+* studies have a continuous (ordinal) outcome measure,
+* study designs assess the relation between a quantitative
+predictor and the outcome (possibly controlling for
+covariates), or
+* the analysis uses regression (or GLM)
+(not covered here, [check here](https://www.researchgate.net/profile/Donaldo_Canales/post/Inclusion_of_standardized_regression_beta_coefficients_in_meta-analysis/attachment/59d61e116cda7b8083a17312/AS%3A272471683469335%401441973719973/download/Peterson+%282005%29+-+On+the+Use+of+Beta+Coefficients+in+Meta-Analysis.pdf)).
+
+???
+Better to use raw correlations but if not available, one can use beta's from regression,...
+
+---
+## Product moment correlation (Pearson _r_ ) I
+
+* The correlation coefficient measures the association
+between two metric variables _X_ and _Y_ and ranges between
+-1 to +1.
+* It is the standardized covariance (divided by the product of
+the standard deviations).
+* In most meta-analyses, though, we do not use _r_ but apply the so-called Fisher’s _z_ transformation (stabilize the variance; approximately normally distributed).
+
+Have you heard of Fisher's _z_ ? INSERT QUESTION in GOSOAPBOX
+
+---
+## Product moment correlation (Pearson _r_ ) II
+
+Definition of **population** parameter `\(\theta = \rho\)` ;
+
+`$$\rho = \frac{Cov(X,Y)}{SD_X \ast SD_Y}$$`
+
+whereby X,Y are metric variables and Cov(X,Y) is the covariance of X and Y, `\(SD_X\)` and `\(SD_Y\)` are standard deviations of X and Y, respectively.
+
+---
+## Product moment correlation (Pearson _r_ ) III
+
+`$$r = \frac{{}\sum_{i=1}^{n} (x_i - \overline{x})(y_i - \overline{y})}
+{\sqrt{\sum_{i=1}^{n} (x_i - \overline{x})^2(y_i - \overline{y})^2}}$$`
+
+whereby:
+* `\(x_i\)` and `\(y_i\)` are sample values of _X_ and _Y_ for observation _i_
+* `\(\overline{x}\)` and `\(\overline{y}\)`: Sample means of _X_ and _Y_
+* n= number of observations.
+
+[Alternative formulae](https://en.wikipedia.org/wiki/Pearson_correlation_coefficient)
+
+---
+## Fisher's _r_ to z transofrmation
+
+`$$z_r = 0.5 \ast ln\left(\frac{1+r}{1-r}\right)$$`
+
+and
+
+`$$r= \frac{e^{2 \ast z_r}+1}{e^{2 \ast z_r}-1}$$`
+
+---
+## Visually, what does this do?
+
+&lt;img src="Fisher_transformation.png" width="300px" style="display: block; margin: auto;" /&gt;
+
+---
+## Product moment correlation (Pearson _r_ ) IV
+
+Sampling variance for effect size.
+
+* For the raw Pearson correlation coefficient _r_:
+
+`$$Var(r)= \frac{(1-r^2)^2}{n-1}$$`
+
+* For Fisher's z transformed coefficient `\(z_r\)`:
+
+`$$Var(z_r)= \frac{1}{n-3}$$`
+
+---
+## An example by hand.
+
+
+```r
+## r and n is given as:
+r &lt;- 0.35555
+n &lt;- 150
+## Then, Fisher's z is calculated as follows:
+z_r &lt;- 0.5 * log((1 + r) / (1-r)) # log is natural logarithm / log10 is base 10
+z_r
+```
+
+```
+## [1] 0.3717827
+```
+
+```r
+# fun fact, this is the inverse hyperbolic tangent..., https://en.wikipedia.org/wiki/Inverse_hyperbolic_functions#Inverse_hyperbolic_tangent
+atanh(r)
+```
+
+```
+## [1] 0.3717827
+```
+
+```r
+## Variance:
+var_z_r &lt;- 1 /(n - 3)
+var_z_r
+```
+
+```
+## [1] 0.006802721
+```
+
+```r
+## SE
+sqrt(var_z_r)
+```
+
+```
+## [1] 0.08247861
+```
+
+---
+## Effect sizes for categorical data.
+
+If `\(\pi_T\)` and `\(\pi_C\)` denote the population probabilities of being part of the two groups T and C; and with `\(P_T\)` and `\(P_C\)` denote the sample probabilities, then _population_ and _sample_
+
+**Risk difference**: `$$\Delta = \pi_T - \pi_C$$` and `$$RD = P_T - P_C$$`
+
+**Risk ratio**: `$$\theta_{RR} = \pi_T /\pi_C$$` and `$$RR = P_T / P_C$$`
+
+**Odds ratio**: `$$\omega = \frac{\pi_T(1-\pi_C)}{\pi_C(1-\pi_T)}$$` and `$$OR = \frac{\pi_T(1-\pi_C)}{\pi_C(1-\pi_T)$$`
+
+---
+## Odds ratio I
+
+Start with odds ratio as most common,... .
+
+Definition:
+* Associations between two binary variables.
+* An odds ratio (OR) = 1 represents no effect, or no difference between treatment and control.
+* OR ranges between 0 and `\(+\infty\)`.
+* OR can be quite non-normal, that's why we typically take ln(OR), which can range from `\(-\infty\)` to `\(+\infty\)`, with 0 indicating no difference.
+
+---
+## Odds ratio II
+
+Definition of **population** parameter `\(\theta = \omega\)`
+
+`$$\omega = \frac{\pi_T/(1-\pi_T)}{\pi_C/(1-\pi_c)} = \frac{\pi_T(1-\pi_C)}{\pi_C(1-\pi_T)}$$`
+
+
+  | Treatment | Control
+--- | --- | ---
+Event | `\(n_{11}\)` | `\(n_{12}\)`
+Non-event | `\(n_{21}\)` | `\(n_{22}\)`
+
+`$$OR= \frac{n_{11}n_{22}}{n_{12}n_{21}}$$` -- which we then logtransform (ln(OR))
+
+---
+## Odds ratio III
+
+Sampling variance of effect size:
+
+The sampling variance of ln(OR) is calculated as:
+
+`$$Var(ln(OR)) = \frac{1}{n_{11}} + \frac{1}{n_{12}} + \frac{1}{n_{21}} + \frac{1}{n_{22}}$$`
+
+---
+## Odds ratio IV : example by hand...
+
+This example.
+
+| Dead | Alive
+--- | --- | ---
+Treated | 50 | 950
+Control | 100 | 900
+
+
+```r
+matrix_1&lt;-matrix(c(50,100,950,900), nr=2, nc=2)
+# product across diagonal and then divide, note [] to call elements.
+OR&lt;-(matrix_1[1,1]*matrix_1[2,2])/(matrix_1[1,2]*matrix_1[2,1])
+OR # the odds of being dead vs. alive are x times lower for treated vs. control.
+```
+
+```
+## [1] 0.4736842
+```
+
+```r
+log(OR)
+```
+
+```
+## [1] -0.7472144
+```
+---
+## Odds ratio V : example by hand (continued)...
+
+
+```r
+# We take the inverse to get a more interpretable number: the odds of being alive vs. dead are x times greater for
+1/OR
+```
+
+```
+## [1] 2.111111
+```
+
+```r
+log(1/OR) # log transform gives interpretable number!
+```
+
+```
+## [1] 0.7472144
+```
+
+```r
+Variance_ln_or&lt;-(1/matrix_1[1,1]) + (1/matrix_1[1,2]) + (1/matrix_1[2,1])  + (1/matrix_1[2,2])
+Variance_ln_or
+```
+
+```
+## [1] 0.03216374
+```
+
+---
+## Odds ratio VI
+
+There are alternative ways to estimate the odds ratio and ln(OR), one is known as the (Cochrane) Mantel-Haentszel procedure (MH or CMH). It turns out that this has some good properties (especially if sample sizes are small).
+
+--
+
+So, if you are able to calculate yourself something to consider (Rosenberg et al., 2013)
+
+--
+
+
+ADD bit on CMH.
+
+???
+Different authors use different terminology.
+
+---
+## Relative risk I
+
+Definition:
+* The relative risk ranges from 0 to infinity. (Relative Risk = Risk Ratio)
+* A relative risk (RR) of 1 indicates that there is no difference in risk between the two groups. A relative risk (RR) larger than one indicates that the treatment group has a higher risk than the control. A relative risk (RR) less than one indicates that the control group has a higher risk than the treatment group.
+* As was true for the odds ratio, the (natural) logarithm of the RR (LRR) has better statistical properties. The range of the LRR is from
+`\(-\infty\)` to `\(+\infty\)`, and as for the Ln(OR), a value of 0 indicates no treatment effect.
+
+---
+## Relative Risk II
+
+Definition of **population** parameter `\(\theta = \theta_{RR}\)`
+
+`$$\theta_{RR} = \pi_T /\pi_C$$`
+
+Effect size estimation: `$$RR = P_T / P_C$$`
+
+Relative Risk:
+
+| Treatment | Control | Total
+--- | --- | --- | ---
+Event | `\(P_{11}\)` | `\(P_{12}\)` |  `\(P_{1x}\)`
+Non-event | `\(P_{21}\)` | `\(P_{22}\)` |  `\(P_{2x}\)`
+Total | `\(P_{x1}\)` | `\(P_{x2}\)` |
+
+Whereby  `\(P_{x1}\)` and `\(P_{x2}\)` are the marginal proportions for treatment (first column) and control (second column).
+
+---
+## Relative risk IV: example by hand
+
+
+```r
+matrix_1_t&lt;-t(matrix_1) # transpose our table
+margins&lt;-margin.table(matrix_1_t,2) # this gets our margins.
+RR &lt;- (matrix_1_t[1,1] / margins[1]) / (matrix_1_t[1,2] / margins[2])
+RR # risk ratio of dying...
+```
+
+```
+## [1] 0.5
+```
+
+```r
+# Note is not the same as RR of staying alive!
+# (1/RR =/= (950/1000)/(900/1000) = 1.055556)
+log_rr&lt;-log(RR)
+var_log_rr &lt;- 1/matrix_1_t[1,1] - 1/margins[1] + 1/matrix_1_t[1,2] - 1/margins[2]
+var_log_rr
+```
+
+```
+## [1] 0.028
+```
+
+---
+## Types of findings from research.
+
+Lipsey and Wilson (2001, p. 37) list different types of research findings:
+* **One-variable “relationships” (e.g., proportions)**
+* Two-variable relationships (e.g., correlations or mean
+differences)
+* Multivariate relationships (e.g., multiple regression or
+structural equation models)
+
+---
+## Odds and proportions I
+
+Typically proportions are converted to odds. Note: Alternatives possible: use raw prevalence [Freeman-Tukey double arcsine transformation](https://jech.bmj.com/content/67/11/974) (Barendregt et al., 2013) but see Schwarzer et al. (2019).
+
+Odds are defined as the ratio of two probabilities, _p_ : probability of event and _1-p_ probability of even not happening.
+
+Definition of **population** parameter:  `$$\theta = \pi$$`
+
+`$$\pi= \frac{n_{event}}{n_{event}+n_{non-event}}$$`
+
+---
+## Odds and proportions II
+
+Calculation of outcome statistic:
+
+`$$odds=\frac{p}{1-p}$$`
+
+`$$logit=ln(odds)=ln(\frac{p}{1-p})$$`
+
+---
+## Odds and proportions III
+
+Variance of outcome statistic:
+
+The variance is only available for the logit:
+
+`$$Var(logit) = \frac{1}{n_{event}} + \frac{1}{n_{non-event}}$$`
+
+---
+## Odds and proportions IV
+
+
+```r
+## Titanic adult survival (N=2,092)
+n_survived &lt;- 654
+n_died &lt;- 1438
+p_died &lt;- n_died / (n_survived + n_died)
+odds &lt;- p_died / (1 - p_died)
+odds
+```
+
+```
+## [1] 2.198777
+```
+
+```r
+# Shorter:
+n_died/n_survived
+```
+
+```
+## [1] 2.198777
+```
+
+```r
+log(odds)
+```
+
+```
+## [1] 0.7879012
+```
+
+```r
+var_logit&lt;- 1/n_survived + 1/n_died
+var_logit
+```
+
+```
+## [1] 0.002224462
+```
+
+---
+## Conversion between effect sizes.
+
+We could convert everything to a common effect size based on _p_ values?
+
+_What do you think?_ **Thomas adds gosoapbox question**
+
+???
+Bad choice as:
+  - The same effect size can have different _p_'s as they differ N.
+  - different effect sizes can have the same _p_ value as they differ in N.
+
+---
+## Test statistics I
+
+Sometimes, studies just report test statistics, e.g. from a t-test, an ANOVA (_F_-statistic) or `\(\chi^2\)` test.
+
+--
+
+Usually not ideal for a meta-analysis as we need an effect size and a measure of sample  size some weight.
+
+--
+
+A test statistic is a function of both effect size **and** sample size.
+
+--
+
+In some cases, we can convert these statistics to an effect size (to one of the three families: _d_,_r_, OR)
+
+--
+
+Two examples based on Lipsey &amp; Wilson (2001; 172-ff). First: a Cohen's _d_ and then a Pearson _r_.
+
+---
+## Test statistics II
+
+* There are various calculators online (also converters between families):
+
+  - [http://www.campbellcollaboration.org/escalc/html/EffectSizeCalculator-Home.php](http://www.campbellcollaboration.org/escalc/html/EffectSizeCalculator-Home.php)
+  - [https://www.uccs.edu/lbecker/](https://www.uccs.edu/lbecker/)
+  - [https://www.polyu.edu.hk/mm/effectsizefaqs/calculator/calculator.html](https://www.polyu.edu.hk/mm/effectsizefaqs/calculator/calculator.html)
+  - [https://sites.google.com/site/lakens2/effect-sizes](https://sites.google.com/site/lakens2/effect-sizes)
+  - [r script requires .csv in certain format](https://gillianpepper.com/2018/09/13/looking-to-convert-various-statistics-to-correlation-coefficients-heres-a-script-i-made-earlier/) by my colleague Gillian Pepper.
+
+
+--
+
+* There is also an R package which does some common transforms. ('[esc](https://strengejacke.github.io/esc/)')
+
+--
+
+* Here, we'll do some transforms via the escalc function from the [metafor](http://www.metafor-project.org/doku.php) package.
+
+---
+## Exact _p_ and a t-value conversion.
+
+Example from Lipsey &amp; Wilson (2001):174-ff
+
+In a study you find reported: _“a t-test showed that the effect was statistically significant (p = .037), indicating a positive effect of treatment”._
+
+No _t_ reported but the reported n for each group: `\(n_1\)`= 10 and `\(n_2\)`= 22.
+
+`$$df= n_1 + n_2-2$$` given _p_= .037 and df= 20.
+
+
+```r
+# qt is quantile t distribution
+# two-tailed test
+# Try removing lower.tail=F what happens?
+qt(0.037/2, df=20, lower.tail = F)
+```
+
+```
+## [1] 2.234812
+```
+
+---
+## Cohen's d
+
+`$${\lvert}d{\rvert} = t*\sqrt{\left(\frac{n_1+n_2}{n_1*n_2}\right)}$$`
+
+Remember _t_= 2.234812
+
+`$${\lvert}d{\rvert} = 2.234812*\sqrt{\left(\frac{10+12}{10*12}\right)} = {\lvert}0.9568893{\rvert} = 0.9568893$$`
+
+---
+## Convert to correlation coefficient (Lipsey &amp; Wilson, 2001:193).
+
+Information reported in the study: _t_-value of 0.57; `\(n_1\)` = 25 and `\(n_2\)` = 52 .
+
+Formula for conversion.
+
+remember `\(df= n_1+n_2-2 = 75\)`
+
+`$$r= \sqrt{\frac{t^2}{t^2+df}}$$`
+
+`$$r= \sqrt\frac{0.57^2}{{0.57^2+75}}$$`
+
+calculate it yourself!
+
+--
+
+```r
+sqrt(0.57*0.57/((0.57*0.57)+75))
+```
+
+```
+## [1] 0.06567583
+```
+
+---
+## Converting between effect size families.
+
+The effects _d_, _r_ , and the odds ratio (OR) can all be converted from one metric to another.
+
+  * Convenient to convert effects for comparison purposes (different disciplines have different preferences,...).
+  * Sometimes only a few studies present results that require computation of a particular effect size. For example, if most studies present results as means and SDs (and thus allow _d_ to be calculated), but one reports the Pearson correlation between treatment and and outcome measure, then we might want to convert that single _r_ to a _d_.
+  * In R, we can use the [esc](https://strengejacke.github.io/esc/) package.
+
+---
+## Conversions between _d_ and ln(OR) (Borenstein et al. 2009)
+
+  * Converting _d_ to ln(OR)
+
+`$$ln(OR)= \frac{\pi*d}{\sqrt{3}}$$` with `\(\pi\)` = 3.14159... **not** 'proportion'
+
+`$$Var(ln(OR))= Var(d)*\frac{\pi^2}{3}$$`
+
+  * Converting ln(OR) to _d_
+
+$$ d = ln(OR) * \frac{\sqrt{3}}{\pi} $$
+
+$$ Var(d) = Var(ln(OR)) * \frac{3}{\pi^2}$$
+
+---
+## Converting _r_ to _d_
+
+`$$d = ln(OR) * \frac{\sqrt{3}}{\pi}$$`
+
+and
+
+`$$Var(d) = Var(ln(OR)) * \frac{3}{\pi^2}$$`
+
+**Assumption**: Bivariate normal distribution for continuous data and we can split into two groups by dichotomizing one variable.
+
+---
+## Converting _d_ to _r_
+
+`$$r=\frac{d}{d^2+A}$$`
+
+`$$A= \frac{(n_1+n_2)^2}{n_1n_2}$$`
+
+A is a correction factor for cases where 'group sizes' ( `\(n_1\)` and `\(n_2\)`) are not equal. If group sizes are equal we can assume `\(n_1=n_2\)` and then A=4.
+
+---
+## Synthesising regression models.
+
+If everything is in the same unit (e.g., dollars, IQ, Milliseconds) and we only have a bivariate model, then we can synthesise the _b's_ from OLS regressions (Rosenberg et al., 2013)
+
+--
+
+There are some caveats:
+  * Everything must be on the same scale, so say that one study used Log(Testosterone) and one used raw Testosterone, then everything needs to be converted to a common scale.
+  * Variance ( `\((se_b)^2\)`) estimates are needed. Sometimes you can derive them straight from a regression table or the reported 95%CI (remember `\(+/-1.96*se_b\)`). But you can also get these from the reported _t_-value as `\(t=b/se_b\)`. There are also formulae to derive these from `\(R^2\)`, see Rosenberg et al. (2013:70).
+  * If one rescales the _b's_ then the variances also need to be rescaled!
+
+---
+## Ongoing debates regarding synthesizing OLS regressions.
+
+Depending on who you ask:
+* regression results should be synthesized together with bivariate effects (e.g., Pearson _r_).
+* only regression results that share the same variables in the model should be synthesized.
+* regression results should be synthesized ignoring the difference in models.
+* regression results should never be synthesized.
+
+--
+
+Difficulties relate to (Becker &amp; Wu, 2007):
+  * Influence of other predictors in models (e.g., suppression)
+  * Correlation between predictors (affects standard errors)
+  * Standardised vs. unstandardised metrics.
+  * ...
+
+Further reading, see for example: [Aloe &amp; Thompson, 2013](https://www.journals.uchicago.edu/doi/pdfplus/10.5243/jsswr.2013.24)
+
+
+
+---
+## Any Questions?
+
+[http://tvpollet.github.io](http://tvpollet.github.io)
+
+Twitter: @tvpollet
+
+&lt;img src="https://media.giphy.com/media/3ohzdRoOp1FUYbtGDu/giphy.gif" width="600px" style="display: block; margin: auto;" /&gt;
+
+---
+## Acknowledgments
+
+* Numerous students and colleagues. Any mistakes are my own.
+
+* My colleagues who helped me with regards to meta-analysis Nexhmedin Morina, Stijn Peperkoorn, Gert Stulp, Mirre Simons, Johannes Honekopp.
+
+* HBES for funding this Those who have funded me (not these studies per se): [NWO](www.nwo.nl), [Templeton](www.templeton.org), [NIAS](http://nias.knaw.nl).
+
+* You for listening!
+
+&lt;img src="https://media.giphy.com/media/10avZ0rqdGFyfu/giphy.gif" width="300px" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+## References and further reading
+
+&lt;p&gt;&lt;cite&gt;Aloe, A. M. and C. G. Thompson
+(2013).
+&amp;ldquo;The Synthesis of Partial Effect Sizes&amp;rdquo;.
+In: &lt;em&gt;Journal of the Society for Social Work and Research&lt;/em&gt; 4.4, pp. 390-405.
+DOI: &lt;a href="https://doi.org/10.5243/jsswr.2013.24"&gt;10.5243/jsswr.2013.24&lt;/a&gt;.
+eprint: https://doi.org/10.5243/jsswr.2013.24.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Barendregt, J. J., S. A. Doi, Y. Y. Lee, et al.
+(2013).
+&amp;ldquo;Meta-Analysis of Prevalence&amp;rdquo;.
+In: &lt;em&gt;Journal of Epidemiology and Community Health&lt;/em&gt; 67.11, pp. 974-978.
+ISSN: 0143-005X.
+DOI: &lt;a href="https://doi.org/10.1136/jech-2013-203104"&gt;10.1136/jech-2013-203104&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Becker, B. J. and M. Wu
+(2007).
+&amp;ldquo;The Synthesis of Regression Slopes in Meta-Analysis&amp;rdquo;.
+In: &lt;em&gt;Statistical science&lt;/em&gt; 22.3, pp. 414-429.
+ISSN: 0883-4237.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Borenstein, M., L. V. Hedges, J. P. Higgins, et al.
+(2009).
+&lt;em&gt;Introduction to Meta-Analysis&lt;/em&gt;.
+John Wiley &amp;amp; Sons.
+ISBN: 1-119-96437-7.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Chen, D. D. and K. E. Peace
+(2013).
+&lt;em&gt;Applied Meta-Analysis with R&lt;/em&gt;.
+Chapman and Hall/CRC.
+ISBN: 1-4665-0600-8.&lt;/cite&gt;&lt;/p&gt;
+---
+## More refs 1.
+
+&lt;p&gt;&lt;cite&gt;Cooper, H.
+(2010).
+&lt;em&gt;Research Synthesis and Meta-Analysis: A Step-by-Step Approach&lt;/em&gt;.
+4th.
+Sage publications.
+ISBN: 1-4833-4704-4.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cooper, H., L. V. Hedges, and J. C. Valentine
+(2009).
+&lt;em&gt;The Handbook of Research Synthesis and Meta-Analysis&lt;/em&gt;.
+New York: Russell Sage Foundation.
+ISBN: 1-61044-138-9.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cooper, H. and E. A. Patall
+(2009).
+&amp;ldquo;The Relative Benefits of Meta-Analysis Conducted with Individual Participant Data versus Aggregated Data.&amp;rdquo;
+In: &lt;em&gt;Psychological Methods&lt;/em&gt; 14.2, pp. 165-176.
+ISSN: 1433806886.
+DOI: &lt;a href="https://doi.org/10.1037/a0015565"&gt;10.1037/a0015565&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Crawley, M. J.
+(2013).
+&lt;em&gt;The R Book: Second Edition&lt;/em&gt;.
+New York, NY: John Wiley &amp;amp; Sons.
+ISBN: 1-118-44896-0.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cumming, G.
+(2014).
+&amp;ldquo;The New Statistics&amp;rdquo;.
+In: &lt;em&gt;Psychological Science&lt;/em&gt; 25.1, pp. 7-29.
+ISSN: 0956-7976.
+DOI: &lt;a href="https://doi.org/10.1177/0956797613504966"&gt;10.1177/0956797613504966&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+---
+## More refs 2.
+
+&lt;p&gt;&lt;cite&gt;Fisher, R. A.
+(1946).
+&lt;em&gt;Statistical Methods for Research Workers&lt;/em&gt;.
+10th ed.
+Edinburgh, UK: Oliver and Boyd.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Flore, P. C. and J. M. Wicherts
+(2015).
+&amp;ldquo;Does Stereotype Threat Influence Performance of Girls in Stereotyped Domains? A Meta-Analysis&amp;rdquo;.
+In: &lt;em&gt;Journal of School Psychology&lt;/em&gt; 53.1, pp. 25-44.
+ISSN: 0022-4405.
+DOI: &lt;a href="https://doi.org/10.1016/j.jsp.2014.10.002"&gt;10.1016/j.jsp.2014.10.002&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Glass, G. V.
+(1976).
+&amp;ldquo;Primary, Secondary, and Meta-Analysis of Research&amp;rdquo;.
+In: &lt;em&gt;Educational researcher&lt;/em&gt; 5.10, pp. 3-8.
+ISSN: 0013-189X.
+DOI: &lt;a href="https://doi.org/10.3102/0013189X005010003"&gt;10.3102/0013189X005010003&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Goh, J. X., J. A. Hall, and R. Rosenthal
+(2016).
+&amp;ldquo;Mini Meta-Analysis of Your Own Studies: Some Arguments on Why and a Primer on How&amp;rdquo;.
+In: &lt;em&gt;Social and Personality Psychology Compass&lt;/em&gt; 10.10, pp. 535-549.
+ISSN: 1751-9004.
+DOI: &lt;a href="https://doi.org/10.1111/spc3.12267"&gt;10.1111/spc3.12267&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Harrer, M., P. Cuijpers, and D. D. Ebert
+(2019).
+&lt;em&gt;Doing Meta-Analysis in R: A Hands-on Guide&lt;/em&gt;.
+https://bookdown.org/MathiasHarrer/Doing\_ Meta\_ Analysis\_ in\_ R/.&lt;/cite&gt;&lt;/p&gt;
+
+---
+## More refs 3.
+
+&lt;p&gt;&lt;cite&gt;Hayes, A. F. and K. Krippendorff
+(2007).
+&amp;ldquo;Answering the Call for a Standard Reliability Measure for Coding Data&amp;rdquo;.
+In: &lt;em&gt;Communication Methods and Measures&lt;/em&gt; 1.1, pp. 77-89.
+ISSN: 1931-2458.
+DOI: &lt;a href="https://doi.org/10.1080/19312450709336664"&gt;10.1080/19312450709336664&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Hedges, L. V.
+(1981).
+&amp;ldquo;Distribution Theory for Glass's Estimator of Effect Size and Related Estimators&amp;rdquo;.
+In: &lt;em&gt;Journal of Educational Statistics&lt;/em&gt; 6.2, pp. 107-128.
+DOI: &lt;a href="https://doi.org/10.3102/10769986006002107"&gt;10.3102/10769986006002107&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Hedges, L. V. and I. Olkin
+(1980).
+&amp;ldquo;Vote-Counting Methods in Research Synthesis.&amp;rdquo;
+In: &lt;em&gt;Psychological bulletin&lt;/em&gt; 88.2, pp. 359-369.
+ISSN: 1939-1455.
+DOI: &lt;a href="https://doi.org/10.1037/0033-2909.88.2.359"&gt;10.1037/0033-2909.88.2.359&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Hirschenhauser, K. and R. F. Oliveira
+(2006).
+&amp;ldquo;Social Modulation of Androgens in Male Vertebrates: Meta-Analyses of the Challenge Hypothesis&amp;rdquo;.
+In: &lt;em&gt;Animal Behaviour&lt;/em&gt; 71.2, pp. 265-277.
+ISSN: 0003-3472.
+DOI: &lt;a href="https://doi.org/10.1016/j.anbehav.2005.04.014"&gt;10.1016/j.anbehav.2005.04.014&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Koricheva, J., J. Gurevitch, and K. Mengersen
+(2013).
+&lt;em&gt;Handbook of Meta-Analysis in Ecology and Evolution&lt;/em&gt;.
+Princeton, NJ: Princeton University Press.
+ISBN: 0-691-13729-3.&lt;/cite&gt;&lt;/p&gt;
+
+---
+## More refs 4.
+
+&lt;p&gt;&lt;cite&gt;Kovalchik, S.
+(2013).
+&lt;em&gt;Tutorial On Meta-Analysis In R - R useR! Conference 2013&lt;/em&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Lipsey, M. W. and D. B. Wilson
+(2001).
+&lt;em&gt;Practical Meta-Analysis.&lt;/em&gt;
+London: SAGE publications, Inc.
+ISBN: 0-7619-2167-2.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Littell, J. H., J. Corcoran, and V. Pillai
+(2008).
+&lt;em&gt;Systematic Reviews and Meta-Analysis&lt;/em&gt;.
+Oxford, UK: Oxford University Press.
+ISBN: 0-19-532654-7.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Methley, A. M., S. Campbell, C. Chew-Graham, et al.
+(2014).
+&amp;ldquo;PICO, PICOS and SPIDER: A Comparison Study of Specificity and Sensitivity in Three Search Tools for Qualitative Systematic Reviews&amp;rdquo;.
+Eng.
+In: &lt;em&gt;BMC health services research&lt;/em&gt; 14, pp. 579-579.
+ISSN: 1472-6963.
+DOI: &lt;a href="https://doi.org/10.1186/s12913-014-0579-0"&gt;10.1186/s12913-014-0579-0&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Morina, N., K. Stam, T. V. Pollet, et al.
+(2018).
+&amp;ldquo;Prevalence of Depression and Posttraumatic Stress Disorder in Adult Civilian Survivors of War Who Stay in War-Afflicted Regions. A Systematic Review and Meta-Analysis of Epidemiological Studies&amp;rdquo;.
+In: &lt;em&gt;Journal of Affective Disorders&lt;/em&gt; 239, pp. 328-338.
+ISSN: 0165-0327.
+DOI: &lt;a href="https://doi.org/10.1016/j.jad.2018.07.027"&gt;10.1016/j.jad.2018.07.027&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+---
+## More refs 5.
+
+&lt;p&gt;&lt;cite&gt;Nakagawa, S., D. W. A. Noble, A. M. Senior, et al.
+(2017).
+&amp;ldquo;Meta-Evaluation of Meta-Analysis: Ten Appraisal Questions for Biologists&amp;rdquo;.
+In: &lt;em&gt;BMC Biology&lt;/em&gt; 15.1, p. 18.
+ISSN: 1741-7007.
+DOI: &lt;a href="https://doi.org/10.1186/s12915-017-0357-7"&gt;10.1186/s12915-017-0357-7&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Popper, K.
+(1959).
+&lt;em&gt;The Logic of Scientific Discovery&lt;/em&gt;.
+London, UK: Hutchinson.
+ISBN: 1-134-47002-9.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Roberts, P. D., G. B. Stewart, and A. S. Pullin
+(2006).
+&amp;ldquo;Are Review Articles a Reliable Source of Evidence to Support Conservation and Environmental Management? A Comparison with Medicine&amp;rdquo;.
+In: &lt;em&gt;Biological conservation&lt;/em&gt; 132.4, pp. 409-423.
+ISSN: 0006-3207.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Rosenberg, M. S., H. R. Rothstein, and J. Gurevitch
+(2013).
+&amp;ldquo;Effect Sizes: Conventional Choices and Calculations&amp;rdquo;.
+In: &lt;em&gt;Handbook of Meta-analysis in Ecology and Evolution&lt;/em&gt;, pp. 61-71.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Schwarzer, G., J. R. Carpenter, and G. Rücker
+(2015).
+&lt;em&gt;Meta-Analysis with R&lt;/em&gt;.
+New York, NY: Springer.
+ISBN: 3-319-21415-2.&lt;/cite&gt;&lt;/p&gt;
+
+---
+## More refs 6.
+
+&lt;p&gt;&lt;cite&gt;Schwarzer, G., H. Chemaitelly, L. J. Abu-Raddad, et al.
+&amp;ldquo;Seriously Misleading Results Using Inverse of Freeman-Tukey Double Arcsine Transformation in Meta-Analysis of Single Proportions&amp;rdquo;.
+In: &lt;em&gt;Research Synthesis Methods&lt;/em&gt; 0.0.
+DOI: &lt;a href="https://doi.org/10.1002/jrsm.1348"&gt;10.1002/jrsm.1348&lt;/a&gt;.
+eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1002/jrsm.1348.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Viechtbauer, W.
+(2015).
+&amp;ldquo;Package &amp;lsquo;metafor&amp;rsquo;: Meta-Analysis Package for R&amp;rdquo;.
+&lt;/p&gt;&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Weiss, B. and J. Daikeler
+(2017).
+&lt;em&gt;Syllabus for Course: &amp;ldquo;Meta-Analysis in Survey Methodology&amp;quot;, 6th Summer Workshop (GESIS)&lt;/em&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Wickham, H. and G. Grolemund
+(2016).
+&lt;em&gt;R for Data Science&lt;/em&gt;.
+Sebastopol, CA: O'Reilly..&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Wiernik, B.
+(2015).
+&lt;em&gt;A Brief Introduction to Meta-Analysis&lt;/em&gt;.&lt;/cite&gt;&lt;/p&gt;
+---
+## More refs 7.
+
+&lt;p&gt;&lt;cite&gt;Wingfield, J. C., R. E. Hegner, A. M. Dufty Jr, et al.
+(1990).
+&amp;ldquo;The&amp;quot; Challenge Hypothesis&amp;quot;: Theoretical Implications for Patterns of Testosterone Secretion, Mating Systems, and Breeding Strategies&amp;rdquo;.
+In: &lt;em&gt;American Naturalist&lt;/em&gt; 136, pp. 829-846.
+ISSN: 0003-0147.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Yeaton, W. H. and P. M. Wortman
+(1993).
+&amp;ldquo;On the Reliability of Meta-Analytic Reviews: The Role of Intercoder Agreement&amp;rdquo;.
+In: &lt;em&gt;Evaluation Review&lt;/em&gt; 17.3, pp. 292-309.
+ISSN: 0193-841X.
+DOI: &lt;a href="https://doi.org/10.1177/0193841X9301700303"&gt;10.1177/0193841X9301700303&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+---
+## More refs 8.
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+})();
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

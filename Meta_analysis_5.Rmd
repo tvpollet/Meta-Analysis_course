@@ -1,0 +1,763 @@
+---
+title: "Meta-analysis course: part 5: Subgroup analysis & Meta-regression"
+author: "Thomas Pollet (@tvpollet), Northumbria University"
+date: "`r format(Sys.Date())` | [disclaimer](http://tvpollet.github.io/disclaimer)"
+output:
+  xaringan::moon_reader:
+    css: ["default", "default-fonts"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+  csl: evolution-and-human-behavior.csl
+  bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, load_refs, echo=FALSE, cache=FALSE, warning=F, results='hide', message=F}
+library(RefManageR)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           cite.style = 'alphabetic',
+           hyperlink = FALSE,
+           dashed = FALSE,
+           style = "html")
+myBib <- ReadBib("./myBib.bib", check = FALSE)
+```
+
+```{r, load_data, echo=F, warning=F, message=F}
+library(readxl) # read in Excel data
+library(tidyverse)
+madata<-read_xlsx('Meta_Analysis_Data.xlsx')
+```
+
+```{r, model_hksj, echo=F, warning=F, message=F}
+library(meta)
+library(metafor)
+model_hksj<-metagen(TE,
+        seTE,
+        data=madata,
+        studlab=paste(Author),
+        comb.fixed = FALSE,
+        comb.random = TRUE,
+        method.tau = "SJ",
+        hakn = TRUE,
+        prediction=TRUE,
+        sm="SMD")
+```
+
+## Where are we at?
+
+* Principles of systematic reviews / meta-analysis
+
+* Effect sizes
+
+* Fixed vs. random effects meta-analyses
+
+* Publication bias
+
+* **Moderators and metaregression**
+
+* Advanced 'stuff'.
+
+---
+## This section.
+
+Remember heterogeneity? 
+
+Many causes could exist: We could try and explain this!
+
+--> Search for potential moderators.
+
+---
+## When to look for moderators
+
+- If you run a meta-analysis and there is substantial heterogeneity left (between-study variance)
+
+- Several potential explanation for remaining heterogeneity:
+
+  * Sampling error
+  * Uncorrected artifacts (e.g., issues with measurement)
+  * Moderators
+
+--> if your number of studies is relatively small then likely just sampling error. Better to understand how wide the uncertainty is.
+
+---
+## Moderators: a priori vs. post-hoc
+
+- Consider any relevant moderators _before_ doing the analyses:
+  * Theory
+  * Methodology
+
+- Avoid looking for moderators post-hoc --> likely fishing expedition.
+
+---
+## Testing moderators.
+
+- Compared to original research studies, meta-analysis can have much greater statistical power to uncover moderators.
+
+- Each primary study (of e.g, N=40) might not have sufficient subgroup members to examine an effect. But pooled data (20 studies, totaling N=800) would allow us to detect it.
+
+- However, even in meta-analysis there are considerable constraints on power to detect effects
+
+---
+## Statistical power to detect moderators.
+
+- The effective sample size is the number of studies:
+  * Not sensible to test a large number of moderators when one has only 20-30 studies!
+
+- Potential influence of moderators to explain heterogeneity is limited by real variation in the effect --> So, if something is inherently 'noisy' (or poorly measured) then we don't have much chance of capturing some of that variance with a moderator.
+
+---
+## Two methods
+
+- Subset analysis
+- Meta-regression
+
+---
+## Subset analysis
+
+- We can conduct a separate meta-analysis on each subset (e.g., men vs. women, student sample versus non-student sample).
+
+- If the moderator matters, there will be observable differences. Differences between mean effect size across the subsets (do confidence intervals overlap)? . Shinkage of variance in each subset.
+
+- If we evaluate multiple moderators, we need to be really wary of correlated predictors.
+
+---
+## Three approaches to subgroup analysis.
+
+* fixed effect models,
+* random effects models with a common estimate for $\tau^2$.
+* random effects models with separate estimates for between-study variance $\tau^2$
+across the subgroups
+
+---
+## When to use a fixed effect?
+
+* If you assume that **all studies in subgroup** stem from the same population, and all have **one shared true effect**, you may use the **fixed-effect-model**. However, unlikely this assumption is ever **true in psychological** and **medical research**, even when we divide our studies into subgroups.
+
+* Therefore, we typically use a **random-effect-model** which assumes that the studies within a subgroup are drawn from a **universe** of populations follwing its own distribution,... .
+
+---
+## A fixed effects example: Subgroup 1.
+
+Control consists of control, Waiting list (WLC), information only. Here we compore waiting list versus no intervention.
+
+```{r}
+model_subgroup1<-metagen(TE,
+        seTE,
+        data=madata,
+        studlab=paste(Author),
+        comb.random = FALSE,
+        method.tau = "SJ",
+        hakn = TRUE,
+        prediction=TRUE,
+        sm="SMD",
+        subset = Control =='WLC')
+```
+
+---
+## Subgroup 2.
+
+```{r}
+model_subgroup2<-metagen(TE,
+        seTE,
+        data=madata,
+        studlab=paste(Author),
+        comb.random = FALSE,
+        method.tau = "SJ",
+        hakn = TRUE,
+        prediction=TRUE,
+        sm="SMD",
+        subset = Control =='information only')
+```
+
+---
+## Subgroup 3
+
+```{r}
+model_subgroup3<-metagen(TE,
+        seTE,
+        data=madata,
+        studlab=paste(Author),
+        comb.random = FALSE,
+        method.tau = "SJ",
+        hakn = TRUE,
+        prediction=TRUE,
+        sm="SMD",
+        subset = Control =='no intervention')
+```
+
+---
+## Create vectors needed.
+
+We would need vectors of the estimate of the treatment effects and corresponding errors.
+
+```{r}
+# Subgroup treatment effects (fixed effect model)
+ TE.control <- c(model_subgroup1$TE.fixed, model_subgroup2$TE.fixed,model_subgroup3$TE.fixed)
+# Corresponding standard errors (fixed effect model)
+ seTE.control <- c(model_subgroup1$seTE.fixed, model_subgroup2$seTE.fixed, model_subgroup3$seTE.fixed)
+```
+
+---
+## Fixed effect meta-analysis.
+
+This uses the generic invariance method. This suggests there is no significant difference in ( $Q=5.49$,$p=0.064$ ).
+
+```{r}
+model_control<-metagen(TE.control,
+        seTE.control,
+        comb.random = FALSE,
+        sm="SMD")
+sink("model_control.txt")
+model_control
+sink()
+```
+
+--
+## Shorter route... 
+
+```{r}
+model_control_u<-update.meta(model_hksj, 
+                             byvar=Control, 
+                             comb.random = FALSE, 
+                             comb.fixed = TRUE)
+sink("model_control_u.txt")
+model_control_u
+sink()
+```
+
+---
+## A random effects example: Region.
+
+```{r,echo=FALSE}
+region<-c("Netherlands","Netherlands","Netherlands","USA","USA","USA","USA","Argentina","Argentina","Argentina","Australia","Australia","Australia","China","China","China","China","China")
+madata$region<-region
+```
+
+---
+## Subgroup Analyses using the Random-Effects-Model: common.
+
+This model assumes a common $\tau^2$ , we use our previous model and update it!
+
+```{r, warning=F, message=F}
+region_subgroup_common<-update.meta(model_hksj, 
+                             byvar=region, 
+                             comb.random = TRUE, 
+                             comb.fixed = FALSE,
+                             tau.common=TRUE)
+sink("region_subgroup_common.txt")
+region_subgroup_common
+sink()
+```
+
+---
+## Result.
+
+**Pooled effect for each subgroup** (country). 
+Under `Test for subgroup differences (random effects model)`: **test for subgroup differences using the random-effects-model**, which is **not significant** , $Q=3.96$,$p=0.4121$. 
+This means that we did not find differences in the overall effect between different regions.
+
+---
+## Separate heterogeneity estimates for country.
+
+```{r,warning=F, message=F}
+region_subgroup_sep<-update.meta(model_hksj, 
+                             byvar=region, 
+                             comb.random = TRUE, 
+                             comb.fixed = FALSE,
+                             tau.common=FALSE)
+sink("region_subgroup_sep.txt")
+region_subgroup_sep
+sink()
+```
+
+---
+## Interpretation and note.
+
+* This model now allows for each country to have its own $\tau^2$ estimate. As before we find no evidence for subgroup differences, $Q=4.52$, $p=0.3405$.
+
+--
+
+* Ideally, you'd want lots of studies (!) as currently some of the groups have very few cases. As with regression (Harrell, 2015), we can question how good estimates are when you have <10 cases per predictor.
+
+---
+## Meta-regression.
+
+There isn't much of a conceptual difference between a subset analysis and a meta-regression (dummy coded).
+
+* A conventional regression, we estimate a parameter $y$ using a covariate $x_i$ with $n$  regression coefficients $B$ and a as intercept. Equation:
+$$y=b_0 + b_1x_1 + ...+b_nx_n + a$$
+
+In a meta-regression, we want to estimate the **effect size** $\theta$ for different values of the covariate(s), so our regression looks like this:
+$$\hat \theta_k = \theta + b_1x_{1k} + ... + b_nx_{nk} + \epsilon_k + \zeta_k$$
+---
+## Meta-regression: two extra terms.
+
+Two **extra terms in the equation**: $\epsilon_k$ and $\zeta_k$.  Two types of **independent errors** which cause our regression prediction to be **imperfect**. 
+
+--
+
+The first one, $\epsilon_k$, is the sampling error through which the effect size of the study deviates from its "true" effect. It is assumed to follow a normal distribution.?
+
+--
+
+The second one, $\zeta_k$, denotes that even the true effect size of the study is only sampled from **an overarching distribution of effect sizes** (think back to section on fixed vs. random effect). In a **fixed-effect-model**, we assume that all studies actually share the **same true effect size** and that the **between-study heterogeneity** $\tau^2 = 0$. In this case, we do not consider $\zeta_k$ in our equation, but only $\epsilon_k$. 
+
+???
+Note I use b's here rather than $\beta$'s in order to avoid confusion based on standardisation.
+
+---
+## Terminology (Harrer, 2019 on meta-regression).
+
+* Equation includes **fixed effects** (the $\beta$ coefficients) as well as **random effects** ( $\zeta_k$ ), the model used in meta-regression is often called **a mixed-effects-model**. 
+
+--
+
+* **Subgroup analyses with more than two subgroups** are nothing else than a **meta-regression** with a **categorical predictor**. For meta-regression, these subgroups are then **dummy-coded**. An effect is a shift up or down... .
+
+--
+
+```{r, out.width = "400px", echo=FALSE, fig.align='center'}
+knitr::include_graphics("dummy.png") # From harrer (2019)
+```
+
+---
+## Assessing regression models: significance
+
+To evaluate the **statistical significance of a predictor**, we a **t-test** of its $b$-weight is performed, as in OLS regression.
+$$ t=\frac{b}{SE_{b}}$$
+
+This gives us a $p$-value telling us if a variable significantly predicts effect size differences in our regression model.
+
+
+---
+## Assessing regression models: variance.
+
+Our aim is to find a model **which explains as much as possible of the current variability in effect sizes** we find in our data.
+
+In conventional regression, $R^2$ is commonly used to quantify the **goodness of fit** of our model in percent (0-100%). As this measure is commonly used, and many researchers know how to to interpret it, we can also calculate a $R^2$ analog for meta-regression using this formula:
+$$R_2=\frac{\hat\tau^2_{Random}-\hat\tau^2_{Regress}}{\hat\tau^2_{Random}}$$
+Where $\hat\tau^2_{Random}$ is the estimated total heterogeneity based on the random-effects-model and $\hat\tau^2_{Regress}$ the total heterogeneity of our mixed-effects regression model.
+
+
+---
+## Metaregression (categorical)
+
+```{r}
+sink("metareg_control.txt")
+metareg(model_hksj,Control)
+sink()
+```
+
+???
+We see in the output that the `metareg` function uses the values of "Control" (i.e, the three different types of control groups) as a **moderator**. It takes **"information only"** as a dummy-coded *reference group*, and **"no intervention"** and **"WLC"** as dummy-coded **predictors**. If you wanted to swap those 
+Under `Test of Moderators`, we can see that control groups are not significantly associated with effect size differences $F_{2,15}=0.947$, $p=0.41$. Our regression model does not explain any of the variability in our effect size data ($R^2=0\%$). 
+Below `Model Results`, we can also see the $b$-values (`estimate`) of both predictors, and their significance level `pval`. As we can see, both predictors were not significant.
+
+---
+## Metaregression 
+
+Imagine that we wanted to test if publication year had affected the estimates of effect sizes.
+
+```{r}
+madata$pub_year<-c(2001,2002,2011,2013,2013,2014,1999,2018,2001,2002,2011,2013,2013,2014,1999,2018,2003,2005)
+madata$pub_year<-as.numeric(madata$pub_year)
+model_pub_year<-metagen(TE,seTE,studlab = Author,comb.fixed = FALSE,data=madata)
+```
+
+---
+## Run the model.
+
+```{r}
+output_pub_year<-metareg(model_pub_year,pub_year)
+sink("metareg_pub_year.txt")
+output_pub_year
+sink()
+```
+
+
+---
+## Basic plotting.
+
+```{r, 'bubbleplot', out.width = "400px", fig.align='center',dev='svg'}
+bubble.metareg(output_pub_year,
+              xlab = "Publication Year",
+              col.line = "blue",
+              studlab = TRUE)
+```
+
+---
+## Interactions,... .
+
+Thus far, we only considered the case where we have multiple predictor variables $x_1,x_2, ... x_n$, and along with their predictor estimates $\beta_n$, **add them together** to calculate our estimate of the true effect size $\hat \theta_k$ for each study $k$. 
+
+In multiple meta-regression models, however, we can not only model such **additive relationships**. We can also model so-called **interactions** (multiplicative relationships), as in OLS regression. 
+
+Interactions mean that the **relationship** between one **predictor variable** (e.g., $x_1$) and the **estimated effect size** is different for different values of another predictor variable (e.g. $x_2$).
+
+---
+## Interaction: example
+
+Imagine a scenario where we want to model 2 predictors and their relationship to the estimated effect size $\hat\theta$: the **publication year** ($x_1$) of a study and the **quality** ($x_2$) of a study, which we rate like this:
+
+$$\begin{equation}
+  x_2 = \left \{\begin{array}{ll}
+      0: bad
+      \\1: moderate
+      \\2: good
+    \end{array}
+  \right.
+\end{equation}$$
+
+As we described before, we can now imagine a meta-regression model in which we combine these two predictors $x_1$ and $x_2$ and assume an additive relationship. We can do this by simply adding them:
+$$\hat \theta_k = \theta + \beta_1x_{1k} + \beta_2x_{2k} + \epsilon_k + \zeta_k$$ 
+
+
+---
+## Example: continued.
+
+Let's assume that, overall, higher publication year ($x_1$) is associated with higher effect sizes (i.e., reported effect sizes have risen over the years). We could now ask ourselves if this positive relationship **varies** depending on the quality of the studies ($x_2$). 
+
+The rise in effect sizes was strongest for high-quality studies, while effect sizes stayed mostly the same over the years for studies of lower quality? 
+
+Visualisation of assumed relationship between effect size ($\hat \theta_k$), publication year ($x_1$) and study quality ($x_2$) the following way:
+
+---
+## Interaction equation.
+
+**Interaction term** to our meta-regression model. This interaction term allows predictions of $x_1$ to vary for different values of $x_2$ (and vice versa). This means introducing a third predictor, $\beta_3$, capturing this interaction $x_{1k}x_{2k}$ :
+$$\hat \theta_k = \theta + \beta_1x_{1k} + \beta_2x_{2k} + \beta_3x_{1k}x_{2k}+ \epsilon_k + \zeta_k$$
+
+---
+## Common pitfalls: Overfitting I
+
+* **Overfitting: seeing a signal when there is none**
+To better understand the risks of (multiple) meta-regression models, we have to understand the concept of **overfitting**. Statistical model which fits the data **too closely** (Harrell, 2015: 72-ff). 
+
+```{r, out.width = "400px", echo=FALSE, fig.align='center'}
+knitr::include_graphics("overfitting.png")
+```
+
+---
+## Common pitfalls: Overfitting II
+
+Risk of building a **non-robust model, which produces false-positive results**, is **even higher** once we go from conventional regression to **meta-regression** . Several reasons exist:
+1.  Our **datasets are mostly small**, as we can only use the synthesized data of all analyzed studies $k$.
+2.  Meta-analysis is **comprehensive overview of all evidence**, we have no **additional data** on which we can "test" how well our regression model can predict high or low effect sizes.
+3.  Heterogeneity causes problems. Every variable might be a potential explanation for the heterogeneity we find, while it seems straightforward: **most of such explanations are spurious** (Higgins & Thompson,2004).
+4.  Meta-regression makes it very easy to **"play around" with predictors**.  This massively **increases the risk of spurious findings** (Higgins & Thompson, 2004), because we can try several predictors indefinitely until we find a 'significant model', which is then very likely to be overfitted (i.e., it mostly models statistical noise).
+
+
+???
+We can test numerous meta-regression models, include many more predictors or remove them in an attempt to explain the heterogeneity in our data. Such an approach is of course tempting, and often found in practice, because we, as meta-analysts, want to find a significant model which explains why effect sizes differ (Higgins et al., 2002).
+---
+## Potential solutions.
+
+**Some guidelines have been proposed to avoid an excessive false positive rate when building meta-regression models:**
+
+- Minimize the number of investigated predictors. In multiple meta-regression, this translates to the concept of **parsimony**, or simplicity: when evaluating the fit of a meta-regression model, we prefer models which achieve a good fit with less predictors. Information criteria such as the *Akaike* and *Bayesian information criterion* can help with such decisions (more to follow).
+- Predictor selection should be based on **predefined scientific or theoretical questions** we want to answer in our meta-regression.
+- When the number of studies is low (which is very likely to be the case), and we want to compute the significance of a predictor, the Knapp-Hartung adjustment (continuous outcomes) is recommended to obtain more reliable estimates (Higgins et al., 2002, Journal of Health Services).
+- We can use **permutation** to assess the robustness of our model in resampled data. We will describe the details of this method later.
+
+---
+## Common pitfalls: Multicollinearity
+
+Multicollinearity means that one or more predictorq in our regression model can be (linearly) **predicted from another predictor** in our model with relatively high accuracy (Harrell, 2015:78-ff). This basically means that we have two or more predictors in our model which are **highly correlated**. Most of the dangers of multicollinearity are associated with the problem of **overfitting** which we described above. High collinearity can cause our predictor coefficient estimates $b$ to behave erratically, and change considerably with minor changes in our data. It also limits the size of the explained variance by the model, in our case the $R^2$ analog. 
+
+**Multicollinearity in meta-regression is common** . Although multiple regression can handle lower degrees of collinearity, we should **check** and, if necessary, **control for very highly correlated predictors**. There is no consolidated yes-no-rule for the presence of multicollinearity. A crude, but often effective way is to check for very high correlations (i.e., $r\geq0.8$) before fitting the model. Multicollinearity can then be reduced by either (1) removing one of the close-to-redundant predictors, or (2) trying to combine the predictors into one single predictor.
+
+---
+## Example.
+
+We will rely on the `metafor` package rather than the `meta` package.
+
+```{r, warning=F,message=F}
+library(metafor)
+library(tidyverse)
+```
+
+For our multiple meta-regression examples, we will use [Harrer (2019)](https://github.com/MathiasHarrer/Doing-Meta-Analysis-in-R/blob/master/mvreg_data.rda) `mvreg.data` dataset, a "toy" dataset, simulated for illustrative purposes. 
+
+```{r}
+load("mvreg_data.rda")
+levels(mvreg.data$continent)[levels(mvreg.data$continent)==0] = "Europe"
+levels(mvreg.data$continent)[levels(mvreg.data$continent)==1] = "North America"
+mvreg.data$continent = as.character(mvreg.data$continent)
+```
+
+---
+## Data
+
+**Let's have a look at the structure of the data:** 
+
+```{r}
+head(mvreg.data)
+```
+
+???
+We see that there are 6 variables in our dataset. The `yi` and `sei` columns store the **effect size** and **standard error** of a particular study. Thus, these columns correspond to the `TE` and `seTE` columns we used before. We have named these variables this way because this is the standard notation that `metafor` uses: `yi` corresponds to the effect size $y_i$ we want to predict in our meta-regression, while `sei` is $SE_i$, the standard error. To designate the variance of an effect size, `metafor` uses `vi`, or $v_i$ in mathematical notation, which we do not need here because `yi` and `sei` contain all the information we need.
+
+The other four variables we have in our dataset are potential predictors for our meta-regression. We want to check if `reputation`, the (mean-centered) impact score of the journal the study was published in, `quality`, the quality of the study rated from 0 to 10, `pubyear`, the (standardized) publication year, and `continent`, the continent in which the study was performed, are associated with different effect sizes.
+
+For `continent`, note that we store information as a predictor with 2 labels: `Europe` and `North America`, meaning that this predictor is a **dummy variable**. Always remember that such dummy variables have to be converted from a `chr` to a factor vector before we can proceed.
+
+
+---
+## Collinearity check
+
+Multicollinearity could be an issue. A quick way to check for high intercorrelation is to calculate a **intercorrelation matrix** for all continuous variables with the following code:
+
+```{r}
+cor_table<-cor(mvreg.data[,3:5])
+cor_table
+```
+
+
+---
+## Correlation plot
+
+The `ggcorrplot` package allows visualising the intercorrelations. Make sure to install the `ggcorrplot` package first, and then use this code:
+
+```{r, warning=FALSE, message=FALSE, dev='svg', out.width = "400px", fig.align='center'}
+require(ggcorrplot)
+ggcorrplot(cor_table, hc.order = TRUE, type = "lower",
+   lab = TRUE) 
+```
+
+???
+Some correlations but not very large.
+
+---
+## Fitting a meta-regression model without interaction terms
+
+```{r}
+model_qual <- rma(yi=yi, 
+              sei=sei, 
+              data=mvreg.data, 
+              method = "ML", 
+              mods = ~ quality, 
+              test="knha")
+sink("model_qual.txt")
+model_qual
+sink()
+```
+
+???
+We see that the $p$ value for our predictor is non-significant $p=0.0744$, but only marginally so. Under `Test of Moderators (coefficient(s) 2)`, we can see the overall test results for our regression model ($F_{1,34}=3.68, p=0.0688$). Because we only included one predictor, the $p$-value reported there is identical to the one we saw before. In total, our model explains $R^2=7.37\%$ of the heterogeneity in our data, which we can see next to the `R^2 (amount of heterogeneity accounted for)` line in our output. 
+
+---
+## Adding reputation as a moderator.
+
+```{r}
+model_qual_rep <- rma(yi=yi, 
+              sei=sei, 
+              data=mvreg.data, 
+              method = "ML", 
+              mods = ~ quality + reputation, 
+              test="knha")
+sink("model_qual_rep.txt")
+model_qual_rep
+sink()
+```
+
+---
+## Comparing models via a Likelihood Ratio Test
+
+```{r}
+anova(model_qual, model_qual_rep)
+```
+
+???
+The test is highly significant ($\chi^2_1=19.50, p<0.001$), which means that that our full model indeed provides a better fit. Another important statistic is reported in the `AICc` column. This provides us with the *Akaike's Information Criterion*, corrected for small samples. As we mentioned before, AICc penalizes complex models with more predictors to avoid overfitting. It is important to note that **lower values of AIC(c) mean that a model performs better**. Interestingly, in our output, we see that the full model ($AICc=20.77$) has a better AIC value than our reduced model ($AICc=37.73$), despite having more predictors. All of this suggests that our multiple regression **does indeed provide a good fit** to our data.
+
+---
+## AIC(c) / BIC
+
+Too much to cover here. But these are information criteria which allows comparing models (derived on Maximum Likelihood, ML). 
+
+Smaller AIC/BIC is better.
+
+We should be careful with rules of thumb but these have been proposed (Burnham & Anderson, 2002, 2004):
+
+_Models having $\Delta \leq 2$ are on a par, those where $4 \leq \Delta \leq 7$ the lowest one has moderate support over the other, and cases where $\Delta \geq 10$ have strong support over the other._
+
+AICc is a correction for small samples (Burnham & Anderson, 2002).
+
+---
+## Modeling interaction terms
+
+Model an **interaction hypothesis** with predictors `pubyear` (publication year) and `continent`. 
+Examine the relationship between publication year and effect size differs for Europe and North America. To model this in our `rma` function, we have to **connect our predictors** with `*` in the `mods` parameter. 
+
+Here, we do not compare the models directly using the `anova` function, we specify the $\tau^2$ estimator to be `"REML"` (restricted maximum likelihood) this time:
+
+```{r, warning=FALSE, message=FALSE}
+interaction_model <- rma(yi=yi,
+                         sei=sei, 
+                         data=mvreg.data, 
+                         method = "REML", 
+                         mods = ~ pubyear*continent, 
+                         test="knha")
+sink("interaction_model.txt")
+interaction_model
+sink()
+```
+
+???
+Note that `metafor` automatically **includes not only the interaction term**, but also both `pubyear` and `contintent` as **"normal" lower-order predictors** (as one should do). Also note that, as `continent` is a factor, `rma` detected that this is a **dummy predictor**, and used our category `Europe` as the $D=0$ dummy against which the `North America` category is compared. We see that our interaction term `pubyear:continentNorth America` has a positive coefficient ($b=0.6323$), and that it is highly significant ($p<0.0001$), meaning that assumed interaction effect might in fact exist: there is an increase in effect sizes in recent years, but it is stronger for studies conducted in North America. We also see that model we fitted explains $R^2=100\%$ of our heterogeneity. This is because our data was simulated for illustrative purposes. In practice, you will hardly ever explain **all** of the heterogeneity in your data (in fact, one should rather be concerned if one finds such results in real-life data, as this might mean we have overfitted our model).
+
+---
+## Permutation test.
+
+Permutation is a process where we **rearrange**, or **shuffle**, the order of our data. As an example, imagine we have a set $S$ containing **3 numbers**: $S=\{1,2,3 \}$. One possible permutation of this set is $(2,1,3)$; another is $(3,2,1)$. Permuted results both contain **all 3 numbers from before**, but in a different order.
+
+Permutation can also be used to perform **permutation tests**, which is a specific form of **resampling methods**. These can be used to validate the **robustness** of a statistical model by providing it with (slightly) different data sampled from the same data source or generative process (Good, 2013). It allows us ** to assess if the coeffients capture a true pattern underlying our data**, or if we falsely assumed patterns, when they are statistical noise.
+
+Technical details (Good, 2013; Viechtbauer 2015): In brief, we **re-calculate** the **p-values** of our overall meta-regression model and its coefficients based on the test statitics obtained across all possible, or many randomly selected, permutations. **How often is the test statistic we obtain from in our permuted data equal or greater than our original test statistic?**. F
+
+---
+## Permutation test via `metafor`
+
+Default is 1,000 permutations. You can change this iter=10,000. If you have a lot of time, you can also ask for an exact permutation test.
+
+```{r, eval=FALSE}
+permutest(model_qual_rep, iter=10000)
+```
+
+???
+We again see our **familiar output** including the **results for all predictors**. Looking at the `pval*` column, we see that our p-value for the `reputation` predictor has decreased from $p<0.0001$ to $p^*=0.001$. The p-value of our overall model has decreased from $p=0.0001$ to $p^*=0.001$. However, as both of these p-values are still highly significant, this indicates that our model might indeed capture a real pattern underlying our data. It has been **recommended** to always use this **permutation test on our meta-regression model before we report a meta-regression model** to be significant in our research [@higgins2004controlling]. 
+
+---
+## Output.
+
+```{r}
+permutest(model_qual_rep)
+```
+
+---
+## Permutation test: 
+
+**Recommendation** to use this **permutation test on our meta-regression model before we report a meta-regression model**.
+
+If the **number of studies** $k$ included in our model is **small**, conventionally used tresholds for statistical significance (i.e., p < 0.05) **cannot be reached**. A permutation test using `permutest` can only reach statistical significance if $k \geq 5$. Details on the `permutest` function can be found [here](https://www.rdocumentation.org/packages/metafor/versions/2.1-0/topics/permutest). Note that you can for example also gain Confidence Intervals.  
+
+
+---
+## Review: Pros/cons of meta-regression.
+
+Pros:
+
+- We don't have to dichotomize continuous moderators.
+- We can test more than one predictor in a uniform framework (controlling for another, if we have a large number of studies but [beware](http://www.the100.ci/2017/03/14/that-one-weird-third-variable-problem-nobody-ever-mentions-conditioning-on-a-collider/))
+
+Cons:
+
+- Low statistical power (small samples and possibly reliability issues). It's regression... .
+- Often more predictors than studies (small N, large p problem.)
+- Overfitting... .
+
+---
+## Some recommendations...
+
+- Hypothesize about a limited set of moderators _a priori_
+- Analyse categorical moderators with subgroups (but beware of correlated moderators)
+- Be very cautious with meta-regression.
+- If evidence for a strong moderator effect, avoid interpreting the overall effect size found and remove emphasis from it in your write up.
+
+```{r, out.width = "600px", echo=FALSE, fig.align='center'}
+knitr::include_graphics("https://media.giphy.com/media/3ohzdRoOp1FUYbtGDu/giphy.gif")
+```
+
+???
+Readers will tend to focus on the headline and ignore the effects of moderators, i.e. the effect being found.
+
+---
+## Any Questions?
+
+[http://tvpollet.github.io](http://tvpollet.github.io)
+
+Twitter: @tvpollet
+
+```{r, out.width = "600px", echo=FALSE, fig.align='center'}
+knitr::include_graphics("https://media.giphy.com/media/3ohzdRoOp1FUYbtGDu/giphy.gif")
+```
+
+---
+## Acknowledgments
+
+* Numerous students and colleagues. Any mistakes are my own.
+
+* My colleagues who helped me with regards to meta-analysis Nexhmedin Morina, Stijn Peperkoorn, Gert Stulp, Mirre Simons, Johannes Honekopp.
+
+* HBES for funding this Those who have funded me (not these studies per se): [NWO](www.nwo.nl), [Templeton](www.templeton.org), [NIAS](http://nias.knaw.nl).
+
+* You for listening!
+
+```{r, out.width = "300px", echo=FALSE, fig.align='center'}
+knitr::include_graphics("https://media.giphy.com/media/10avZ0rqdGFyfu/giphy.gif")
+```
+
+---
+
+```{r, echo=F, warning=F,results='hide'}
+Citet(myBib, "Aloe2013")
+Citet(myBib, "Barendregt2013")
+Citet(myBib, "Becker2007")
+Citet(myBib, "Borenstein2009")
+Citet(myBib, "Chen2013a")
+Citet(myBib, "Cooper2009")
+Citet(myBib, "Cooper2009b")
+Citet(myBib, "Cooper2010")
+Citet(myBib, "Crawley2013")
+Citet(myBib, "Cumming2014")
+Citet(myBib, "Fisher1946")
+Citet(myBib, "Flore2015")
+Citet(myBib, "Goh2016")
+Citet(myBib, "Glass1976")
+Citet(myBib, "Harrer2019")
+Citet(myBib, "Hayes2007")
+Citet(myBib, "Hedges1980")
+Citet(myBib, "Hedges1981")
+Citet(myBib, "Hirschenhauser2006")
+Citet(myBib, "Jacobs2016")
+Citet(myBib, "Koricheva2013")
+Citet(myBib, "Kovalchik2013")
+Citet(myBib, "Lipsey2001")
+Citet(myBib, "Littell2008")
+Citet(myBib, "Methley2014")
+Citet(myBib, "Morina2018")
+Citet(myBib, "Nakagawa2017")
+Citet(myBib, "Popper1959")
+Citet(myBib, "Roberts2006")
+Citet(myBib, "Rosenberg2013")
+Citet(myBib, "Schwarzer2015")
+Citet(myBib, "Schwarzer2019")
+Citet(myBib, "Yeaton1993")
+Citet(myBib, "Viechtbauer2015")
+Citet(myBib, "Weiss2017")
+Citet(myBib, "Wickham2016")
+Citet(myBib, "Wiernik2015")
+Citet(myBib, "Wingfield1990")
+```
+
+---
+## References and further reading
+
+```{r, 'refs', results='asis', echo=FALSE, warning=F}
+PrintBibliography(myBib, start=1, end=5)
+```
+---
+## More refs.
+
+```{r, 'more refs', results='asis', echo=FALSE, warning=F}
+PrintBibliography(myBib, start=6, end=10)
+```

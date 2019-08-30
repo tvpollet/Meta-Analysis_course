@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Meta-analysis course Day 1: part 3</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Thomas Pollet (@tvpollet), Northumbria University" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Meta-analysis course Day 1: part 3
+### Thomas Pollet (<span class="citation">@tvpollet</span>), Northumbria University
+### 2019-07-19 | <a href="http://tvpollet.github.io/disclaimer">disclaimer</a>
+
+---
+
+
+
+
+
+
+
+## Outline Course.
+
+* Summarizing effect size distributions.
+
+---
+## Structure
+
+* Problem: how to combine studies
+* Models of summarizing effect-size distributions
+* Random-effects model
+* Fixed-effect model
+* Distinction between fixed- and random-effects
+* Deciding between fixed vs. random effect models
+
+---
+## Modeling study outcomes I
+
+* In this section we discuss how to summarize (combine) effect sizes computed for each study.
+* The mean effect size is computed by applying a weighting scheme.
+* The majority of such analyses are weighted least squares (WLS); in a univariate meta-analysis we simply calculate a weighted arithmetic mean.
+* Weighting schemes will vary depending on the specific  model that we adopt (and "our assumptions"  of the world).
+
+---
+## Modeling study outcomes II
+
+- 2 main reasons to use weights in meta-analysis:
+  * Assumption of equal variances typically violated (i.e., heteroscedasticity)
+  * Larger studies (i.e., those with larger sample sizes) should receive more importance than small studies.
+
+- Criterions for choosing a particular weighting scheme:
+  * Statistical test(s).
+  * Conceptual/theoretical reasoning.
+  * Generalization.
+
+---
+## Modeling study outcomes III
+
+* Let `\(T_1...T_K\)` be estimates of effect sizes (e.g, _d_, or Pearson _r_) from _K_ independent studies, where each `\(T_i\)` is an estimate of the 'true' effect size ( `\(\theta_i\)`).
+* Thus, we will have one effect size (Ti ) for each study and these effect sizes are considered to be statistically independent (!).
+* Our goal is to model the study outcome across those studies (estimate the means of `\(\theta_i\)` ).
+
+---
+## Modeling study outcomes IV (Weiss &amp; Daikeler, 2017:191).
+
+&lt;img src="Weiss.png" width="600px" style="display: block; margin: auto;" /&gt;
+
+---
+## Notation
+
+- `\(\theta_i\)` is the population parameter for study _i_ (and $T_i is its estimate)
+- `\(\theta\)` is the single population parameter ($\theta_1 = \theta_2 = ... = \theta$)
+- `\(\mu\)` is the mean of the effect-size distribution (the mean population effect size) for all `\(\theta_i\)`s.
+- `\(e_i\)` or `\(\epsilon_i\)` is within-study error variation?
+- `\({\sigma_i^2}\)` is the sample variance for the _i_ th effect size.
+- `\(u_i\)` is the between-study error.
+- `\(\tau^2\)` is the variance of our effect size distribution ( `\(Var(\theta_i)\)` ).
+
+---
+## Random effects model I
+
+
+The random-effects model acknowledges two sources of
+variation:
+1. within-study sampling error ( `\({\sigma_i^2}\)` ) and
+2. between-studies variability ( `\(\tau^2\)` ) (e.g., due to varying study characteristics).
+
+The random-effects model can be represented as:
+
+`$$T_i= \overbrace{\mu+u_i}^{\theta_i}+e_i$$`
+
+---
+## Let's look at that equation... .
+
+`$$T_i= \overbrace{\mu+u_i}^{\theta_i}+e_i$$`
+
+whereby:
+
+- `\(e_i\)` is the difference between the true mean `\(\theta_i\)` for study _i_ and the observed mean effect size `\(T_i\)` for study _i_ ,
+`\((e_i = T_i - \theta_i)\)`
+- `\(u_i\)` is the difference between the grand mean `\(\mu\)` and the true mean for the _ith_ study `\(\theta_i\)` , `\((u_i = \theta_i - \mu)\)`.
+
+- `\(e_i\sim~N(0,{\sigma_i^2})\)`
+- `\(u_i\sim~N(0,\tau^2)\)`
+
+---
+## Random effects model II
+
+* Under random-effects model we have two goals:
+  - To estimate the mean population effect size from which the observed studies are sample from.
+  - To estimate the between-studies variability `\({\tau_i^2}\)` .
+
+* In practice we compute `\({\sigma_i^2}\)` , we treat the within-study error variance as known.
+
+* Thus, under random-effects model the variance of `\(T_i\)` is equal to `\({\sigma_i^2}+\tau^2\)`.
+
+---
+## Fixed effect model I
+
+* Now imagine a case where there is **no** between-studies heterogeneity, `\(\tau^2 = 0\)`, the random-effects model reduces to the _fixed-effect
+model._
+
+* In such a case, the fixed-effect model has only one source of variation (within-study sampling error `\(e_i\)`).
+
+* The fixed-effect model can be represented as:
+
+`$$T_i=\theta + e_i$$`
+
+
+---
+## Fixed effect model II
+
+* Recall that `\(e_i\)` is the error estimate, which is assumed to be normally distributed with a mean of 0 and variance `\({\sigma_i^2}\)` 
+
+* Thus, under a fixed-effect model, the only source of variability is _within-study_ sampling error.
+
+* Under fixed-effect model all studies are modeled as sharing the same effect, i.e. `\(\theta_1 = \theta_2 = ...  = \theta\)`.
+
+---
+## Fixed effect model III (Borenstein et al. 2009: 64)
+
+&lt;img src="Weiss2.png" width="600px" style="display: block; margin: auto;" /&gt;
+
+---
+## Fixed and random effects model
+
+* **Fixed-effect**:
+
+`$$Ti = \theta + e_i ;$$`
+
+Each effect size estimates a single mean effect `\(\theta\)` , and differs from this mean effect by sampling error.
+
+* **Random-effects**:
+
+`$$T_i = \mu + u_i + e_i$$`
+
+Effect size differs from the underlying population mean due to both sampling error and the underlying population variance.
+
+---
+## Distribution of effect sizes I.
+
+* For fixed-effect models, we estimate a “common” effect.
+
+* For random-effects models, a key difference is that each population may have a different effect, and we estimate the
+amount of uncertainty (variation) due to those differences.
+we estimate an “average” effect.
+
+---
+## Distribution of effect sizes II.
+
+Fixed effects
+
+`$$T_i\sim~N(\theta,{\sigma_i^2})$$`
+
+and weights:
+
+`$$W_i=\frac{1}{\sigma_i^2}$$`
+
+Random effects
+
+`$$T_i\sim~N(\mu,{\sigma_i^2}+\tau^2)$$`
+
+and weights:
+
+`$$W_i^*=\frac{1}{\sigma_i^2+\tau^2}$$`
+
+---
+## Distribution of effect sizes III.
+
+Under the Random effects model and due to
+
+`$$W_i^*=\frac{1}{\sigma_i^2+\tau^2}$$`
+
+larger studies are downweighted and smaller studies are upweighted. 
+
+The larger `\(\tau^2\)` compared to `\({\sigma_i^2}\)` the larger studies will comparatively loose influence and relatively more influence gain for smaller studies.
+
+---
+## Deciding between fixed and random effects models I
+
+The fixed-effects model is considered to be an appropriate choice if the central goal of a meta-analysis is to make inferences **only** about the effect-size parameters of the observed effect-size distribution (conditional inference).
+
+As Hedges (2009:38) emphasizes “conditional inference” applies to this collection of studies only. It says nothing about future and past studies or studies which may have already been done but are not included among the observed studies.
+
+---
+## Deciding between fixed and random effects models II
+
+According to Mengersen et al. (2013:94): _"the random-effects model is in general conceptually applicable to most meta-analysis settings, apart from very carefully designed and similar experiments."_
+
+However, issues with random effect estimation when N is small (e.g., Röver et al., 2015). Moreover, note that small studies (!), which likely have more bias, tend to receive larger weights. This leads some authors to suggest (e.g., Poole &amp; Greenland, 1999) that we should therefore favour fixed effect models in such contexts.
+
+Read more [here](http://sci-hub.tw/https://ebmh.bmj.com/content/17/2/53.full) and [here](http://sci-hub.tw/https://academic.oup.com/aje/article/150/5/469/123590). Use your judgment,... . (Could opt to present both and let reader decide).
+
+---
+## Example.
+
+Example data from [here](https://github.com/MathiasHarrer/Doing-Meta-Analysis-in-R/blob/master/Meta_Analysis_Data.xlsx) (Harrer et al., 2019). 
+
+These are data on mindfulness interventions.
+
+
+```r
+library(readxl) # read in Excel data
+library(tidyverse)
+madata&lt;-read_xlsx('Meta_Analysis_Data.xlsx')
+head(madata) # Quick browse
+```
+
+```
+## # A tibble: 6 x 17
+##   Author    TE  seTE RoB   Control `intervention d… `intervention t…
+##   &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;            &lt;chr&gt;           
+## 1 Call … 0.709 0.261 low   WLC     short            mindfulness     
+## 2 Cavan… 0.355 0.196 low   WLC     short            mindfulness     
+## 3 Danit… 1.79  0.346 high  WLC     short            ACT             
+## 4 de Vi… 0.182 0.118 low   no int… short            mindfulness     
+## 5 Frazi… 0.422 0.145 low   inform… short            PCI             
+## 6 Froge… 0.63  0.196 low   no int… short            ACT             
+## # … with 10 more variables: population &lt;chr&gt;, `type of students` &lt;chr&gt;,
+## #   `prevention type` &lt;chr&gt;, gender &lt;chr&gt;, `mode of delivery` &lt;chr&gt;, `ROB
+## #   streng` &lt;chr&gt;, `ROB superstreng` &lt;chr&gt;, compensation &lt;chr&gt;,
+## #   instruments &lt;chr&gt;, guidance &lt;chr&gt;
+```
+
+
+---
+## Meta::metagen
+
+The effect sizes are already calculated, so we can rely on the metagen function from the [meta package](https://cran.r-project.org/web/packages/meta/index.html) (Schwarzer et al., 2015).
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Parameter &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Function &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; TE &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; This tells R to use the TE column to retrieve the effect sizes for each study &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; seTE &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; This tells R to use the seTE column to retrieve the standard error for each             study &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; data= &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; After =, paste the name of your dataset here &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; studlab=paste() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; This tells the function were the labels for each study are stored. If you named the spreadsheet columns as advised, this should be studlab=paste(Author) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; comb.fixed= &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Whether to use a fixed-effect-model &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; comb.random &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Whether to use a random-effects-model &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; prediction= &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Whether to print a prediction interval for the effect of future studies based on present evidence &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; sm= &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; The summary measure we want to calculate. We can either calculate the mean difference (MD) or Hedges' g/Cohen's d (SMD) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+???
+Table gives most important parameters for this function.
+
+---
+## Fixed effect meta-analysis
+
+
+```r
+library(meta)
+library(metafor)# we'll use this later
+Fixed&lt;-metagen(TE,
+        seTE,
+        data=madata,
+        studlab=paste(Author),
+        comb.fixed = TRUE,
+        comb.random = FALSE,
+        prediction=TRUE,
+        sm="SMD")
+```
+
+---
+## Result
+
+
+```r
+Fixed
+```
+
+```
+##                           SMD            95%-CI %W(fixed)
+## Call et al.            0.7091 [ 0.1979; 1.2203]       3.6
+## Cavanagh et al.        0.3549 [-0.0300; 0.7397]       6.3
+## DanitzOrsillo          1.7912 [ 1.1139; 2.4685]       2.0
+## de Vibe et al.         0.1825 [-0.0484; 0.4133]      17.5
+## Frazier et al.         0.4219 [ 0.1380; 0.7057]      11.6
+## Frogeli et al.         0.6300 [ 0.2458; 1.0142]       6.3
+## Gallego et al.         0.7249 [ 0.2846; 1.1652]       4.8
+## Hazlett-Stevens &amp; Oren 0.5287 [ 0.1162; 0.9412]       5.5
+## Hintz et al.           0.2840 [-0.0453; 0.6133]       8.6
+## Kang et al.            1.2751 [ 0.6142; 1.9360]       2.1
+## Kuhlmann et al.        0.1036 [-0.2781; 0.4853]       6.4
+## Lever Taylor et al.    0.3884 [-0.0639; 0.8407]       4.6
+## Phang et al.           0.5407 [ 0.0619; 1.0196]       4.1
+## Rasanen et al.         0.4262 [-0.0794; 0.9317]       3.6
+## Ratanasiripong         0.5154 [-0.1731; 1.2039]       2.0
+## Shapiro et al.         1.4797 [ 0.8618; 2.0977]       2.4
+## SongLindquist          0.6126 [ 0.1683; 1.0569]       4.7
+## Warnecke et al.        0.6000 [ 0.1120; 1.0880]       3.9
+## 
+## Number of studies combined: k = 18
+## 
+##                        SMD            95%-CI    z  p-value
+## Fixed effect model  0.4805 [ 0.3840; 0.5771] 9.75 &lt; 0.0001
+## Prediction interval        [-0.0344; 1.1826]              
+## 
+## Quantifying heterogeneity:
+## tau^2 = 0.0752; H = 1.64 [1.27; 2.11]; I^2 = 62.6% [37.9%; 77.5%]
+## 
+## Test of heterogeneity:
+##      Q d.f. p-value
+##  45.50   17  0.0002
+## 
+## Details on meta-analytical method:
+## - Inverse variance method
+```
+
+---
+## Too much output!
+
+
+```r
+sink("Fixed_results.txt")
+print(Fixed)
+sink()
+```
+
+
+---
+## Output.
+
+In the results of our Meta-Analysis, we find:
+
+* The **individual effect sizes** for each study, and their weight
+* The total **number of included studies** (k)
+* The **overall effect** (in our case, *g* = 0.4805) and its 95% confidence interval and p-value
+* Measures of **between-study heterogeneity**, such as *\tau^2^* or *$I^2$* and a *Q*-test of heterogeneity. --&gt; We'll return to these later.
+
+---
+## Random effect meta-analysis via meta::metagen
+
+Similar code to what we had for fixed effects but we have to specify our estimators for `\(\tau^2\)`
+
+---
+## Estimators of `\(\tau^2\)`
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Code &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Estimator &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; DL &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; DerSimonian-Laird &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; PM &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Paule-Mandel &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; REML &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Restricted Maximum-Likelihood &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ML &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Maximum-likelihood &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; HS &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Hunter-Schmidt &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; SJ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Sidik-Jonkman &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; HE &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Hedges &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; EB &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Empirical Bayes &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+---
+## Which estimator of `\(\large\tau^2\)` to use?
+
+
+All of these estimators derive `\(\tau^{2}\)` using a slightly different approach (different pooled effect size and CI) 
+
+More or less bias often depends on the context, and parameters (number of studies `\(k\)`, the number of participants `\(n\)`, how much `\(n\)` varies from study to study, and how large `\(\tau^{2}\)` is).
+
+An overview paper by [Veroniki and colleagues](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4950030/) reviews all measures.
+
+Especially in medical and psychological research, most common **DerSimonian-Laird estimator** . In part due to *RevMan* or *Comprehensive Meta-Analysis* (older versions) which only relied this estimator. It is also the default option in our `meta` package in R. 
+
+Simulation studies show **(Restricted) Maximum-Likelihood**, **Sidik-Jonkman** (with Hartung Knapp adjustment), and **Empirical Bayes** estimators have better properties in estimating the between-study variance (Viechtbauer, 2005; Schwarzer et al., 2015; Veroniki et al., 2016).
+
+---
+## The Hartung-Knapp-Sidik-Jonkman (HKSJ) method
+  
+The **DerSimonian-Laird** method is that when estimating the variance of our pooled effect `\(var(\hat\theta_F)\)`, this method is very prone to producing false positives ([Inthout et al., 2014](https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/1471-2288-14-25)). 
+
+Especially when the **number of studies** is small, and when there is substantial **heterogeneity** (e.g., Makambi, 2004). 
+
+--&gt; Quite common in behavioral sciences.
+
+The **Hartung-Knapp-Sidik-Jonkman (HKSJ) method** produces more robust estimates of the variance of the random effects estimator.
+
+The HKSJ usually leads to more **conservative** results, indicated by wider confidence intervals.
+
+---
+##  Issues with the Hartung-Knapp-Sidik-Jonkman method
+
+HKSJ method is not uncontroversial. Albeit rarely, when effect sizes are homogeneous (i.e. a 'fixed effect situation') HKSJ can be anti-conservative (Wiksten et al., 2016).
+
+Some authors argue that other (standard) pooling models should also be used **in addition** to the HKSJ as a **sensitivity analysis** ([Wiksten et al., 2016](http://sci-hub.tw/https://onlinelibrary.wiley.com/doi/full/10.1002/sim.6879)). 
+
+Jackson and colleagues (2016) present 4 residual concerns with HKSJ method for your to consider (see [here](https://onlinelibrary.wiley.com/doi/pdf/10.1002/sim.7411))
+
+An alternative is REML (Viechtbauer, 2015; but some prefer Paule-Mandel, Empirical Bayes or HKSJ, see Schwarzer et al., 2015)
+
+---
+## Example of DerSimonian Laird (DL, default).
+
+
+```r
+Random_dl&lt;-metagen(TE,
+        seTE,
+        data=madata,
+        studlab=paste(Author),
+        comb.fixed = FALSE,
+        comb.random = TRUE,
+        hakn = FALSE,
+        sm="SMD")
+Random_dl
+```
+
+```
+##                           SMD            95%-CI %W(random)
+## Call et al.            0.7091 [ 0.1979; 1.2203]        5.0
+## Cavanagh et al.        0.3549 [-0.0300; 0.7397]        6.3
+## DanitzOrsillo          1.7912 [ 1.1139; 2.4685]        3.7
+## de Vibe et al.         0.1825 [-0.0484; 0.4133]        8.0
+## Frazier et al.         0.4219 [ 0.1380; 0.7057]        7.4
+## Frogeli et al.         0.6300 [ 0.2458; 1.0142]        6.3
+## Gallego et al.         0.7249 [ 0.2846; 1.1652]        5.7
+## Hazlett-Stevens &amp; Oren 0.5287 [ 0.1162; 0.9412]        6.0
+## Hintz et al.           0.2840 [-0.0453; 0.6133]        6.9
+## Kang et al.            1.2751 [ 0.6142; 1.9360]        3.8
+## Kuhlmann et al.        0.1036 [-0.2781; 0.4853]        6.3
+## Lever Taylor et al.    0.3884 [-0.0639; 0.8407]        5.6
+## Phang et al.           0.5407 [ 0.0619; 1.0196]        5.3
+## Rasanen et al.         0.4262 [-0.0794; 0.9317]        5.1
+## Ratanasiripong         0.5154 [-0.1731; 1.2039]        3.6
+## Shapiro et al.         1.4797 [ 0.8618; 2.0977]        4.1
+## SongLindquist          0.6126 [ 0.1683; 1.0569]        5.7
+## Warnecke et al.        0.6000 [ 0.1120; 1.0880]        5.2
+## 
+## Number of studies combined: k = 18
+## 
+##                         SMD           95%-CI    z  p-value
+## Random effects model 0.5741 [0.4082; 0.7399] 6.78 &lt; 0.0001
+## 
+## Quantifying heterogeneity:
+## tau^2 = 0.0752; H = 1.64 [1.27; 2.11]; I^2 = 62.6% [37.9%; 77.5%]
+## 
+## Test of heterogeneity:
+##      Q d.f. p-value
+##  45.50   17  0.0002
+## 
+## Details on meta-analytical method:
+## - Inverse variance method
+## - DerSimonian-Laird estimator for tau^2
+```
+
+---
+## Sink (output)
+
+
+```r
+sink("Random_dl_results.txt")
+print(Random_dl)
+sink()
+```
+
+---
+## Example of Hartung-Knapp-Sidik-Jonkman method
+
+
+```r
+model_hksj&lt;-metagen(TE,
+        seTE,
+        data=madata,
+        studlab=paste(Author),
+        comb.fixed = FALSE,
+        comb.random = TRUE,
+        method.tau = "SJ",
+        hakn = TRUE,
+        prediction=TRUE,
+        sm="SMD")
+model_hksj
+```
+
+```
+##                           SMD            95%-CI %W(random)
+## Call et al.            0.7091 [ 0.1979; 1.2203]        5.2
+## Cavanagh et al.        0.3549 [-0.0300; 0.7397]        6.1
+## DanitzOrsillo          1.7912 [ 1.1139; 2.4685]        4.2
+## de Vibe et al.         0.1825 [-0.0484; 0.4133]        7.1
+## Frazier et al.         0.4219 [ 0.1380; 0.7057]        6.8
+## Frogeli et al.         0.6300 [ 0.2458; 1.0142]        6.1
+## Gallego et al.         0.7249 [ 0.2846; 1.1652]        5.7
+## Hazlett-Stevens &amp; Oren 0.5287 [ 0.1162; 0.9412]        5.9
+## Hintz et al.           0.2840 [-0.0453; 0.6133]        6.5
+## Kang et al.            1.2751 [ 0.6142; 1.9360]        4.3
+## Kuhlmann et al.        0.1036 [-0.2781; 0.4853]        6.1
+## Lever Taylor et al.    0.3884 [-0.0639; 0.8407]        5.6
+## Phang et al.           0.5407 [ 0.0619; 1.0196]        5.4
+## Rasanen et al.         0.4262 [-0.0794; 0.9317]        5.3
+## Ratanasiripong         0.5154 [-0.1731; 1.2039]        4.1
+## Shapiro et al.         1.4797 [ 0.8618; 2.0977]        4.5
+## SongLindquist          0.6126 [ 0.1683; 1.0569]        5.7
+## Warnecke et al.        0.6000 [ 0.1120; 1.0880]        5.4
+## 
+## Number of studies combined: k = 18
+## 
+##                         SMD            95%-CI    t  p-value
+## Random effects model 0.5935 [ 0.3891; 0.7979] 6.13 &lt; 0.0001
+## Prediction interval         [-0.2084; 1.3954]              
+## 
+## Quantifying heterogeneity:
+## tau^2 = 0.1337; H = 1.64 [1.27; 2.11]; I^2 = 62.6% [37.9%; 77.5%]
+## 
+## Test of heterogeneity:
+##      Q d.f. p-value
+##  45.50   17  0.0002
+## 
+## Details on meta-analytical method:
+## - Inverse variance method
+## - Sidik-Jonkman estimator for tau^2
+## - Hartung-Knapp adjustment for random effects model
+```
+
+
+---
+## Exercise.
+
+ADD EXERCISE.
+
+---
+## Forest plots.
+
+Forest plots commonly used to display and compare effect sizes across studies. Under the assumption of effect-size homogeneity, point estimates are expected to be similar and have overlapping confidence interval bands.
+
+Forest plot allows heterogeneity among effect sizes. 
+  * Simple forest plots show effect-size estimates with the confidence intervals on one axis and study indicators on the other axis.
+
+  * Slightly more sophisticated plots include information about the weights, as well as estimates of overall effect sizes.
+
+Forest plots: descriptive tools useful foe exploring effect-size heterogeneity. 
+
+Studies ordered using variables such as N, year of publication, or other study features.
+
+---
+## Forest plots II
+
+Fixed-effect estimates are shown as small vertical lines perpendicular to the centers of the horizontal lines (i.e., confidence intervals) for each study. These fixed-effects estimates are surrounded by grey boxes that are proportional to the study’s fixed-effect weight; larger boxes correspond to larger weights.
+
+Random-effects weights (labeled “W(random)”) are more similar across effect sizes than the fixed-effects weights (labeled “W(fixed)”). 
+
+At the bottom of the figure, both fixed-effect and random-effects means are plotted as diamonds, with the width of the diamond being proportional to amount of variability present in the estimate (i.e., larger diamondimplies more variability)
+
+---
+## Example forest plot
+
+
+```r
+forest(model_hksj)
+```
+
+![](Meta_analysis_3_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+---
+## Example forest plot.
+
+Look at the shiny-shiny. 
+
+A forest plot with a **diamond** (i.e. the overall effect and its confidence interval) and a **prediction interval**.
+
+What is a [prediction interval](https://bmjopen.bmj.com/content/6/7/e010247)? INSERT QUESTION in GoSoapbox.
+
+Plenty of **other parameters** within the `meta::forest` function which we can use to modify the forest plot.
+
+???
+95% prediction interval estimates where the true effects are to be expected for 95% of similar (exchangeable) studies that might be conducted in the future.
+
+---
+## Parameters
+
+For all settings, type `?meta::forest` in your **console** to see more (or look at manual).
+
+
+```r
+pdf(file='modified_forestplot.pdf',width=10,height=8) 
+forest(model_hksj,
+       sortvar=TE,
+       xlim = c(-0.5,2.5),
+       rightlabs = c("g","95% CI","weight"),
+       leftlabs = c("Author", "N","Mean","SD","N","Mean","SD"),
+       lab.e = "Intervention",
+       pooled.totals = FALSE,
+       smlab = "",
+       text.random = "Overall effect",
+       print.tau2 = FALSE,
+       col.diamond = "blue",
+       col.diamond.lines = "black",
+       col.predict = "black",
+       print.I2.ci = TRUE,
+       digits.sd = 2
+)
+dev.off
+```
+---
+## Modified forest plot
+
+
+---
+## Layout types 
+
+The `meta::forest` function also has two **Layouts** preinstalled which we can use. Those layouts can be accessed with the `layout=` parameter.
+
+* **"RevMan5"**. Used for Cochrane reviews and generated by *Review Manager 5* .
+* **"JAMA"**. According to the guidelines of the *Journal of the American Medical Association* as output (see details [here](https://jamanetwork.com/journals/jama/pages/instructions-for-authors)).
+
+---
+## Revman
+
+
+```r
+pdf(file='Revman_forestplot.pdf', width=10,height=8) 
+forest(model_hksj,
+      layout='RevMan5'
+)
+dev.off
+```
+
+
+---
+## JAMA
+
+
+```r
+pdf(file='JAMA_forestplot.pdf', width=10,height=8) 
+forest(model_hksj,
+      layout='JAMA'
+)
+dev.off
+```
+
+---
+## Saving your forest plot in different formats.
+
+Don't forget dev.off (we are telling R where to print)
+
+More on improving your .svg [here](https://www.smoothterminal.com/articles/svg-output-from-r). Some options for .png below... .
+
+
+
+```r
+# Scaleable vector graphics
+svg(file='forestplot.svg')
+
+# Image (.Png)
+png(file='forestplot.png',width = 480, height = 480, units = "px", pointsize = 12,
+     bg = "white",  res = NA, …,
+    type = c("cairo", "cairo-png", "Xlib", "quartz"), antialias) 
+```
+
+---
+## Heterogeneity vs. homogeneity.
+
+* In a homogeneous distribution, the dispersion of the effect sizes around their mean will not be greater than expected from sampling error alone (Lipsey &amp; Wilson, 2001) (Fixed-effects model).
+
+* If a collection of effect-sizes is determined to possess dispersion beyond what is expected from sampling error, the effect-size distribution is regarded as heterogeneous. This case typically calls for the use of a REM which accounts for effect-size heterogeneity.
+
+--&gt; in the old days one would first calculate this and then decide between fixed-effects and random-effects,... . However, consensus seems to be that one should **decide based on theory** before looking at heterogeneity statistics.
+
+---
+## Heterogeneity.
+
+Shown you how to pool effect sizes in a meta-analysis. 
+
+In meta-analytic pooling: **synthesize the effects of many different studies into one single effect**. However, this makes only sense, if we don't have **Apples and Oranges**. 
+
+Example, overall effect in our meta-analysis is **small**, but a few studies which report **very high** effect sizes. Such information is lost when we synthesize to one aggregate effect. It is very important to know if ***all*** studies yield small effect sizes, or if there are exceptions.
+
+Another example, very **extreme effect sizes** were included in the meta-analysis, so-called **outliers**. Such outliers might have even distorted our overall effect, and it is important to know how our overall effect would have looked without them.
+
+The extent to which effect sizes vary within a meta-analysis is called **heterogeneity** (forest plot). 
+
+High heterogeneity could also be caused by two or more **subgroups** each with a different true effect.
+
+From a statistical standpoint, high heterogeneity is also **problematic**. Very high heterogeneity could mean that the studies have nothing in common, and that there is no **"real" true effect behind our data** (no sense to report the pooled effect at al).
+
+
+---
+## Understanding heterogeneity I
+
+[Rücker and colleagues (2008)](https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/1471-2288-8-79): 3 types of heterogeneity in meta-analyses in a clinical context:
+
+1.  **Clinical baseline heterogeneity**. These are differences between sample characteristics between the studies. For example, Study A included a general population sample, Study B has recruited study participants who were students.
+2.  **Statistical heterogeneity**. Statistical heterogeneity we find in our collected effect size data. Such heterogeneity migh be either important from a clinical standpoint (e.g., we don't know if a treatment is very or only marginally effective because the effects vary much from study to study), or from statistical standpoint (because it dilutes the confidence we have in our pooled effect)
+3.  **Other sources of heterogeneity**, such as design-related heterogeneity (e.g., RCT vs. observational).
+
+- 1. and 3.: Solution: Restricting the scope of our search for studies to certain well-defined intervention types, populations, and outcomes. (subgroup/meta-regression)
+
+- 2. --&gt; has to be assessed once we conducted the pooling of studies. This is what we focus on here. 
+
+
+---
+## Understanding heterogeneity II: 3 key measures.
+
+1. `\(\tau^2\)` already covered (remember different ways to estimate, e.g., DerSimonian-Laird).
+
+2. Cochran's *Q*-statistic is the **difference between the observed effect sizes and the fixed-effect model estimate** of the effect size, which is then **squared, weighted and summed**. 
+
+  `$$Q = \sum\limits_{k=1}^K w_k (\hat\theta_k  - \frac{\sum\limits_{k=1}^K w_k \hat\theta_k}{\sum\limits_{k=1}^K w_k})^{2}$$`
+
+3. `\(I^{2}\)` [Higgins and Thompson (2002)](https://sci-hub.tw/https://onlinelibrary.wiley.com/doi/abs/10.1002/sim.1186) is the **percentage of variability** in the effect sizes which is not caused by sampling error. It is derived from `\(Q\)`:
+`$$I^{2} = max \left\{0, \frac{Q-(K-1)}{Q}  \right\}$$`
+
+---
+## Cochran's Q.
+
+A statistically significant _p_-value suggests that the true effects vary but the converse is not true!
+
+A non-significant p-value cannot be taken as evidence that the effect sizes are consistent. It is well-known that the Q test has low statistical power.
+
+With a small number of studies and/or large within-study variance (small studies), even substantial between-studies dispersion might yield a nonsignificant p-value (Borenstein et al., 2009: 115).
+
+The usual `\(\alpha\)` level for Cochran's Q is 10%.
+
+--&gt; The decision between the Fixed and the Random model should not be based on Q alone!
+
+---
+## What's wrong with `\(\large\tau^2\)` and Q?
+
+* `\(\tau^2\)` is not scale invariant (depends on the particular ES), it cannot be compared across meta-analyses.
+* Q has low statistical power.
+
+According to Higgins and Thompson (2002), an improved measure should fulfill the following conditions:
+- Dependence on the extent of heterogeneity
+- Scale invariance
+- Size invariance
+
+---
+## `\(\large{H^2}\)` statistic
+
+`$$H^2=\frac{Q}{K-1}$$` 
+
+It can be seen as a standardised `\(Q\)` statistic.
+
+---
+## `\(\large{I^2}\)` Statistic I
+
+`$$I^{2} = max \left\{0, \frac{Q-(K-1)}{Q}  \right\}$$`
+
+The `\(I^2\)` statistic can be interpreted as the proportion of total variation in the estimates of treatment effect that is due to heterogeneity between studies. It is similar in concept to the intraclass correlation coefficient (ICC) in cluster sampling.
+
+---
+## `\(\large\{I^2}\)` Statistic II
+
+A **"rule of thumb"** [(Higgins et al., 2003)](https://sci-hub.tw/https://www.bmj.com/content/327/7414/557.short) :
+  - `\(I^2\)` = 25%: **low heterogeneity**
+  - `\(I^2\)` = 50%: **moderate heterogeneity**
+  - `\(I^2\)`  = 75%: **substantial heterogeneity**
+
+&lt;img src="https://giphy.com/gifs/thumbs-up-down-tbh-9REDYwIQktQCA" width="500px" style="display: block; margin: auto;" /&gt;
+
+---
+## `\(\large\{I^2}\)` Statistic III
+
+`\(I^2\)` is **not an absolute** measure of heterogeneity.
+
+Borenstein et al. (2017:11) : _"In fact, `\(I^2\)` does not tell us how much the effect size varies. [...] it tells us what proportion of the observed variance would remain if we could eliminate the sampling error – if we could somehow observe the true effect size for all studies in the analysis. `\(I^2\)` can be used together with the observed effects to give us a sense of the true effects."_
+
+
+---
+## What to report? 
+
+Generally, when we assess and report heterogeneity in a meta-analysis, we need a measure which is **robust, and not to easily influenced by statistical power**.
+
+* ** `\(\tau^2\)`** is **insensitive** to the number of studies, **and** the precision. Yet, it is often hard to interpret how relevant our `\(\tau^2\)` is from a practical standpoint. Cannot be (easily) compared across studies (as dependent on effect size,... .)
+
+* **Cochran's *Q* ** increases both when the **number of studies** ( `\(k\)` ) increases, and when the **precision** (i.e., the sample size `\(N\)` of a study) increases. Therefore, `\(Q\)` and whether it is **significant** highly depends on the size of your meta-analysis, and thus its statistical power. Therefore, do not only rely on `\(Q\)` when assessing heterogeneity. (Also note it has low statistical power)
+
+* ** `\(I^2\)` ** on the other hand, is not sensitive to changes in the number of studies in the analyses. `\(I^2\)` is therefore used extensively in medical and psychological research. 
+
+However, `\(I^2\)` not always adequate, because it still heavily depends on the **precision** of the included studies (Rücker et al.,2008). As said before, `\(I^{2}\)` is simply the amount of variability **not caused by sampling error**. If our studies become increasingly large, this sampling error tends to **zero**, while at the same time, `\(I^{2}\)` tends to 100% simply because the single studies have greater `\(N\)`. Only relying on `\(I^2\)` is therefore not a good option either.
+
+
+---
+## Prediction intervals.
+
+**Prediction intervals** are a good way to overcome this limitation ([IntHout et al., 2016](http://dx.doi.org/10.1136/bmjopen-2015-010247)), as they take our between-study variance into account. Prediction intervals give us a range for which we can **expect the effect of a future study to fall** based on **our present evidence in the meta-analysis**. If our prediction interval, for example, lies completely on the positive side favoring the intervention, we can be quite confident to say that **despite varying effects, the intervention might be at least in some way beneficial in all contexts we studied in the future**. If the interval includes **zero**, then we are less sure about this, but **broad prediction intervals are quite common, especially in medicine and psychology**. 
+
+---
+## Technical issues... .
+
+- Extreme N studies
+
+- Negative residual variance
+
+- Effect size independence
+
+&lt;img src="https://media.giphy.com/media/l0Hlxr9SGCcw4wHS0/giphy.gif" width="500px" style="display: block; margin: auto;" /&gt;
+
+---
+## Extreme N studies. 
+
+* Sometimes, a singular study is dramatically larger than other studies in your meta-analysis.
+
+* This could lead to the large Nstudy completely dominating the results of the meta-analysis
+
+* Two approaches:
+  – Examine results with and without the study
+  – Weigh the large N study by the median sample size of the other studies, rather than its own sample size
+
+---
+## Negative Residual variance.
+
+* Sometimes, you might get an estimate for residual variance that is less than 0.
+  
+  – How is this possible?
+
+* The value you computed for `\(\sigma^2\)` is but an estimate. Sometimes, a set of studies will randomly have less sampling error than expected.
+  
+  - This is most likely when you have a small number of small-N studies
+
+* If this happens, try to manually set the residual variance to 0.
+
+---
+## Effect size independence.
+
+* Meta-analysis requires that each effect size comes from a different, independent sample.
+
+* Often, studies report multiple effect sizes for the same construct relationships
+  – e.g., imagine a meta-analysis on number of errors made in math exams, some studies will have coding both the amount of errors and the severity of errors.
+
+* Including both will bias meta-analytic means, variances, and standard errors.
+
+---
+## Dealing with multiple effect sizes...
+
+From best to worst (Wiernik, 2015:75).
+
+1. Compute composite correlation from study intercorrelation matrix
+    - Bonus: compute composite reliability ( `\(\alpha\)` from intercorrelation matrix or [Mosier reliability](https://cran.r-project.org/web/packages/psychmeta/vignettes/overview.html), Schmidt &amp; Hunter, 2014:446)
+2. Compute composite correlation using intercorrelation matrix from another source
+3. Choose the one best measure
+    - Only if substantially better (e.g., the one with the better reliability or based on theory (e.g., implicit vs. explicit measures)), Not 
+    based on effect size! Be consistent with coding across studies.
+4. Average correlation.
+
+---
+## Example
+
+UPDATE.
+
+
+```r
+require(psychmeta)
+composite_r_matrix(r_mat = reshape_vec2mat(.3, order = 5), x_col = 1:3, y_col = 4:5)
+```
+
+```
+## [1] 0.5095247
+```
+
+
+---
+## Any Questions?
+
+[http://tvpollet.github.io](http://tvpollet.github.io)
+
+Twitter: @tvpollet
+
+&lt;img src="https://media.giphy.com/media/3ohzdRoOp1FUYbtGDu/giphy.gif" width="600px" style="display: block; margin: auto;" /&gt;
+
+---
+## Acknowledgments
+
+* Numerous students and colleagues. Any mistakes are my own.
+
+* My colleagues who helped me with regards to meta-analysis Nexhmedin Morina, Stijn Peperkoorn, Gert Stulp, Mirre Simons, Johannes Honekopp.
+
+* HBES for funding this Those who have funded me (not these studies per se): [NWO](www.nwo.nl), [Templeton](www.templeton.org), [NIAS](http://nias.knaw.nl).
+
+* You for listening!
+
+&lt;img src="https://media.giphy.com/media/10avZ0rqdGFyfu/giphy.gif" width="300px" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+## References and further reading
+
+&lt;p&gt;&lt;cite&gt;Aloe, A. M. and C. G. Thompson
+(2013).
+&amp;ldquo;The Synthesis of Partial Effect Sizes&amp;rdquo;.
+In: &lt;em&gt;Journal of the Society for Social Work and Research&lt;/em&gt; 4.4, pp. 390-405.
+DOI: &lt;a href="https://doi.org/10.5243/jsswr.2013.24"&gt;10.5243/jsswr.2013.24&lt;/a&gt;.
+eprint: https://doi.org/10.5243/jsswr.2013.24.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Barendregt, J. J., S. A. Doi, Y. Y. Lee, et al.
+(2013).
+&amp;ldquo;Meta-Analysis of Prevalence&amp;rdquo;.
+In: &lt;em&gt;Journal of Epidemiology and Community Health&lt;/em&gt; 67.11, pp. 974-978.
+ISSN: 0143-005X.
+DOI: &lt;a href="https://doi.org/10.1136/jech-2013-203104"&gt;10.1136/jech-2013-203104&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Becker, B. J. and M. Wu
+(2007).
+&amp;ldquo;The Synthesis of Regression Slopes in Meta-Analysis&amp;rdquo;.
+In: &lt;em&gt;Statistical science&lt;/em&gt; 22.3, pp. 414-429.
+ISSN: 0883-4237.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Borenstein, M., L. V. Hedges, J. P. Higgins, et al.
+(2009).
+&lt;em&gt;Introduction to Meta-Analysis&lt;/em&gt;.
+John Wiley &amp;amp; Sons.
+ISBN: 1-119-96437-7.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Chen, D. D. and K. E. Peace
+(2013).
+&lt;em&gt;Applied Meta-Analysis with R&lt;/em&gt;.
+Chapman and Hall/CRC.
+ISBN: 1-4665-0600-8.&lt;/cite&gt;&lt;/p&gt;
+---
+## More refs.
+
+&lt;p&gt;&lt;cite&gt;Cooper, H.
+(2010).
+&lt;em&gt;Research Synthesis and Meta-Analysis: A Step-by-Step Approach&lt;/em&gt;.
+4th.
+Sage publications.
+ISBN: 1-4833-4704-4.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cooper, H., L. V. Hedges, and J. C. Valentine
+(2009).
+&lt;em&gt;The Handbook of Research Synthesis and Meta-Analysis&lt;/em&gt;.
+New York: Russell Sage Foundation.
+ISBN: 1-61044-138-9.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cooper, H. and E. A. Patall
+(2009).
+&amp;ldquo;The Relative Benefits of Meta-Analysis Conducted with Individual Participant Data versus Aggregated Data.&amp;rdquo;
+In: &lt;em&gt;Psychological Methods&lt;/em&gt; 14.2, pp. 165-176.
+ISSN: 1433806886.
+DOI: &lt;a href="https://doi.org/10.1037/a0015565"&gt;10.1037/a0015565&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Crawley, M. J.
+(2013).
+&lt;em&gt;The R Book: Second Edition&lt;/em&gt;.
+New York, NY: John Wiley &amp;amp; Sons.
+ISBN: 1-118-44896-0.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Cumming, G.
+(2014).
+&amp;ldquo;The New Statistics&amp;rdquo;.
+In: &lt;em&gt;Psychological Science&lt;/em&gt; 25.1, pp. 7-29.
+ISSN: 0956-7976.
+DOI: &lt;a href="https://doi.org/10.1177/0956797613504966"&gt;10.1177/0956797613504966&lt;/a&gt;.&lt;/cite&gt;&lt;/p&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
